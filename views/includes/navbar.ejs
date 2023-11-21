@@ -1,0 +1,83 @@
+<style>
+  nav {
+    height: 3.3rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 5%;
+    background-color: #1876f2;
+  }
+  .nav-left {
+    width: 25rem;
+    display: flex;
+    align-items: center;
+  }
+  .logo {
+    justify-self: flex-end;
+    margin-right: 5rem;
+    color: white;
+  }
+  .nav-icons {
+    margin-right: 2rem;
+    color: white;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+  }
+  .searchBar {
+    border-radius: 1.5rem;
+    font-size: large;
+    padding: 0.1rem 0.6rem;
+    box-shadow: 0 0 10px#ffffff;
+    border: 1.3px solid black;
+  }
+
+  .input-container {
+    position: relative;
+  }
+
+  .input-container i {
+    position: absolute;
+    left: 10px; /* Adjust the left position as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555; /* Adjust the icon color as needed */
+    opacity: 0.6;
+  }
+  .input-container input {
+    padding-left: 33px; /* Adjust the padding to create space for the icon */
+  }
+  .profile-logo img {
+    width: 2.4rem;
+    border-radius: 100%;
+    margin-left: 2rem;
+  }
+
+  @media (max-width: 686px) {
+    .nav-icons {
+      display: none;
+    }
+  }
+</style>
+<nav>
+  <div class="nav-left">
+    <div class="logo"><i class="fa-solid fa-globe"></i> SocialBook</div>
+    <div><i class="fa-regular fa-bell nav-icons"></i></div>
+    <div><i class="fa-solid fa-envelope nav-icons"></i></div>
+    <div><i class="fa-solid fa-video nav-icons"></i></div>
+  </div>
+
+  <div class="nav-right">
+    <div class="input-container">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" class="searchBar form-control" placeholder="Search" />
+    </div>
+    <div class="profile-logo">
+      <img
+        src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
+        alt="Profile image"
+      />
+    </div>
+  </div>
+</nav>
