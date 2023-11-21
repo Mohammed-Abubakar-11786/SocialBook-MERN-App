@@ -1,2 +1,71 @@
 <% layout("/layouts/boilerplate") -%>
-<body></body>
+<style>
+  .homePage {
+    display: flex;
+    padding: 0 1rem 0.5rem 1rem;
+  }
+  .left-section {
+    width: 30%;
+    background-color: white;
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 1rem;
+    margin-right: 0.5rem;
+    position: sticky;
+  }
+  .left-section-top {
+    height: 50%;
+  }
+  .middle-section {
+    width: 40%;
+    height: 100vh;
+    border: 1px solid black;
+    border-radius: 1rem;
+    border-bottom: 0px;
+    margin-right: 0.5rem;
+  }
+  .story-section {
+    height: 25%;
+  }
+  .new-post {
+    height: 25%;
+  }
+  .right-section {
+    border: 1px solid black;
+    width: 30%;
+    border-radius: 1rem;
+  }
+  .right-section-top {
+    height: 50%;
+  }
+</style>
+<body>
+  <div class="homePage">
+    <div class="left-section sticky">
+      <div class="left-section-top">
+        <%- include("includes/left-section-top.ejs") %>
+      </div>
+      <hr />
+      <div class="left-section-bottom">
+        <%- include("includes/left-section-bottom.ejs") %>
+      </div>
+    </div>
+    <div class="middle-section overflow-y-scroll">
+      <div class="story-section">
+        <%- include("includes/story-section.ejs") %>
+      </div>
+      <hr />
+      <div class="new-post"><%- include("includes/new-post.ejs") %></div>
+      <hr />
+      <div class="view-post"><%- include("includes/view-post.ejs") %></div>
+    </div>
+    <div class="right-section">
+      <div class="right-section-top">
+        <%-include("includes/right-section-top.ejs") %>
+      </div>
+      <hr />
+      <div class="right-section-bottom">
+        <%-include("includes/right-section-bottom.ejs") %>
+      </div>
+    </div>
+  </div>
+</body>
