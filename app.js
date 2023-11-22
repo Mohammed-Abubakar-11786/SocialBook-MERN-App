@@ -14,7 +14,7 @@ app.listen(3030, () => {
   console.log("listing to port 3030");
 });
 
-/* const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite";
+const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite";
 
 main()
   .then(() => {
@@ -26,7 +26,7 @@ main()
 
 async function main() {
   await mongoose.connect(MongoUrl);
-} */
+}
 
 app.get("/", (req, res) => {
   res.render("index.ejs");
