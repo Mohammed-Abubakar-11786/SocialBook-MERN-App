@@ -5,23 +5,26 @@
     padding: 0 1rem 0.5rem 1rem;
   }
   .left-section {
-    width: 30%;
+    flex-basis: 25%;
     background-color: white;
     border: 1px solid rgb(0, 0, 0);
     border-radius: 1rem;
     margin-right: 0.5rem;
     position: sticky;
+    top: 70px;
+    height: 100svh;
   }
   .left-section-top {
     height: 50%;
   }
   .middle-section {
-    width: 40%;
+    flex-basis: 47%;
     height: 100vh;
     border: 1px solid black;
     border-radius: 1rem;
     border-bottom: 0px;
-    margin-right: 0.5rem;
+    overflow-y: auto;
+    height: 100svh;
   }
   .story-section {
     height: 25%;
@@ -30,9 +33,13 @@
     height: 25%;
   }
   .right-section {
-    border: 1px solid black;
-    width: 30%;
+    flex-basis: 25%;
+    background-color: white;
+    border: 1px solid rgb(0, 0, 0);
     border-radius: 1rem;
+    position: sticky;
+    top: 70px;
+    margin-left: 0.5rem;
   }
   .right-section-top {
     height: 50%;
@@ -49,7 +56,7 @@
         <%- include("includes/left-section-bottom.ejs") %>
       </div>
     </div>
-    <div class="middle-section overflow-y-scroll">
+    <div class="middle-section">
       <div class="story-section">
         <%- include("includes/story-section.ejs") %>
       </div>
