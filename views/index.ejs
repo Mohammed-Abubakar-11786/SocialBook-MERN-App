@@ -19,7 +19,7 @@
     height: 50%;
   }
   .middle-section {
-    flex-basis: 47%;
+    width: 47%;
     height: 100vh;
     border: 1px solid black;
     border-radius: 1rem;
@@ -27,9 +27,11 @@
     overflow-y: auto;
     height: 100svh;
   }
-  .story-section {
-    height: 25%;
+
+  .middle-section ::-webkit-scrollbar {
+    display: none;
   }
+
   .new-post {
     height: 25%;
   }
@@ -61,7 +63,6 @@
       <div class="story-section">
         <%- include("includes/story-section.ejs") %>
       </div>
-      <hr />
       <div class="new-post"><%- include("includes/new-post.ejs") %></div>
       <hr />
       <div class="view-post"><%- include("includes/view-post.ejs") %></div>
