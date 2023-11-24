@@ -1,2 +1,121 @@
-<style></style>
-<div></div>
+<style>
+  .view {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 0.4rem 0.4rem 0.4rem 0.4rem;
+  }
+  .userInfo {
+    width: 100%;
+    display: flex;
+    font-size: small;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .userInfo img {
+    width: 7.5%;
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.6rem;
+    position: relative;
+    bottom: 0.2rem;
+  }
+  .userInfo i {
+    position: relative;
+    left: 25rem;
+    align-self: center;
+    font-size: medium;
+  }
+
+  .info h6 {
+    margin-bottom: 1px;
+  }
+
+  .info p {
+    opacity: 0.7;
+    margin-bottom: 0;
+  }
+  .postDesc {
+    padding-left: 0.5rem;
+  }
+
+  .postDesc p {
+    margin-top: 5px;
+    opacity: 0.7;
+    margin-bottom: 14px;
+  }
+
+  .postImg img {
+    width: 99%;
+    border-radius: 1rem;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    margin-left: 2.5px;
+  }
+  .icons {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .icons i {
+    margin-top: 0.5rem;
+    opacity: 0.7;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  .container {
+    width: fit-content;
+    display: flex;
+    align-items: baseline;
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+</style>
+<div class="view">
+  <div class="userInfo">
+    <img
+      src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
+      alt=""
+    />
+    <div class="info">
+      <h6>UserName</h6>
+      <p>June 24 2023, 12:30pm</p>
+    </div>
+    <i class="fa-solid fa-ellipsis-vertical"></i>
+  </div>
+  <div class="postDesc">
+    <p>
+      Subscribe @Easy Tutorials development YouTube channel to watch more videos
+      on website and UI designs. #EasyTutorials #YouTubeChannel
+    </p>
+  </div>
+  <div class="postImg">
+    <img
+      src="https://images.ctfassets.net/pdf29us7flmy/4dRKN4OCnUTH8NFn0hfbd6/0e2a8ed7351b0f34e0ae72a2e39e15cf/GettyImages-764798619_optimized__1_.jpg"
+      alt=""
+    />
+  </div>
+  <div class="icons">
+    <div class="container">
+      <i class="fa-solid fa-thumbs-up like-icon" onclick="increaseCount()"></i>
+      <span id="likeCount">0</span>
+    </div>
+    <div class="container">
+      <i class="fa-solid fa-comments" onclick="increaseCount()"></i
+      ><span id="commentCount">0</span>
+    </div>
+    <div class="container">
+      <i class="fa-solid fa-share" onclick="increaseCount()"></i
+      ><span id="shareCount">0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let Count = 0;
+
+  function increaseCount() {
+    Count++;
+    document.getElementById("likeCount").innerText = Count;
+  }
+</script>

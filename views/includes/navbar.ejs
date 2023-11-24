@@ -29,7 +29,6 @@
     border-radius: 1.5rem;
     font-size: large;
     padding: 0.1rem 0.6rem;
-    box-shadow: 0 0 10px#ffffff;
     border: 1.3px solid black;
   }
 
@@ -59,11 +58,30 @@
       display: none;
     }
   }
+
+  .searchBar:hover {
+    box-shadow: 0 0 10px #ffffff;
+  }
+  .profile-logo img:hover {
+    cursor: pointer;
+    box-shadow: 0 0 10px #ffffff;
+  }
+
+  .nav-icons:hover {
+    cursor: pointer;
+    scale: 1.2 !important;
+  }
+  .logo:hover {
+    cursor: pointer;
+    scale: 1.1 !important;
+  }
 </style>
 <nav class="sticky-top">
   <div class="nav-left">
-    <div class="logo"><i class="fa-solid fa-globe"></i> SocialBook</div>
-    <div><i class="fa-regular fa-bell nav-icons"></i></div>
+    <a href=""
+      ><div class="logo"><i class="fa-solid fa-globe"></i> SocialBook</div></a
+    >
+    <div><i class="fa-solid fa-bell nav-icons"></i></div>
     <div><i class="fa-solid fa-envelope nav-icons"></i></div>
     <div><i class="fa-solid fa-video nav-icons"></i></div>
   </div>

@@ -8,7 +8,6 @@
   .left-section {
     flex-basis: 25%;
     background-color: white;
-    border: 1px solid rgb(0, 0, 0);
     border-radius: 1rem;
     margin-right: 0.5rem;
     position: sticky;
@@ -20,16 +19,9 @@
   }
   .middle-section {
     width: 47%;
-    height: 100vh;
-    border: 1px solid black;
-    border-radius: 1rem;
     border-bottom: 0px;
     overflow-y: auto;
     height: 100svh;
-  }
-
-  .middle-section ::-webkit-scrollbar {
-    display: none;
   }
 
   .new-post {
@@ -38,7 +30,6 @@
   .right-section {
     flex-basis: 25%;
     background-color: white;
-    border: 1px solid rgb(0, 0, 0);
     border-radius: 1rem;
     position: sticky;
     top: 70px;
@@ -48,7 +39,7 @@
     height: 50%;
   }
 </style>
-<body>
+<body style="background-color: #dedede">
   <div class="homePage">
     <div class="left-section sticky">
       <div class="left-section-top">
@@ -63,9 +54,8 @@
       <div class="story-section">
         <%- include("includes/story-section.ejs") %>
       </div>
-      <div class="new-post"><%- include("includes/new-post.ejs") %></div>
-      <hr />
-      <div class="view-post"><%- include("includes/view-post.ejs") %></div>
+      <div class="new-post mt-2"><%- include("includes/new-post.ejs") %></div>
+      <div class="view-post mt-2"><%- include("includes/view-post.ejs") %></div>
     </div>
     <div class="right-section">
       <div class="right-section-top">
