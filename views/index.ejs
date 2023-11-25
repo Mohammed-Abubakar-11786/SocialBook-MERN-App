@@ -12,16 +12,16 @@
     margin-right: 0.5rem;
     position: sticky;
     top: 70px;
-    height: 100svh;
+    height: 100vh;
   }
   .left-section-top {
-    height: 50%;
+    height: fit-content;
   }
   .middle-section {
     width: 47%;
     border-bottom: 0px;
     overflow-y: auto;
-    height: 100svh;
+    height: 100vh;
   }
 
   .new-post {
@@ -38,6 +38,10 @@
   .right-section-top {
     height: 50%;
   }
+  hr {
+    margin: 0;
+    width: 80%;
+  }
 </style>
 <body style="background-color: #dedede">
   <div class="homePage">
@@ -45,7 +49,7 @@
       <div class="left-section-top">
         <%- include("includes/left-section-top.ejs") %>
       </div>
-      <hr />
+      <center><hr /></center>
       <div class="left-section-bottom">
         <%- include("includes/left-section-bottom.ejs") %>
       </div>
@@ -61,7 +65,7 @@
       <div class="right-section-top">
         <%-include("includes/right-section-top.ejs") %>
       </div>
-      <hr />
+
       <div class="right-section-bottom">
         <%-include("includes/right-section-bottom.ejs") %>
       </div>

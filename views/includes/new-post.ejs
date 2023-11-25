@@ -1,7 +1,102 @@
 <style>
   .new-post {
     background-color: white;
+    height: fit-content;
     border-radius: 1rem;
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
   }
+  .newUserInfo {
+    width: 100%;
+    display: flex;
+    font-size: small;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .newUserInfo img {
+    width: 7.5%;
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.6rem;
+    position: relative;
+    bottom: 0.2rem;
+  }
+  .newUserInfo img:hover {
+    cursor: pointer;
+  }
+  .newUserInfo i {
+    position: relative;
+    left: 28.5rem;
+    align-self: center;
+    font-size: medium;
+  }
+
+  .newInfo h6 {
+    margin-bottom: 1px;
+  }
+  .newInfo h6:hover {
+    cursor: pointer;
+  }
+
+  .newInfo p {
+    opacity: 0.7;
+    margin-bottom: 0;
+    font-size: small;
+  }
+  .postDetails textarea {
+    margin-top: 0.5rem;
+    margin-left: 1rem;
+    height: 4rem;
+    width: 90%;
+    border: none;
+    resize: none; /* Prevents the user from resizing the textarea */
+    outline: none; /* Removes the border highlight when the textarea is focused */
+  }
+  .newPostIcons {
+    margin-left: 2.2rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 0.1rem;
+  }
+  .newPostHr {
+    margin: 0;
+    width: 35rem;
+  }
+  .newPostIcon {
+    margin-right: 1.5rem;
+  }
+  .newPostIcon:hover {
+    cursor: pointer;
+  }
 </style>
+<div class="newUserInfo">
+  <img
+    src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
+    alt=""
+  />
+  <div class="newInfo">
+    <h6>UserName</h6>
+    <p>Public</p>
+  </div>
+  <i class="fa-solid fa-ellipsis-vertical"></i>
+</div>
+<div class="postDetails">
+  <center>
+    <textarea name="" placeholder="What's On Your Mind, userName?"></textarea>
+    <hr class="newPostHr" />
+  </center>
+  <div class="newPostIcons">
+    <div class="live newPostIcon">
+      <i class="fa-solid fa-video" style="color: red"></i>
+      <p style="display: inline">Live Vedio</p>
+    </div>
+    <div class="camara newPostIcon">
+      <i class="fa-solid fa-camera" style="color: green"></i>
+      <p style="display: inline">Photo/Video</p>
+    </div>
+    <div class="activity newPostIcon">
+      <i class="fa-regular fa-face-smile" style="color: rgb(153, 153, 26)"></i>
+      <p style="display: inline">Feling/Activity</p>
+    </div>
+  </div>
+</div>
