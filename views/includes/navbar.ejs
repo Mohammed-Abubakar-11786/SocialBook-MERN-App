@@ -90,6 +90,14 @@
   .innerSettings {
     padding: 0.7rem 0.5rem 0 0.5rem;
   }
+  .signup {
+    border-radius: 50%;
+    margin-left: 1.5rem;
+    background-color: #ffffff;
+    color: blue;
+    border: 2px solid blue;
+    box-shadow: 0 0 10px rgb(255, 255, 255);
+  }
 </style>
 <nav class="sticky-top">
   <div class="nav-left">
@@ -113,6 +121,9 @@
         onclick="openSetting()"
       />
     </div>
+    <button class="btn btn-success signup" onclick="openLoginForm()">
+      Login
+    </button>
   </div>
 
   <div id="settingsMenu">
@@ -210,6 +221,9 @@
 </nav>
 
 <script>
+  function openLoginForm() {
+    document.getElementById("loginOverlay").style.display = "flex";
+  }
   function openSetting() {
     let setting = document.getElementById("settingsMenu");
     if (setting.style.display === "none") {

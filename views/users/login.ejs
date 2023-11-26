@@ -1,0 +1,96 @@
+<style>
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .login-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1001; /* Place the form above the overlay */
+    height: fit-content;
+  }
+
+  /* Style your form elements as needed */
+  .login-form label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .login-form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+
+  .login-form button {
+    background-color: #fefefe;
+    color: rgb(0, 0, 0);
+    border: 1px solid black !important;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .login-form button:hover {
+    background-color: #1876f2;
+    color: white;
+  }
+  .closeBtn {
+    position: relative;
+    left: 14.2rem;
+    bottom: 2.75rem;
+  }
+</style>
+
+<!-- Your website content goes here -->
+
+<!-- Signup Form Overlay -->
+<div class="overlay" id="loginOverlay">
+  <div class="login-form">
+    <h2>LogIn</h2>
+    <!-- Include your actual signup form here -->
+    <form action="/">
+      <label for="username">Username:</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Username"
+        required
+      />
+
+      <label for="password">Password:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="password"
+        required
+      />
+
+      <button type="submit">Log In</button>
+    </form>
+    <button class="closeBtn" onclick="closeLoginForm()">Close</button>
+  </div>
+</div>
+
+<!-- Trigger Signup Form -->
+<!-- <button onclick="openSignupForm()">Open Signup Form</button> -->
+
+<!-- Your other website content goes here -->
+
+<script>
+  function closeLoginForm() {
+    document.getElementById("loginOverlay").style.display = "none";
+  }
+</script>
