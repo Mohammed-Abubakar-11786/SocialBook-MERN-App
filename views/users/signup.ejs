@@ -1,0 +1,68 @@
+<% layout("/layouts/boilerplate") -%>
+<style></style>
+<body>
+  <div class="row mt-4">
+    <div class="col-6 offset-3">
+      <h3 class="mb-3">Welcome User SignUp on 🌐SocialBook Here</h3>
+      <form
+        method="post"
+        action="/signup"
+        novalidate
+        class="needs-validation"
+        enctype="multipart/form-data"
+      >
+        <div class="mb-3">
+          <!-- //username -->
+          <label for="username" class="form-label">UserName</label>
+          <input
+            type="text"
+            class="form-control"
+            name="username"
+            placeholder="Enter Your Username"
+            required
+          />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">UserName required</div>
+        </div>
+
+        <!-- user photo -->
+        <div class="mb-3">
+          <label for="image" class="form-label">Upload Your Image</label>
+          <input type="file" class="form-control" name="userImage" required />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Profile Photo required</div>
+        </div>
+
+        <!-- //email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            placeholder="Enter Your Email"
+            required
+          />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Email required</div>
+        </div>
+
+        <!-- //password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            placeholder="Enter Your Password"
+            required
+          />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Password required</div>
+        </div>
+
+        <button class="btn btn-success mb-3">SignUp</button>
+      </form>
+    </div>
+  </div>
+</body>
