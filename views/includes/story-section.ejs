@@ -22,12 +22,12 @@
   }
 
   .post p {
-    position: relative;
-    left: 1rem;
-    top: 5rem;
     color: rgb(255, 255, 255);
     font-weight: 400;
+    position: relative;
+    top: 4rem;
     font-size: smaller;
+    text-align: center;
   }
   .CreatePost p {
     position: relative;
@@ -73,48 +73,21 @@
   }
 </style>
 <div class="CreatePost">
-  <i class="fa-solid fa-circle-plus"></i>
+  <a href="/newStory"><i class="fa-solid fa-circle-plus"></i></a>
   <p>Post Story</p>
 </div>
+<% for(story of allStories) {%>
 <div
   class="post"
   style="
     background-image: linear-gradient(transparent, rgb(0, 0, 0, 0.5)),
-      url(https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghexqrvYxkj2WyJRj_k6eFF_8u681wgnRG4SElVfiQjrAfSDjZBfQAAbbItxGwRT2PzQ4JexDx1YTL-3nwJUP6-4B3glDe3EZDFQqOcuLmDUWt70edubHrn2c1zHw_Qkb2esKGwGNNU1d3ZzNRT14v9rHQNd5cCmK3Xd_fFxFdhnmIqnvjlyrK_S1Mdg/s1422/wallpaper%20GREEN%20TREE%20%20nature.jpg);
+      url(<%=story.image.url %>);
   "
 >
-  <img
-    class="status-logo"
-    src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-    alt=""
-  />
-  <p>Abubakar</p>
+  <img class="status-logo" src="<%= story.owner.image.url %>" alt="" />
+  <p><%= story.owner.username %></p>
 </div>
-<div
-  class="post"
-  style="
-    background-image: linear-gradient(transparent, rgb(0, 0, 0, 0.5)),
-      url(https://i.pinimg.com/originals/a7/a5/7a/a7a57af2650f47d6845e2d0fd51f1313.jpg);
-  "
->
-  <img
-    class="status-logo"
-    src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-    alt=""
-  />
-  <p>Abubakar</p>
-</div>
-<div
-  class="post"
-  style="
-    background-image: linear-gradient(transparent, rgb(0, 0, 0, 0.5)),
-      url(https://wallpapers.com/images/hd/4k-nature-iphone-li6igciv04eehdav.jpg);
-  "
->
-  <img
-    class="status-logo"
-    src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-    alt=""
-  />
-  <p>Abubakar</p>
-</div>
+
+<% } %>
+
+<!-- { image: { url: 'https://res.cloudinary.com/dqusuosoq/image/upload/v1701109733/SocialBook/qqshrjwnpavbinnkbetm.png', filename: 'SocialBook/qqshrjwnpavbinnkbetm' }, _id: new ObjectId('6564dfe78813cb038421e27c'), owner: { image: { url: 'https://res.cloudinary.com/dqusuosoq/image/upload/v1701021459/SocialBook/atyajkhw8x1zhrhmbgxi.jpg', filename: 'SocialBook/atyajkhw8x1zhrhmbgxi' }, _id: new ObjectId('65638714cafe8fbc752ca3cc'), email: 'mohdabuzar.11786@gmail.com', username: 'Abuzar', __v: 0 }, __v: 0 } -->

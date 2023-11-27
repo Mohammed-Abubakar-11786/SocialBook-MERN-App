@@ -1,0 +1,41 @@
+<% layout("/layouts/boilerplate") -%>
+<body>
+  <div class="row mt-3">
+    <div class="col-8 offset-2">
+      <h3>Enter Here Some Extra Details to Create New Post</h3>
+      <form
+        method="post"
+        action="/newPostAllDetails"
+        novalidate
+        class="needs-validation"
+        enctype="multipart/form-data"
+      >
+        <div class="mb-3">
+          <label for="image" class="form-label">Upload Post Image</label>
+          <input type="file" class="form-control" name="post[image]" />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Post Image is required</div>
+        </div>
+        <div class="mb-3">
+          <label for="postDescription" class="form-label"
+            >Post Description</label
+          >
+          <textarea
+            type="text"
+            class="form-control"
+            name="post[description]"
+            placeholder="Add Post Description here"
+            required
+          >
+<%= description %></textarea
+          >
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Post Description required</div>
+        </div>
+
+        <button class="btn btn-success add-btn mt-3">Create Post</button>
+        <br /><br />
+      </form>
+    </div>
+  </div>
+</body>

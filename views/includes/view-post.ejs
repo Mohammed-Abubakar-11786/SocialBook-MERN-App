@@ -3,6 +3,7 @@
     background-color: white;
     border-radius: 1rem;
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
+    margin-bottom: 0.5rem;
   }
   .userInfo {
     width: 100%;
@@ -75,31 +76,25 @@
     align-items: baseline;
     margin-left: 0;
     margin-right: 1rem;
-  }
-</style>
+  }</style
+><% for(post of allPosts){ %>
 <div class="view">
   <div class="userInfo">
-    <img
-      src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-      alt=""
-    />
+    <img src="<%= post.owner.image.url %>" alt="" />
     <div class="info">
-      <h6>UserName</h6>
-      <p>June 24 2023, 12:30pm</p>
+      <h6><%= post.owner.username%></h6>
+      <p>
+        <%= new Date(post.createdAt).toLocaleString('en-US', { weekday: 'short',
+        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric',
+        minute: 'numeric', second: 'numeric', hour12: true }) %>
+      </p>
     </div>
-    <i class="fa-solid fa-ellipsis-vertical"></i>
   </div>
   <div class="postDesc">
-    <p>
-      Subscribe @Easy Tutorials development YouTube channel to watch more videos
-      on website and UI designs. #EasyTutorials #YouTubeChannel
-    </p>
+    <p><%= post.description %></p>
   </div>
   <div class="postImg">
-    <img
-      src="https://images.ctfassets.net/pdf29us7flmy/4dRKN4OCnUTH8NFn0hfbd6/0e2a8ed7351b0f34e0ae72a2e39e15cf/GettyImages-764798619_optimized__1_.jpg"
-      alt=""
-    />
+    <img src="<%= post.image.url %>" alt="" />
   </div>
   <div class="icons">
     <div class="container">
@@ -119,6 +114,7 @@
     </div>
   </div>
 </div>
+<% } %>
 
 <script>
   let likeCount = 0;

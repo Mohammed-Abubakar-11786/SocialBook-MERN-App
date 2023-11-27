@@ -11,8 +11,12 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const flash = require("connect-flash");
+const Post = require("./models/post");
+const Story = require("./models/story");
 
 const usersRouter = require("./routes/user.js");
+const postsRouter = require("./routes/post.js");
+const storyRouter = require("./routes/story.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -64,8 +68,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.render("index.ejs");
+app.get("/", async (req, res) => {
+  const allPosts = await Post.find({}).populate("owner");
+  const allStories = await Story.find({}).populate("owner");
+  res.render("index.ejs", { allPosts, allStories });
 });
 
 app.use("/", usersRouter);
+app.use("/", postsRouter);
+app.use("/", storyRouter);

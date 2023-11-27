@@ -51,6 +51,7 @@
     width: 2.4rem;
     border-radius: 100%;
     margin-left: 2rem;
+    height: 90%;
   }
 
   @media (max-width: 686px) {
@@ -114,16 +115,16 @@
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" class="searchBar form-control" placeholder="Search" />
     </div>
+
+    <% if(currUser ){%>
     <div class="profile-logo">
-      <img
-        src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-        alt="Profile image"
-        onclick="openSetting()"
-      />
+      <img src="<%= currUser.image.url %>" onclick="openSetting()" />
     </div>
+    <% } else{%>
     <button class="btn btn-success signup" onclick="openLoginForm()">
       LogIn/SignUp
     </button>
+    <% } %>
 
     <div id="settingsMenu">
       <div class="innerSettings">
@@ -207,7 +208,9 @@
           />
           <div class="info">
             <h6 style="font-size: medium; position: relative; top: 0.5rem">
-              Logout
+              <a style="text-decoration: none; color: black" href="/logout"
+                >Logout</a
+              >
             </h6>
             <i
               class="fa-solid fa-angle-right"

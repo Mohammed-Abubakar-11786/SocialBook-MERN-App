@@ -25,9 +25,9 @@
   }
   .newUserInfo i {
     position: relative;
-    left: 28.5rem;
-    align-self: center;
     font-size: medium;
+    top: 0.8rem;
+    margin-left: 28.5rem;
   }
 
   .newInfo h6 {
@@ -69,6 +69,54 @@
     cursor: pointer;
   }
 </style>
+<% if(currUser){ %>
+
+<div class="newUserInfo">
+  <img src="<%= currUser.image.url %>" alt="" />
+  <div class="newInfo">
+    <h6><%= currUser.username %></h6>
+    <p>Public</p>
+  </div>
+</div>
+<center>
+  <div class="postDetails">
+    <form method="post" action="/newpost">
+      <textarea
+        name="description"
+        placeholder="What's On Your Mind, <%= currUser.username %>?"
+      ></textarea>
+      <hr class="newPostHr" />
+      <div class="newPostIcons">
+        <div class="live newPostIcon">
+          <i class="fa-solid fa-video" style="color: red"></i>
+          <p style="display: inline">Live Vedio</p>
+        </div>
+        <div class="camara newPostIcon">
+          <button
+            type="submit"
+            style="
+              text-decoration: none;
+              color: black;
+              border: none;
+              background-color: white;
+            "
+          >
+            <i class="fa-solid fa-camera" style="color: green"></i>
+            <p style="display: inline">Photo/Video</p>
+          </button>
+        </div>
+        <div class="activity newPostIcon">
+          <i
+            class="fa-regular fa-face-smile"
+            style="color: rgb(153, 153, 26)"
+          ></i>
+          <p style="display: inline">Feling/Activity</p>
+        </div>
+      </div>
+    </form>
+  </div>
+</center>
+<% }else{ %>
 <div class="newUserInfo">
   <img
     src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
@@ -78,25 +126,43 @@
     <h6>UserName</h6>
     <p>Public</p>
   </div>
-  <i class="fa-solid fa-ellipsis-vertical"></i>
 </div>
-<div class="postDetails">
-  <center>
-    <textarea name="" placeholder="What's On Your Mind, userName?"></textarea>
-    <hr class="newPostHr" />
-  </center>
-  <div class="newPostIcons">
-    <div class="live newPostIcon">
-      <i class="fa-solid fa-video" style="color: red"></i>
-      <p style="display: inline">Live Vedio</p>
-    </div>
-    <div class="camara newPostIcon">
-      <i class="fa-solid fa-camera" style="color: green"></i>
-      <p style="display: inline">Photo/Video</p>
-    </div>
-    <div class="activity newPostIcon">
-      <i class="fa-regular fa-face-smile" style="color: rgb(153, 153, 26)"></i>
-      <p style="display: inline">Feling/Activity</p>
-    </div>
+<center>
+  <div class="postDetails">
+    <form method="post" action="/newpost">
+      <textarea
+        name="description"
+        placeholder="What's On Your Mind, userName?"
+      ></textarea>
+      <hr class="newPostHr" />
+      <div class="newPostIcons">
+        <div class="live newPostIcon">
+          <i class="fa-solid fa-video" style="color: red"></i>
+          <p style="display: inline">Live Vedio</p>
+        </div>
+        <div class="camara newPostIcon">
+          <button
+            type="submit"
+            style="
+              text-decoration: none;
+              color: black;
+              border: none;
+              background-color: white;
+            "
+          >
+            <i class="fa-solid fa-camera" style="color: green"></i>
+            <p style="display: inline">Photo/Video</p>
+          </button>
+        </div>
+        <div class="activity newPostIcon">
+          <i
+            class="fa-regular fa-face-smile"
+            style="color: rgb(153, 153, 26)"
+          ></i>
+          <p style="display: inline">Feling/Activity</p>
+        </div>
+      </div>
+    </form>
   </div>
-</div>
+</center>
+<% } %>

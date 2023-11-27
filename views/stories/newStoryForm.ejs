@@ -1,0 +1,26 @@
+<% layout("/layouts/boilerplate") -%>
+<body>
+  <div class="row mt-5">
+    <div class="col-8 offset-2">
+      <h3>Upload Story Image,</h3>
+      <p>Image Should be in portrait mode</p>
+      <form
+        method="post"
+        action="/newStory"
+        novalidate
+        class="needs-validation mt-5"
+        enctype="multipart/form-data"
+      >
+        <div class="mb-3">
+          <label for="image" class="form-label">Upload Story Image</label>
+          <input type="file" class="form-control" name="storyImage" />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Story Image is required</div>
+        </div>
+
+        <button class="btn btn-success add-btn mt-3">Create Story</button>
+        <br /><br />
+      </form>
+    </div>
+  </div>
+</body>

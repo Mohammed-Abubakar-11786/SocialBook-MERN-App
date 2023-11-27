@@ -37,3 +37,17 @@ module.exports.loginUser = async (req, res) => {
   /* let redirectUrl = res.locals.redirectUrl || "/listings"; */
   res.redirect("/");
 };
+
+module.exports.logoutUser = (req, res, next) => {
+  let username = req.user.username;
+  req.logOut((err) => {
+    if (err) {
+      return next(err);
+    }
+    req.flash(
+      "success",
+      `You Logged Out!! Bye 👋👋 ${username} 😊 See You Soon`
+    );
+    res.redirect("/");
+  });
+};
