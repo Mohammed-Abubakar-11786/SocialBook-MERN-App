@@ -1,0 +1,7 @@
+services:
+  - name: web
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    httpPort: 8080
