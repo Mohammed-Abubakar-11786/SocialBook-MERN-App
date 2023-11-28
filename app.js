@@ -40,7 +40,7 @@ async function main() {
   await mongoose.connect(dbUrl);
 }
 
-app.listen(8080, () => {
+app.listen(process.env.PORT, () => {
   console.log("listing to port 8080");
 });
 
