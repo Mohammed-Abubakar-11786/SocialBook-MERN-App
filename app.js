@@ -7,12 +7,13 @@ const mongoose = require("mongoose");
 const path = require("path");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const User = require("./models/user.js");
 const flash = require("connect-flash");
 const Post = require("./models/post");
 const Story = require("./models/story");
+const User = require("./models/user.js");
 
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
@@ -28,8 +29,8 @@ app.listen(3030, () => {
   console.log("listing to port 3030");
 });
 
-const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite";
-
+/* const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite"; */
+const dbUrl = process.env.ATLASDB_URL;
 main()
   .then(() => {
     console.log("Connected to DB");
@@ -39,11 +40,24 @@ main()
   });
 
 async function main() {
-  await mongoose.connect(MongoUrl);
+  await mongoose.connect(dbUrl);
 }
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 3600,
+});
+
+store.on("error", () => {
+  console.log("Error in MONGO SESSION STORE", err);
+});
+
 let sessionOptions = {
-  secret: "mysupersecret",
+  store,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -71,7 +85,8 @@ app.use((req, res, next) => {
 app.get("/", async (req, res) => {
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
-  res.render("index.ejs", { allPosts, allStories });
+  const allUsers = await User.find({});
+  res.render("index.ejs", { allPosts, allStories, allUsers });
 });
 
 app.use("/", usersRouter);

@@ -15,9 +15,10 @@
   }
   .event {
     display: flex;
-    margin-left: 1.5rem;
+    margin-left: 0.7rem;
     align-items: center;
-    margin-top: 0.8rem;
+    margin-top: 0.1rem;
+    scale: 0.9;
   }
   .eventInfo h6,
   p {
@@ -27,9 +28,15 @@
   .eventInfo a {
     font-size: smaller;
   }
+  .add {
+    margin-top: 0;
+  }
+  .add .heads {
+    margin-top: 0.7rem;
+  }
   .add img {
     width: 85%;
-    margin-top: 0.5rem;
+    margin-top: 0.2rem;
     margin-left: 1.5rem;
     border-radius: 1rem;
   }
@@ -55,6 +62,10 @@
   }
   .user p:hover {
     cursor: pointer;
+  }
+  .allUsers {
+    height: 159px;
+    overflow-y: scroll;
   }
 </style>
 
@@ -105,29 +116,15 @@
 
 <div class="conv">
   <div class="heads">
-    <h5>Conversation</h5>
-    <a href="">Hide Chart</a>
+    <h5>All Users</h5>
+    <a href="">Hide Users</a>
   </div>
-
-  <div class="user">
-    <img
-      src="https://i.pinimg.com/originals/48/62/60/486260ac7f60a53efabd5fd8ecbb5b81.jpg"
-      alt=""
-    />
-    <p>Abuzar</p>
-  </div>
-  <div class="user">
-    <img
-      src="https://i.pinimg.com/originals/48/62/60/486260ac7f60a53efabd5fd8ecbb5b81.jpg"
-      alt=""
-    />
-    <p>Mohammed Abubakar</p>
-  </div>
-  <div class="user">
-    <img
-      src="https://i.pinimg.com/originals/48/62/60/486260ac7f60a53efabd5fd8ecbb5b81.jpg"
-      alt=""
-    />
-    <p>Mohammed Hamdan</p>
+  <div class="allUsers mt-0">
+    <% for(let user of allUsers){%>
+    <div class="user">
+      <img src="<%= user.image.url %>" alt="" />
+      <p><%= user.username %></p>
+    </div>
+    <% } %>
   </div>
 </div>
