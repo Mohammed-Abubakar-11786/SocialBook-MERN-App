@@ -26,8 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
 app.engine("ejs", ejsMate);
 
-app.listen(3030, () => {
-  console.log("listing to port 3030");
+app.listen(8080, () => {
+  console.log("listing to port 8080");
 });
 
 /* const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite"; */
