@@ -26,10 +26,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
 app.engine("ejs", ejsMate);
 
-app.listen(8080, () => {
-  console.log("listing to port 8080");
-});
-
 /* const MongoUrl = "mongodb://127.0.0.1:27017/NetworkSite"; */
 const dbUrl = process.env.ATLASDB_URL;
 main()
@@ -43,6 +39,10 @@ main()
 async function main() {
   await mongoose.connect(dbUrl);
 }
+
+app.listen(8080, () => {
+  console.log("listing to port 8080");
+});
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
