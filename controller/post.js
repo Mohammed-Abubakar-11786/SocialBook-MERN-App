@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const Post = require("../models/post");
+const luxon = require("luxon");
 
 module.exports.renderNewPostForm = (req, res) => {
   let { description } = req.body;
@@ -16,6 +17,10 @@ module.exports.saveNewPost = async (req, res) => {
     url: url,
     filename: filename,
   };
+
+  // Set the 'createdAt' property to the current time
+  post.createdAt = luxon.DateTime.now();
+
   await post.save();
   req.flash("success", "New Post Created");
   res.redirect("/");

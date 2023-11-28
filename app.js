@@ -14,6 +14,7 @@ const flash = require("connect-flash");
 const Post = require("./models/post");
 const Story = require("./models/story");
 const User = require("./models/user.js");
+const luxon = require("luxon");
 
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
@@ -86,7 +87,17 @@ app.get("/", async (req, res) => {
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
   const allUsers = await User.find({});
-  res.render("index.ejs", { allPosts, allStories, allUsers });
+
+  // Sort the 'allPosts' array based on the 'createdAt' property in descending order
+  const sortedPosts = allPosts.sort((a, b) => b.createdAt - a.createdAt);
+
+  // Render your EJS template with the sorted posts
+  res.render("index.ejs", {
+    allStories,
+    allUsers,
+    luxon,
+    allPosts: sortedPosts,
+  });
 });
 
 app.use("/", usersRouter);

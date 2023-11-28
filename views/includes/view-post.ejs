@@ -84,9 +84,10 @@
     <div class="info">
       <h6><%= post.owner.username%></h6>
       <p>
-        <%= new Date(post.createdAt).toLocaleString('en-US', { weekday: 'short',
-        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric',
-        minute: 'numeric', second: 'numeric', hour12: true }) %>
+        <%= luxon.DateTime.fromJSDate(post.createdAt, { zone: 'Asia/Kolkata'
+        }).toLocaleString({ weekday: 'short', month: 'short', day: 'numeric',
+        year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
+        hour12: true }) %>
       </p>
     </div>
   </div>
