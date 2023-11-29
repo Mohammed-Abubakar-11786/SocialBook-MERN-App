@@ -99,6 +99,50 @@
     border: 2px solid blue;
     box-shadow: 0 0 10px rgb(255, 255, 255);
   }
+  .settingUserInfo:hover {
+    background-color: #efeaea;
+    border-radius: 1rem;
+    align-items: center;
+  }
+
+  .settingUserInfo {
+    width: 100%;
+    display: flex;
+    font-size: small;
+    align-items: center;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .settingUserInfo img {
+    width: 7.5%;
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.6rem;
+    position: relative;
+    bottom: 0.2rem;
+  }
+  .settingUserInfo img:hover {
+    cursor: pointer;
+  }
+  .settingUserInfo i {
+    position: relative;
+    font-size: medium;
+    top: 0.8rem;
+    margin-left: 28.5rem;
+  }
+
+  .newInfo h6 {
+    margin-bottom: 1px;
+  }
+  .newInfo h6:hover {
+    cursor: pointer;
+  }
+
+  .newInfo p {
+    opacity: 0.7;
+    margin-bottom: 0;
+    font-size: small;
+  }
 </style>
 <nav class="sticky-top">
   <div class="nav-left">
@@ -128,7 +172,7 @@
 
     <div id="settingsMenu">
       <div class="innerSettings">
-        <div class="userInfo">
+        <div class="settingUserInfo">
           <img
             style="width: 13%"
             src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
@@ -140,7 +184,7 @@
           </div>
         </div>
         <center><hr style="width: 90%; margin: 0.8rem 0 0.8rem 0" /></center>
-        <div class="userInfo">
+        <div class="settingUserInfo">
           <img
             style="width: 13%"
             src="https://cdn-icons-png.flaticon.com/512/4658/4658943.png"
@@ -152,7 +196,7 @@
           </div>
         </div>
         <center><hr style="width: 90%; margin: 0.8rem 0 0.8rem 0" /></center>
-        <div class="userInfo">
+        <div class="settingUserInfo">
           <img
             style="width: 13%"
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Settings_%28iOS%29.png/800px-Settings_%28iOS%29.png"
@@ -168,7 +212,7 @@
             ></i>
           </div>
         </div>
-        <div class="userInfo">
+        <div class="settingUserInfo">
           <img
             style="width: 13%"
             src="https://previews.123rf.com/images/sarahdesign/sarahdesign1410/sarahdesign141000993/32210603-help-icon.jpg"
@@ -184,7 +228,7 @@
             ></i>
           </div>
         </div>
-        <div class="userInfo">
+        <div class="settingUserInfo">
           <img
             style="width: 13%; border-radius: 0"
             src="https://cdn-icons-png.flaticon.com/512/4854/4854302.png"
@@ -200,24 +244,23 @@
             ></i>
           </div>
         </div>
-        <div class="userInfo">
-          <img
-            style="width: 13%"
-            src="https://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/512/logout-icon.png"
-            alt=""
-          />
-          <div class="info">
-            <h6 style="font-size: medium; position: relative; top: 0.5rem">
-              <a style="text-decoration: none; color: black" href="/logout"
-                >Logout</a
-              >
-            </h6>
-            <i
-              class="fa-solid fa-angle-right"
-              style="left: 15rem; bottom: 0.7rem"
-            ></i>
-          </div>
-        </div>
+        <a style="text-decoration: none; color: black" href="/logout">
+          <div class="settingUserInfo mb-2">
+            <img
+              style="width: 13%"
+              src="https://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/512/logout-icon.png"
+              alt=""
+            />
+            <div class="info">
+              <h6 style="font-size: medium; position: relative; top: 0.5rem">
+                Logout
+              </h6>
+              <i
+                class="fa-solid fa-angle-right"
+                style="left: 15rem; bottom: 0.7rem"
+              ></i>
+            </div></div
+        ></a>
       </div>
     </div>
   </div>
