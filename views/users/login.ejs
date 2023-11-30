@@ -30,16 +30,18 @@
     width: 100%;
     padding: 8px;
     margin-bottom: 12px;
+    border-radius: 1rem;
   }
 
   .login-form button {
     background-color: #fefefe;
     color: rgb(0, 0, 0);
-    border: 1px solid black !important;
+    border: 2px solid black !important;
     padding: 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    border-radius: 1rem;
   }
   .login-form button:hover {
     background-color: #1876f2;
@@ -49,6 +51,10 @@
     position: relative;
     left: 14.2rem;
     bottom: 2.75rem;
+  }
+  .signUpLink {
+    position: relative;
+    bottom: 2rem;
   }
 </style>
 
@@ -82,7 +88,9 @@
     </form>
     <button class="closeBtn" onclick="closeLoginForm()">Close</button>
 
-    <p>Don't Have Account <a href="/signup">SignUP</a> Here</p>
+    <p class="signUpLink">
+      Don't Have Account <a href="/signup">SignUP</a> Here
+    </p>
   </div>
 </div>
 

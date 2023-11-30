@@ -11,6 +11,7 @@ const postController = require("../controller/post.js");
 //to create new post form
 router.post("/newpost", isLoggedIn, postController.renderNewPostForm);
 
+router.get("/incLike/:id", postController.incrementLike);
 router.post(
   "/newPostAllDetails",
   upload.single("post[image]"),

@@ -172,6 +172,15 @@
 
     <div id="settingsMenu">
       <div class="innerSettings">
+        <% if(currUser){ %>
+        <div class="settingUserInfo">
+          <img style="width: 13%" src="<%= currUser.image.url %>" alt="" />
+          <div class="info">
+            <h6 style="font-size: medium">UserName</h6>
+            <a href="">See Your Profile</a>
+          </div>
+        </div>
+        <% } else{%>
         <div class="settingUserInfo">
           <img
             style="width: 13%"
@@ -183,6 +192,8 @@
             <a href="">See Your Profile</a>
           </div>
         </div>
+
+        <% } %>
         <center><hr style="width: 90%; margin: 0.8rem 0 0.8rem 0" /></center>
         <div class="settingUserInfo">
           <img

@@ -58,7 +58,7 @@
     margin-left: 2.2rem;
     margin-top: 0.5rem;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: 0.1rem;
   }
   .newPostHr {
@@ -70,6 +70,12 @@
   }
   .newPostIcon:hover {
     cursor: pointer;
+  }
+  .postSendBtn {
+    margin-left: auto;
+  }
+  .postSendBtn:hover {
+    scale: 1.1;
   }
 </style>
 <% if(currUser){ %>
@@ -114,6 +120,20 @@
             style="color: rgb(153, 153, 26)"
           ></i>
           <p style="display: inline">Feling/Activity</p>
+        </div>
+        <div class="postSendBtn newPostIcon">
+          <button
+            type="submit"
+            style="
+              text-decoration: none;
+              color: black;
+              border: none;
+              background-color: white;
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+            <p>Send</p>
+          </button>
         </div>
       </div>
     </form>
@@ -163,6 +183,20 @@
             style="color: rgb(153, 153, 26)"
           ></i>
           <p style="display: inline">Feling/Activity</p>
+        </div>
+        <div class="postSendBtn newPostIcon">
+          <button
+            type="submit"
+            style="
+              text-decoration: none;
+              color: black;
+              border: none;
+              background-color: white;
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+            <p>Send</p>
+          </button>
         </div>
       </div>
     </form>

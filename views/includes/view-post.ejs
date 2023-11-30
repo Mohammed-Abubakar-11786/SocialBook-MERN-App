@@ -102,11 +102,12 @@
   </div>
   <div class="icons">
     <div class="container">
-      <i
-        class="fa-solid fa-thumbs-up like-icon"
-        onclick="increaseLikeCount()"
-      ></i>
-      <span id="likeCount">0</span>
+      <a
+        style="text-decoration: none; color: black"
+        href="/incLike/<%= post._id%>"
+        ><i class="fa-solid fa-thumbs-up like-icon"></i
+      ></a>
+      <span id="likeCount"><%=post.like %></span>
     </div>
     <div class="container">
       <i class="fa-solid fa-comments" onclick="increaseCommentCount()"></i

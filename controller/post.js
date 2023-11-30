@@ -25,3 +25,12 @@ module.exports.saveNewPost = async (req, res) => {
   req.flash("success", "New Post Created");
   res.redirect("/");
 };
+
+module.exports.incrementLike = async (req, res) => {
+  let { id } = req.params;
+  let post = await Post.findById(id);
+  let count = post.like;
+  count = count + 1;
+  await Post.findByIdAndUpdate(id, { like: count });
+  res.redirect("/");
+};
