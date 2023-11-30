@@ -23,5 +23,5 @@ module.exports.saveMsg = async (req, res) => {
   message.createdAt = Date.now();
 
   await message.save();
-  res.redirect("/chatWindow/" + chatId);
+  res.redirect(`/chatWindow/${chatId}`);
 };
