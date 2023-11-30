@@ -122,10 +122,14 @@
   </div>
   <div class="allUsers mt-0">
     <% for(let user of allUsers){%>
-    <div class="user">
-      <img src="<%= user.image.url %>" alt="" />
-      <p><%= user.username %></p>
-    </div>
+    <a
+      style="text-decoration: none; color: black"
+      href="/chatWindow/<%= user._id %>"
+      ><div class="user">
+        <img src="<%= user.image.url %>" alt="" />
+        <p><%= user.username %></p>
+      </div></a
+    >
     <% } %>
   </div>
 </div>

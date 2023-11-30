@@ -19,6 +19,7 @@ const luxon = require("luxon");
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
 const storyRouter = require("./routes/story.js");
+const msgRouter = require("./routes/message.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -87,7 +88,6 @@ app.get("/", async (req, res) => {
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
   const allUsers = await User.find({});
-
   // Sort the 'allPosts' array based on the 'createdAt' property in descending order
   const sortedPosts = allPosts.sort((a, b) => b.createdAt - a.createdAt);
 
@@ -103,3 +103,4 @@ app.get("/", async (req, res) => {
 app.use("/", usersRouter);
 app.use("/", postsRouter);
 app.use("/", storyRouter);
+app.use("/", msgRouter);

@@ -1,0 +1,200 @@
+<% layout("/layouts/boilerplate") -%>
+<!-- <h1>This is the chat window</h1>
+<p>
+  CurrUser: <%= currUser %> <br />
+  <br /><br /><br />
+  chatUser: <%= %>
+</p> -->
+<style>
+  .outerBoundry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 25rem;
+    height: 33rem;
+    position: absolute;
+    left: 35%;
+    top: 4.2rem;
+    border: 1px solid black;
+    border-radius: 1rem;
+    background-color: azure;
+  }
+
+  .chatUser {
+    width: 100%;
+    display: flex;
+    font-size: small;
+    padding: 0.4rem 0.7rem;
+  }
+  .homeBtn {
+    margin-left: auto;
+  }
+  .btn-warning:hover {
+    border: 2px solid #1876f2;
+  }
+
+  .chatUser img {
+    width: 9%;
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.6rem;
+    position: relative;
+    bottom: 0.2rem;
+  }
+  .chatUser img:hover {
+    cursor: pointer;
+  }
+  .chatUser i {
+    position: relative;
+    font-size: medium;
+    top: 0.8rem;
+    margin-left: 28.5rem;
+  }
+
+  .newInfo h6 {
+    margin-bottom: 1px;
+  }
+  .newInfo h6:hover {
+    cursor: pointer;
+  }
+
+  .newInfo p {
+    opacity: 0.7;
+    margin-bottom: 0;
+    font-size: small;
+  }
+  .chatUser {
+    justify-self: flex-start;
+    align-items: center;
+    background-color: aqua;
+    border-radius: 1rem 1rem 0 0;
+    color: rgb(0, 0, 0);
+    border-bottom: 1px solid black;
+    margin-bottom: 0.5rem;
+  }
+  .typeMsg {
+    width: 100%;
+    height: fit-content;
+    background-color: aqua;
+    align-items: center;
+    border-radius: 1rem;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+    border-top: 1px solid black;
+  }
+
+  .typeMsg input {
+    display: inline;
+    border-radius: 1rem;
+    width: 20rem;
+    margin-right: 1.3rem;
+  }
+  .sendBtn:hover {
+    scale: 1.1;
+  }
+  .sendMsg,
+  .recMsg {
+    height: fit-content;
+    width: 90%;
+    background-color: rgb(0, 255, 255);
+    border-radius: 1rem;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    margin-bottom: 0.5rem;
+  }
+
+  .recMsg {
+    align-self: flex-start;
+  }
+  .sendMsg {
+    align-self: flex-end;
+  }
+  .recInnerMsg {
+    margin-left: 0;
+    width: 100%;
+    max-height: 5rem;
+    overflow-y: scroll;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 0.5rem;
+  }
+  .sendInnerMsg {
+    width: 100%;
+    max-height: 5rem;
+    overflow-y: scroll;
+    background-color: antiquewhite;
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 0.5rem;
+  }
+  .messages {
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+</style>
+<body>
+  <div class="outerBoundry">
+    <div class="chatUser">
+      <img src="<%= chatUser.image.url %>" alt="" />
+      <div class="newInfo">
+        <h6><%= chatUser.username %></h6>
+        <p>Public</p>
+      </div>
+      <div class="homeBtn">
+        <a style="text-decoration: none; color: black" href="/"
+          ><button class="btn btn-warning">Back To Home</button></a
+        >
+      </div>
+    </div>
+
+    <div class="messages">
+      <% const allMsgs = [...(recMsgs || []).map(msg => ({ type: 'recMsg', msg:
+      msg.msg, createdAt: msg.createdAt })), ...(sendMsgs || []).map(msg => ({
+      type: 'sendMsg', msg: msg.msg, createdAt: msg.createdAt }))]; %> <% const
+      sortedMsgs = allMsgs.sort((a, b) => new Date(a.createdAt) - new
+      Date(b.createdAt)); %> <% sortedMsgs.forEach(msg=>{ %> <% if (msg.type ===
+      'recMsg' || msg.type === 'sendMsg') { %>
+      <div class="<%= msg.type %>">
+        <div
+          class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
+        >
+          <p><%= msg.msg %></p>
+        </div>
+        <p style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0">
+          <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+          'Asia/Kolkata' }) .toLocaleString({ weekday: 'short', month: 'short',
+          day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+          second: 'numeric', hour12: true }) %>
+        </p>
+      </div>
+      <% } %> <% }); %>
+    </div>
+
+    <div class="typeMsg">
+      <form method="post" action="/saveMsg/<%= chatUser._id %>">
+        <input
+          class="form-control msgInp"
+          type="text"
+          name="msg"
+          placeholder="Enter Message"
+        />
+        <button
+          type="submit"
+          style="text-decoration: none; background-color: aqua; border: none"
+        >
+          <i
+            style="font-size: x-large"
+            class="sendBtn fa-regular fa-paper-plane"
+          ></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
