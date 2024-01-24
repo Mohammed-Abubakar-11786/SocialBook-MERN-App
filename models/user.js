@@ -11,6 +11,29 @@ const userSchema = new Schema({
     url: String,
     filename: String,
   },
+  latestMsg: {
+    type: Date,
+  },
+  sendMsgs: [
+    {
+      msg: String,
+      sendUser: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      createdAt: Date,
+    },
+  ],
+  recMsgs: [
+    {
+      msg: String,
+      recUser: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      createdAt: Date,
+    },
+  ],
 });
 
 userSchema.plugin(passportLocalMongoose);

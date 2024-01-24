@@ -40,33 +40,7 @@
     margin-left: 1.5rem;
     border-radius: 1rem;
   }
-  .user {
-    font-size: x-small;
-    margin-top: 0.5rem;
-    margin-left: 1.5rem;
-  }
-
-  .user img {
-    width: 12%;
-    height: 100%;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-  }
-  .user p {
-    display: inline;
-    opacity: 0.8;
-    font-size: medium;
-  }
-  .user img:hover {
-    cursor: pointer;
-    scale: 1.1;
-  }
-  .user p:hover {
-    cursor: pointer;
-  }
-  .allUsers {
-    max-height: 9rem; /* 7rem */
-    overflow-y: scroll;
+  .chatBtn {
   }
 </style>
 
@@ -116,20 +90,18 @@
 </div>
 
 <div class="conv">
-  <div class="heads">
+  <div class="heads" style="margin-top: 1.7rem">
     <h5>Conversations</h5>
     <a href="">Hide Users</a>
   </div>
-  <div class="allUsers mt-0">
-    <% for(let user of allUsers){%>
-    <a
-      style="text-decoration: none; color: black"
-      href="/chatWindow/<%= user._id %>"
-      ><div class="user">
-        <img src="<%= user.image.url %>" alt="" />
-        <p><%= user.username %></p>
-      </div></a
-    >
-    <% } %>
-  </div>
+  <a style="text-decoration: none; color: black" href="/chatWindow"
+    ><div class="chatBtn">
+      <button
+        class="btn btn-primary"
+        style="margin-left: 2rem; margin-top: 1rem"
+      >
+        Go to Chat window
+      </button>
+    </div></a
+  >
 </div>

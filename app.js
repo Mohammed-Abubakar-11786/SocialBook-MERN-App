@@ -42,7 +42,7 @@ async function main() {
 }
 
 app.listen(process.env.PORT, () => {
-  console.log("listing to port 8080");
+  console.log("listing to port 3030");
 });
 
 const store = MongoStore.create({

@@ -1,20 +1,17 @@
-<% layout("/layouts/boilerplate") -%>
-<!-- <h1>This is the chat window</h1>
-<p>
-  CurrUser: <%= currUser %> <br />
-  <br /><br /><br />
-  chatUser: <%= %>
-</p> -->
+<% layout("/layouts/boilerplate") %>
 <style>
-  .outerBoundry {
+  .outerChat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chatOuterBoundry {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 30rem; /* 25rem */
-    height: 37rem; /* 33rem */
-    position: relative;
-    left: 33%; /* 35rem */
-    top: 0.4rem;
+    width: 50rem; /* 25rem */
+    height: 37.6rem; /* 33rem */
     border: 1px solid black;
     border-radius: 1rem;
     background-color: azure;
@@ -25,6 +22,7 @@
     display: flex;
     font-size: small;
     padding: 0.4rem 0.7rem;
+    height: 5rem;
   }
   .homeBtn {
     margin-left: auto;
@@ -34,8 +32,8 @@
   }
 
   .chatUser img {
-    width: 9%;
-    height: 100%;
+    width: 8%;
+    height: 4rem;
     border-radius: 50%;
     margin-right: 0.6rem;
     position: relative;
@@ -88,8 +86,8 @@
   .typeMsg input {
     display: inline;
     border-radius: 1rem;
-    width: 25rem;
-    margin-right: 1.3rem;
+    width: 46.8rem; /* 22rem */
+    margin-right: 0.2rem;
   }
   .sendBtn:hover {
     scale: 1.1;
@@ -97,7 +95,8 @@
   .sendMsg,
   .recMsg {
     height: fit-content;
-    width: 90%;
+    min-width: 40%;
+    max-width: 45%;
     background-color: rgb(0, 255, 255);
     border-radius: 1rem;
     border-bottom: 1px solid black;
@@ -138,63 +137,257 @@
     display: flex;
     flex-direction: column;
   }
+
+  .AllUsers {
+    width: 35%;
+    height: 37.6rem;
+    background-color: white;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    border: 1px solid black;
+    border-radius: 1rem;
+  }
+  .userHeader {
+    width: 100%;
+    height: 4rem;
+    border-bottom: 1px solid black;
+    border-radius: 1rem 1rem 0 0;
+    background-color: aqua;
+    display: flex;
+    align-items: center;
+    position: sticky; /* Make the header sticky */
+    top: 0; /* Stick to the top of the viewport */
+    z-index: 1; /* Ensure it stays above other elements */
+  }
+
+  .userInfo {
+    width: 100%;
+    height: 4rem;
+    display: flex;
+    font-size: small;
+    padding: 0.4rem 0.7rem;
+    background-color: white;
+    border-bottom: 1px solid black;
+  }
+
+  .userInfo:hover {
+    background-color: rgb(205, 255, 255);
+    cursor: pointer;
+  }
+  .userInfo img {
+    width: 8%;
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.6rem;
+    position: relative;
+    bottom: 0.2rem;
+  }
+
+  .userInfo i {
+    position: relative;
+    left: 25rem;
+    align-self: center;
+    font-size: medium;
+  }
+
+  .info h6 {
+    margin-bottom: 1px;
+  }
+
+  .info p {
+    opacity: 0.7;
+    margin-bottom: 0;
+  }
+  .userInfo {
+    align-items: center;
+  }
+  .allchatUsers {
+    overflow-y: auto;
+    height: calc(100% - 5rem); /* Adjust the height to fill remaining space */
+  }
+
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    .chatOuterBoundry {
+      display: none;
+    }
+    .AllUsers {
+      width: 95%;
+      height: 78.5vh;
+    }
+    .userInfo img {
+      width: 12%;
+    }
+  }
 </style>
 <body>
-  <div class="outerBoundry">
-    <div class="chatUser">
-      <img src="<%= chatUser.image.url %>" alt="" />
-      <div class="newInfo">
-        <h6><%= chatUser.username %></h6>
-        <p>Public</p>
+  <div class="outerChat">
+    <div class="AllUsers">
+      <div class="userHeader">
+        <h4 style="margin-left: 1rem">Chats</h4>
       </div>
-      <div class="homeBtn">
-        <a style="text-decoration: none; color: black" href="/"
-          ><button class="btn btn-warning">Back To Home</button></a
+
+      <div class="allchatUsers">
+        <% for (user of allUsers) { %>
+        <a
+          href="/chatWindow/<%= user._id %>"
+          style="text-decoration: none; color: black"
         >
+          <div class="userInfo">
+            <img src="<%= user.image.url %>" alt="user" />
+            <div class="info">
+              <h6>
+                <%= user.username %><%= currUser && user._id.toString() ===
+                currUser._id.toString() ? " (You)" : "" %>
+              </h6>
+              <!-- time -->
+
+              <% if(user.latestMsg){ %>
+              <p>
+                Last Msg: <%= luxon.DateTime.fromJSDate(new
+                Date(user.latestMsg), { zone: 'Asia/Kolkata' })
+                .toLocaleString({ weekday: 'short', month: 'short', day:
+                'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+                second: 'numeric', hour12: true }) %>
+              </p>
+              <% } else { %>
+              <p>Last Msg: No messages</p>
+              <% }%>
+            </div>
+          </div>
+        </a>
+        <% } %>
       </div>
     </div>
-
-    <div class="messages">
-      <% const allMsgs = [...(recMsgs || []).map(msg => ({ type: 'recMsg', msg:
-      msg.msg, createdAt: msg.createdAt })), ...(sendMsgs || []).map(msg => ({
-      type: 'sendMsg', msg: msg.msg, createdAt: msg.createdAt }))]; %> <% const
-      sortedMsgs = allMsgs.sort((a, b) => new Date(a.createdAt) - new
-      Date(b.createdAt)); %> <% sortedMsgs.forEach(msg=>{ %> <% if (msg.type ===
-      'recMsg' || msg.type === 'sendMsg') { %>
-      <div class="<%= msg.type %>">
-        <div
-          class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
-        >
-          <p><%= msg.msg %></p>
+    <div class="chatOuterBoundry">
+      <% if(chatUser){ %>
+      <div class="chatUser">
+        <!-- userimage -->
+        <img src="<%= chatUser.image.url %>" alt="" />
+        <div class="newInfo">
+          <h6><%= chatUser.username %></h6>
+          <p>Public</p>
         </div>
-        <p style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0">
-          <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
-          'Asia/Kolkata' }) .toLocaleString({ weekday: 'short', month: 'short',
-          day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
-          second: 'numeric', hour12: true }) %>
-        </p>
+        <div class="homeBtn">
+          <a style="text-decoration: none; color: black" href="/"
+            ><button class="btn btn-warning">Back To Home</button></a
+          >
+        </div>
       </div>
-      <% } %> <% }); %>
-    </div>
 
-    <div class="typeMsg">
-      <form method="post" action="/saveMsg/<%= chatUser._id %>">
-        <input
-          class="form-control msgInp"
-          type="text"
-          name="msg"
-          placeholder="Enter Message"
-        />
-        <button
-          type="submit"
-          style="text-decoration: none; background-color: aqua; border: none"
-        >
-          <i
-            style="font-size: x-large"
-            class="sendBtn fa-regular fa-paper-plane"
-          ></i>
-        </button>
-      </form>
+      <% if(sendMsgs && recMsgs) {%> <% if(currUser && chatUser._id.toString()
+      === currUser._id.toString()) {%>
+      <div class="messages">
+        <!-- mesges -->
+        <% const AllMsgs = [ ...(sendMsgs || []).map(msg=>({ type: 'sendMsg',
+        msg: msg.msg, createdAt: msg.createdAt })) ]; const sortedMsgs =
+        AllMsgs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        sortedMsgs.forEach(msg => { if( msg.type === 'recMsg' || msg.type ===
+        'sendMsg') { %>
+        <div class="<%= msg.type %>">
+          <div
+            class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'recInnerMsg' %>"
+          >
+            <p><%= msg.msg %></p>
+          </div>
+          <p style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0">
+            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+            'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month: 'short',
+            day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+            second: 'numeric', hour12: true }) %>
+          </p>
+        </div>
+        <% } }); %>
+
+        <div id="defaultSection"></div>
+      </div>
+      <% } else{ %>
+      <div class="messages">
+        <!-- mesges -->
+        <% const AllMsgs = [ ...(recMsgs || []).map(msg => ({ type: 'recMsg',
+        msg: msg.msg, createdAt: msg.createdAt })), ...(sendMsgs ||
+        []).map(msg=>({ type: 'sendMsg', msg: msg.msg, createdAt: msg.createdAt
+        })) ]; const sortedMsgs = AllMsgs.sort((a, b) => new Date(a.createdAt) -
+        new Date(b.createdAt)); sortedMsgs.forEach(msg => { if( msg.type ===
+        'recMsg' || msg.type === 'sendMsg') { %>
+        <div class="<%= msg.type %>">
+          <div
+            class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
+          >
+            <p><%= msg.msg %></p>
+          </div>
+          <p style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0">
+            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+            'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month: 'short',
+            day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+            second: 'numeric', hour12: true }) %>
+          </p>
+        </div>
+        <% } }); %>
+
+        <div id="defaultSection"></div>
+      </div>
+      <%}%> <% } %> <% }else{ %>
+      <div class="chatUser">
+        <!-- userimage -->
+        <div class="newInfo">
+          <h6>Select a Chat</h6>
+        </div>
+        <div class="homeBtn">
+          <a style="text-decoration: none; color: black" href="/"
+            ><button class="btn btn-warning">Back To Home</button></a
+          >
+        </div>
+      </div>
+      <% }%>
+
+      <div class="typeMsg">
+        <%if(chatUser){ %>
+        <form method="post" action="/saveMsg/<%=chatUser._id %>">
+          <input
+            class="form-control msgInp"
+            type="text"
+            name="msg"
+            placeholder="Enter Message"
+            required
+          />
+          <button
+            type="submit"
+            style="text-decoration: none; background-color: aqua; border: none"
+          >
+            <i
+              style="font-size: x-large"
+              class="sendBtn fa-regular fa-paper-plane"
+            ></i>
+          </button>
+        </form>
+        <% } else {%>
+        <form method="post">
+          <input
+            class="form-control msgInp"
+            type="text"
+            name="msg"
+            placeholder="Select a chat"
+          />
+        </form>
+        <%}%>
+      </div>
     </div>
   </div>
 </body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Get the element by its ID
+    var defaultSection = document.getElementById("defaultSection");
+
+    // Scroll to the element if it exists
+    if (defaultSection) {
+      defaultSection.scrollIntoView();
+    }
+
+    var loadPage = setInterval(function () {
+      location.reload();
+    }, 5000);
+  });
+</script>

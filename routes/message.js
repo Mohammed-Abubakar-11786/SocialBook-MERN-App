@@ -4,9 +4,9 @@ const { isLoggedIn, isSame, isEmptyMsg } = require("../middleware.js");
 
 const msgController = require("../controller/message.js");
 
+router.route("/chatWindow/:chatId").get(msgController.renderChatWindow);
+router.route("/chatWindow").get(msgController.renderChatWindow);
 router
-  .route("/chatWindow/:chatId")
-  .get(isLoggedIn, isSame, msgController.renderChatWindow);
-
-router.route("/saveMsg/:chatId").post(isEmptyMsg, msgController.saveMsg);
+  .route("/saveMsg/:chatId")
+  .post(isLoggedIn, isEmptyMsg, msgController.saveMsg);
 module.exports = router;
