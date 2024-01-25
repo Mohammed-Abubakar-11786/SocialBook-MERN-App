@@ -19,6 +19,18 @@
     text-align: center;
     padding: 1rem;
   }
+  .footerMobile {
+    display: none;
+  }
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    .footerDeskTop {
+      display: none;
+    }
+    .footerMobile {
+      display: block;
+    }
+  }
 </style>
 
 <div class="body">
@@ -26,5 +38,10 @@
     <!-- Your main content goes here -->
   </div>
 
-  <footer class="footer">@Copyright 2023 - Mohammed Abubakar and Team</footer>
+  <footer class="footer footerDeskTop">
+    @Copyright 2023 - Mohammed Abubakar and Team
+  </footer>
+  <footer class="footer footerMobile">
+    @Copyright 2023 - Mohammed Abubakar
+  </footer>
 </div>

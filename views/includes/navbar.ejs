@@ -58,6 +58,12 @@
     .nav-icons {
       display: none;
     }
+    .logo {
+      font-size: larger;
+      justify-self: flex-end;
+      margin-right: 0;
+      color: white;
+    }
   }
 
   .searchBar:hover {
@@ -88,6 +94,9 @@
     border-radius: 1rem;
     box-shadow: 0 0 10px rgb(166, 156, 156);
   }
+  #settingsMenu h6 {
+    width: fit-content;
+  }
   .innerSettings {
     padding: 0.7rem 0.5rem 0 0.5rem;
   }
@@ -102,7 +111,6 @@
   .settingUserInfo:hover {
     background-color: #efeaea;
     border-radius: 1rem;
-    align-items: center;
   }
 
   .settingUserInfo {
@@ -124,6 +132,15 @@
   .settingUserInfo img:hover {
     cursor: pointer;
   }
+  .settingUserInfo .info {
+    width: 90%;
+  }
+
+  .settingUserInfo .h6 {
+    font-size: medium;
+    position: relative;
+    top: 0.5rem;
+  }
   .settingUserInfo i {
     position: relative;
     font-size: medium;
@@ -142,6 +159,38 @@
     opacity: 0.7;
     margin-bottom: 0;
     font-size: small;
+  }
+
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    #settingsMenu {
+      display: none;
+      position: absolute;
+      top: 108%;
+      right: 1rem;
+      width: 70%;
+      height: fit-content;
+
+      background-color: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgb(166, 156, 156);
+    }
+    .settingUserInfo i {
+      display: none;
+    }
+    .settingUserInfo {
+      align-items: center;
+    }
+    .settingUserInfo img {
+      position: relative;
+      top: 1px;
+    }
+    .settingUserInfo .h6 {
+      top: 0.3rem;
+    }
+    .input-container {
+      display: none;
+    }
   }
 </style>
 <nav class="sticky-top">
@@ -176,7 +225,7 @@
         <div class="settingUserInfo">
           <img style="width: 13%" src="<%= currUser.image.url %>" alt="" />
           <div class="info">
-            <h6 style="font-size: medium">UserName</h6>
+            <h6 style="font-size: medium"><%= currUser.username %></h6>
             <a href="">See Your Profile</a>
           </div>
         </div>
@@ -213,10 +262,8 @@
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Settings_%28iOS%29.png/800px-Settings_%28iOS%29.png"
             alt=""
           />
-          <div class="info">
-            <h6 style="font-size: medium; position: relative; top: 0.5rem">
-              Settings & Privacy
-            </h6>
+          <div class="info h6">
+            <h6>Settings & Privacy</h6>
             <i
               class="fa-solid fa-angle-right"
               style="left: 15rem; bottom: 0.7rem"
@@ -229,10 +276,8 @@
             src="https://previews.123rf.com/images/sarahdesign/sarahdesign1410/sarahdesign141000993/32210603-help-icon.jpg"
             alt=""
           />
-          <div class="info">
-            <h6 style="font-size: medium; position: relative; top: 0.5rem">
-              Help & Support
-            </h6>
+          <div class="info h6">
+            <h6>Help & Support</h6>
             <i
               class="fa-solid fa-angle-right"
               style="left: 15rem; bottom: 0.7rem"
@@ -245,10 +290,8 @@
             src="https://cdn-icons-png.flaticon.com/512/4854/4854302.png"
             alt=""
           />
-          <div class="info">
-            <h6 style="font-size: medium; position: relative; top: 0.5rem">
-              Display & Accessibility
-            </h6>
+          <div class="info h6">
+            <h6>Display & Accessibility</h6>
             <i
               class="fa-solid fa-angle-right"
               style="left: 15rem; bottom: 0.7rem"
@@ -262,10 +305,8 @@
               src="https://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/512/logout-icon.png"
               alt=""
             />
-            <div class="info">
-              <h6 style="font-size: medium; position: relative; top: 0.5rem">
-                Logout
-              </h6>
+            <div class="info h6">
+              <h6>Logout</h6>
               <i
                 class="fa-solid fa-angle-right"
                 style="left: 15rem; bottom: 0.7rem"

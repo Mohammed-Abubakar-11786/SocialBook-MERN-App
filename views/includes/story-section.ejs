@@ -74,6 +74,25 @@
   .CreatePost:hover {
     cursor: pointer;
   }
+
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    .CreatePost p {
+      position: relative;
+      left: 1rem;
+      top: 7rem;
+    }
+
+    .CreatePost i {
+      position: relative;
+      left: 2rem;
+      top: 7rem;
+    }
+    .post p {
+      position: relative;
+      top: 7rem;
+    }
+  }
 </style>
 <div class="CreatePost">
   <a href="/newStory"><i class="fa-solid fa-circle-plus"></i></a>

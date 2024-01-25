@@ -63,7 +63,7 @@
   }
   .newPostHr {
     margin: 0;
-    width: 35rem;
+    width: 80%;
   }
   .newPostIcon {
     margin-right: 1.5rem;
@@ -76,6 +76,13 @@
   }
   .postSendBtn:hover {
     scale: 1.1;
+  }
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    .activity,
+    .live {
+      display: none;
+    }
   }
 </style>
 <% if(currUser){ %>

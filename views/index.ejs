@@ -47,6 +47,18 @@
   .indexBody {
     background-color: #dfdfdf;
   }
+  @media screen and (max-width: 767px) {
+    /* Styles for screens with a maximum width of 767 pixels */
+    .left-section,
+    .right-section {
+      display: none;
+    }
+    .middle-section {
+      width: 100%;
+      border-bottom: 0px;
+      overflow-y: auto;
+    }
+  }
 </style>
 <body class="indexBody">
   <div class="homePage">

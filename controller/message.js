@@ -155,14 +155,25 @@ module.exports.renderChatWindow = async (req, res) => {
   }
   // Call the function
   /* removeLatestMsgField(); */
-  res.render("messages/chatWindow.ejs", {
-    allUsers,
-    chatUser,
-    currUser,
-    sendMsgs,
-    recMsgs,
-    luxon,
-  });
+  if (chatId) {
+    res.render("messages/chatWindow2.ejs", {
+      allUsers,
+      chatUser,
+      currUser,
+      sendMsgs,
+      recMsgs,
+      luxon,
+    });
+  } else {
+    res.render("messages/chatWindow.ejs", {
+      allUsers,
+      chatUser,
+      currUser,
+      sendMsgs,
+      recMsgs,
+      luxon,
+    });
+  }
 };
 
 module.exports.saveMsg = async (req, res) => {
