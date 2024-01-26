@@ -4,6 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100%;
   }
 
   .chatOuterBoundry {
@@ -241,7 +242,7 @@
   }
 </style>
 <body>
-  <div class="outerChat">
+  <div class="outerChat" style="height: 100%">
     <div class="AllUsers">
       <div class="userHeader">
         <h4 style="margin-left: 1rem">Chats</h4>
@@ -437,8 +438,8 @@
       defaultSection.scrollIntoView();
     }
 
-    var loadPage = setInterval(function () {
+    /* var loadPage = setInterval(function () {
       location.reload();
-    }, 10000);
+    }, 10000); */
   });
 </script>
