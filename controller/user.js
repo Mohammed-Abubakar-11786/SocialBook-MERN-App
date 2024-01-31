@@ -23,7 +23,6 @@ module.exports.signup = async (req, res) => {
         "success",
         `Welcome 🫡 ${req.user.username} You Are SignedUp and Logged In 😀`
       );
-      console.log(req.user.username);
       res.redirect("/");
     });
   } catch (e) {

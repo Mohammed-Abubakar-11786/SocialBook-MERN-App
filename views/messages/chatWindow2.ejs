@@ -1,3 +1,6 @@
+<!-- Include Luxon library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
+
 <% layout("/layouts/boilerplate") %>
 <style>
   .outerChat {
@@ -87,6 +90,7 @@
     display: inline;
     border-radius: 1rem;
     width: 46.8rem; /* 22rem */
+    width: 100%;
     margin-right: 0.5rem;
   }
   .subBtn {
@@ -98,7 +102,7 @@
   .sendMsg,
   .recMsg {
     height: fit-content;
-    min-width: 40%;
+    min-width: 30%;
     max-width: 45%;
     background-color: rgb(0, 255, 255);
     border-radius: 1rem;
@@ -117,8 +121,9 @@
   .recInnerMsg {
     margin-left: 0;
     width: 100%;
-    max-height: 5rem;
+    max-height: 18rem;
     overflow-y: scroll;
+    overflow-wrap: break-word;
     background-color: white;
     border: 1px solid black;
     border-radius: 1rem;
@@ -126,12 +131,19 @@
   }
   .sendInnerMsg {
     width: 100%;
-    max-height: 5rem;
+    max-height: 18rem;
     overflow-y: scroll;
+    overflow-wrap: break-word;
     background-color: antiquewhite;
     border: 1px solid black;
     border-radius: 1rem;
     padding: 0.5rem;
+  }
+
+  .recInnerMsg img,
+  .sendInnerMsg img {
+    width: 100%;
+    height: 100%;
   }
   .messages {
     height: 100%;
@@ -224,7 +236,7 @@
     display: none;
   }
   /* Media query for small screens (up to 412px) */
-  @media only screen and (max-width: 412px) {
+  @media only screen and (max-width: 435px) {
     .date-format-large {
       display: none;
     }
@@ -233,8 +245,60 @@
       display: block;
       /* Add your small screen styles here if needed */
     }
+    .sendMsg,
+    .recMsg {
+      min-width: 45%;
+      max-width: 70%;
+    }
   }
 
+  .icon {
+    cursor: pointer;
+    /* Add your icon styles or any additional styling here */
+  }
+  .icon i:hover {
+    scale: 1.1;
+  }
+  .inpOutr {
+    width: 90%;
+  }
+  #imagePreview {
+    width: fit-content;
+  }
+  #imagePreview img {
+    width: 15rem;
+    height: 8rem;
+    border-radius: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  /* Initially hide the delete button */
+  .deleteBtn {
+    display: none;
+    width: 100%;
+    height: fit-content;
+    border-radius: 1rem;
+    background-color: aliceblue;
+    border: 1px solid black;
+    text-align: center;
+  }
+  .deleteBtn button {
+    border: none;
+    width: 100%;
+    background-color: aliceblue;
+    border-radius: 1rem;
+  }
+  .deleteBtn button:hover {
+    color: yellow;
+    background-color: rgb(255, 1, 1);
+  }
+
+  .deleteBtn.active {
+    display: block;
+  }
+
+  .Eicon:hover {
+    cursor: pointer;
+  }
   @media screen and (max-width: 767px) {
     /* Styles for screens with a maximum width of 767 pixels */
 
@@ -249,10 +313,12 @@
     .typeMsg input {
       display: inline;
       border-radius: 1rem;
-      width: 97%;
       margin-right: 1rem;
+      width: 100%;
     }
-
+    .inpOutr {
+      width: 80%;
+    }
     .chatUser {
       width: 100%;
       display: flex;
@@ -276,7 +342,106 @@
     }
   }
 </style>
+
+<style>
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .del-cnf {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1001; /* Place the form above the overlay */
+    height: fit-content;
+  }
+
+  /* Style your form elements as needed */
+  .del-cnf label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* .del-cnf input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 1rem;
+  } */
+
+  .del-cnf .nbtn {
+    background-color: #fefefe;
+    color: rgb(0, 0, 0);
+    border: 2px solid black !important;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    border-radius: 1rem;
+  }
+  .del-cnf .nbtn:hover {
+    background-color: red;
+    color: white;
+  }
+  .windowCloseBtn {
+    background-color: #1876f2;
+    color: rgb(255, 255, 255);
+    border: 2px solid black !important;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    border-radius: 1rem;
+  }
+  .windowCloseBtn:hover {
+    background-color: greenyellow;
+    color: black;
+  }
+</style>
 <body>
+  <!-- delete cnf page -->
+  <div class="overlay" id="delCnfOverlay">
+    <div class="del-cnf">
+      <h2>
+        Delete Confirmation !!! <br />
+        For the Msg Dated
+      </h2>
+      <h2 style="display: none" id="msg_id"></h2>
+      <h2 style="display: none" id="msg_type"></h2>
+      <h2 style="display: none" id="isImg"></h2>
+      <h2 style="display: none" id="imgURL"></h2>
+
+      <h3 style="color: red" id="time"></h3>
+      <!-- Include your actual signup form here -->
+      <form id="cnfForm" style="width: 100%" action=""></form>
+      <% let delTypeE = "delTypeE"; let currUser_id = currUser._id; let
+      chatUser_id = chatUser._id; %>
+      <button
+        onclick="submitDelBtn('<%=currUser_id%>','<%=chatUser_id%>','<%=delTypeE%>')"
+        class="nbtn"
+        id="delForE"
+      >
+        Delete For Everyone
+      </button>
+      <% let delTypeM = "delTypeM"%>
+      <button
+        onclick="submitDelBtn('<%=currUser_id%>','<%=chatUser_id%>','<%=delTypeM%>')"
+        class="nbtn"
+      >
+        Delete For Me
+      </button>
+      <button class="windowCloseBtn" onclick="closeDelCnf()">Close</button>
+    </div>
+  </div>
   <div class="outerChat">
     <div class="AllUsers">
       <div class="userHeader">
@@ -334,86 +499,281 @@
         </div>
       </div>
 
-      <% if(sendMsgs && recMsgs) {%> <% if(currUser && chatUser._id.toString()
-      === currUser._id.toString()) {%>
+      <% if(chatUser ) {%> <% if(currUser && chatUser._id.toString() ===
+      currUser._id.toString()) {%>
       <div class="messages">
         <!-- mesges -->
-        <% const AllMsgs = [ ...(sendMsgs || []).map(msg=>({ type: 'sendMsg',
-        msg: msg.msg, createdAt: msg.createdAt })) ]; const sortedMsgs =
-        AllMsgs.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        sortedMsgs.forEach(msg => { if( msg.type === 'recMsg' || msg.type ===
-        'sendMsg') { %>
-        <div class="<%= msg.type %>">
-          <div
-            class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'recInnerMsg' %>"
-          >
-            <p><%= msg.msg %></p>
+        <% sortedSelfMsgs.forEach(msg => { %> <%if(msg.isDeleted){%>
+        <div class="sendMsg">
+          <div class="recInnerMsg" style="background-color: rgb(215, 213, 213)">
+            <p style="margin-bottom: 0">
+              <i class="fa-regular fa-circle-xmark"></i> This Message Was
+              Deleted
+            </p>
           </div>
-          <p
-            id="dateLarge"
-            class="date-format-large"
-            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
           >
-            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
-            'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month: 'short',
-            day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
-            second: 'numeric', hour12: true }) %>
-          </p>
-          <p
-            id="dateSmall"
-            class="date-format-small"
-            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
-          >
-            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
-            'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month: 'numeric',
-            year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })
-            %>
-          </p>
+            <p
+              id="dateLarge"
+              class="date-format-large"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month:
+              'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute:
+              'numeric', second: 'numeric', hour12: true }) %>
+            </p>
+            <p
+              id="dateSmall"
+              class="date-format-small"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month:
+              'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+              hour12: true }) %>
+            </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+          </div>
+          <div class="deleteBtn">
+            <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
+            msgType = "sendMsg"; let time = msg.createdAt; let msg_id = msg.id;
+            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
+            = msg.img; %>
+            <button
+              onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <% } }); %>
+        <%} else{ %>
+        <div class="sendMsg">
+          <div class="recInnerMsg">
+            <% if(msg.img){%>
+            <img src="<%= msg.img %>" alt="" />
+            <%} else{%>
+            <p><%= msg.msg %></p>
+            <%}%>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+            <p
+              id="dateLarge"
+              class="date-format-large"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month:
+              'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute:
+              'numeric', second: 'numeric', hour12: true }) %>
+            </p>
+            <p
+              id="dateSmall"
+              class="date-format-small"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month:
+              'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+              hour12: true }) %>
+            </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+          </div>
+          <div class="deleteBtn">
+            <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
+            msgType = "sendMsg"; let time = msg.createdAt; let msg_id = msg.id;
+            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
+            = msg.img; %>
+            <button
+              onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <%}%> <% }); %>
 
         <div id="defaultSection"></div>
       </div>
+
+      <center>
+        <form
+          method="post"
+          action="/saveImg/<%=chatUser._id %>"
+          id="priviewForm"
+          enctype="multipart/form-data"
+        >
+          <div id="imagePreview">
+            <!-- The input element with a unique id -->
+            <input
+              type="file"
+              id="fileInput"
+              name="chatImg"
+              style="display: none"
+            />
+          </div>
+          <div id="previewBottom"></div>
+        </form>
+      </center>
       <% } else{ %>
       <div class="messages">
         <!-- mesges -->
-        <% const AllMsgs = [ ...(recMsgs || []).map(msg => ({ type: 'recMsg',
-        msg: msg.msg, createdAt: msg.createdAt })), ...(sendMsgs ||
-        []).map(msg=>({ type: 'sendMsg', msg: msg.msg, createdAt: msg.createdAt
-        })) ]; const sortedMsgs = AllMsgs.sort((a, b) => new Date(a.createdAt) -
-        new Date(b.createdAt)); sortedMsgs.forEach(msg => { if( msg.type ===
-        'recMsg' || msg.type === 'sendMsg') { %>
+        <% sortedMsgs.forEach(msg => { if( msg.type === 'recMsg' || msg.type ===
+        'sendMsg') { %> <%if(msg.isDeleted){%>
+        <div class="<%= msg.type %>">
+          <div
+            style="background-color: rgb(215, 213, 213)"
+            class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
+          >
+            <p style="margin-bottom: 0">
+              <i class="fa-regular fa-circle-xmark"></i> This Message Was
+              Deleted
+            </p>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+            <p
+              id="dateLarge"
+              class="date-format-large"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month:
+              'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute:
+              'numeric', second: 'numeric', hour12: true }) %>
+            </p>
+            <p
+              id="dateSmall"
+              class="date-format-small"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month:
+              'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+              hour12: true }) %>
+            </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+          </div>
+          <div class="deleteBtn">
+            <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
+            msgType = msg.type; let time = msg.createdAt; let msg_id = msg.id;
+            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
+            = msg.img; %>
+            <button
+              onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        <%} else{ %>
         <div class="<%= msg.type %>">
           <div
             class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
           >
+            <% if(msg.img){%>
+            <img src="<%=msg.img %>" alt="" />
+            <%} else{%>
             <p><%= msg.msg %></p>
+            <%}%>
           </div>
-          <p
-            id="dateLarge"
-            class="date-format-large"
-            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
           >
-            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
-            'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month: 'short',
-            day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
-            second: 'numeric', hour12: true }) %>
-          </p>
-          <p
-            id="dateSmall"
-            class="date-format-small"
-            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
-          >
-            <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
-            'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month: 'numeric',
-            year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })
-            %>
-          </p>
+            <p
+              id="dateLarge"
+              class="date-format-large"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ weekday: 'short', month:
+              'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute:
+              'numeric', second: 'numeric', hour12: true }) %>
+            </p>
+            <p
+              id="dateSmall"
+              class="date-format-small"
+              style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+            >
+              <%= luxon.DateTime.fromJSDate(new Date(msg.createdAt), { zone:
+              'Asia/Kolkata' }).toLocaleString({ day: 'numeric', month:
+              'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric',
+              hour12: true }) %>
+            </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+          </div>
+          <div class="deleteBtn">
+            <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
+            msgType = msg.type; let time = msg.createdAt; let msg_id = msg.id;
+            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
+            = msg.img; %>
+            <button
+              onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <% } }); %>
+        <%}%> <% } }); %>
 
         <div id="defaultSection"></div>
       </div>
+      <center>
+        <form
+          method="post"
+          action="/saveImg/<%=chatUser._id %>"
+          id="priviewForm"
+          enctype="multipart/form-data"
+        >
+          <div id="imagePreview">
+            <!-- The input element with a unique id -->
+            <input
+              type="file"
+              id="fileInput"
+              name="chatImg"
+              style="display: none"
+            />
+          </div>
+          <div id="previewBottom"></div>
+        </form>
+      </center>
       <%}%> <% } %> <% }else{ %>
       <div class="chatUser">
         <!-- userimage -->
@@ -434,9 +794,11 @@
           method="post"
           action="/saveMsg/<%=chatUser._id %>"
           style="width: 100%"
+          novalidate
+          class="needs-validation"
         >
           <div class="sendMsgOptions">
-            <div style="width: 100%">
+            <div class="inpOutr" style="height: fit-content">
               <input
                 class="form-control msgInp"
                 type="text"
@@ -444,6 +806,14 @@
                 placeholder="Enter Message"
                 required
               />
+            </div>
+            <div>
+              <label for="fileInput">
+                <!-- Your icon or text for triggering file selection -->
+                <div class="icon">
+                  <i style="font-size: x-large" class="fa-regular fa-image"></i>
+                </div>
+              </label>
             </div>
             <div class="subBtn">
               <button
@@ -478,6 +848,90 @@
 </body>
 
 <script>
+  function submitDelBtn(currUser_id, chatUser_id, delType) {
+    let msg_id = document.getElementById("msg_id");
+    let msg_type = document.getElementById("msg_type");
+    let isImg = document.getElementById("isImg");
+    let img_URL = document.getElementById("imgURL");
+
+    let msgId = msg_id.innerHTML;
+    let msgType = msg_type.innerHTML;
+    let is_img = isImg.innerHTML;
+    let imgURL = img_URL.innerHTML;
+
+    if (is_img !== "true") {
+      is_img = "false";
+    }
+    if (!imgURL) {
+      imgURL = "noURL";
+    }
+
+    cnfForm.action = `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`;
+    cnfForm.submit();
+  }
+  function openDelCnf(
+    currUser_id,
+    chatUser_id,
+    msgTime,
+    msgType,
+    msgId,
+    isDeleted,
+    isImage,
+    imgURL
+  ) {
+    let imgURLarray = imgURL.split("/");
+    let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
+    let imgURLL = imgURLName[0];
+
+    let time = document.getElementById("time");
+    let cnfForm = document.getElementById("cnfForm");
+
+    let msg_id = document.getElementById("msg_id");
+    let msg_type = document.getElementById("msg_type");
+    let isImg = document.getElementById("isImg");
+    let img_URL = document.getElementById("imgURL");
+
+    msg_id.innerHTML = `${msgId}`;
+    msg_type.innerHTML = `${msgType}`;
+    isImg.innerHTML = `${isImage}`;
+    img_URL.innerHTML = `${imgURLL}`;
+
+    /*  cnfForm.action = `/deleteMsg/${currUser._id}/${chatUser._id}/${msgType}`; */
+
+    time.innerHTML = luxon.DateTime.fromJSDate(new Date(msgTime), {
+      zone: "Asia/Kolkata",
+    }).toLocaleString({
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    });
+    var delForE = document.getElementById("delForE");
+    //always code to disable should be  before then code to hide/unhide delE
+    if (isDeleted === "true") {
+      delForE.disabled = true;
+      delForE.style.backgroundColor = "rgb(215, 213, 213)";
+      delForE.style.color = "black";
+    } else {
+      delForE.disabled = false;
+      delForE.style = ""; // Reset to the default style
+    }
+    if (msgType === "recMsg") {
+      delForE.style.display = "none";
+    } else {
+      delForE.style.display = "block";
+      delForE.style.display = "inline"; // Change display to "inline" for span
+    }
+
+    document.getElementById("delCnfOverlay").style.display = "flex";
+  }
+  function closeDelCnf() {
+    document.getElementById("delCnfOverlay").style.display = "none";
+  }
   document.addEventListener("DOMContentLoaded", function () {
     // Get the element by its ID
     var defaultSection = document.getElementById("defaultSection");
@@ -487,8 +941,96 @@
       defaultSection.scrollIntoView();
     }
 
-    var loadPage = setInterval(function () {
+    let Eicon = document.querySelectorAll(".Eicon");
+    let deleteBtn = document.querySelectorAll(".deleteBtn");
+
+    window.onload = function () {
+      for (var i = 0; i < Eicon.length; i++) {
+        // Use a closure to capture the current value of i
+        (function (index) {
+          Eicon[index].addEventListener("click", function (e) {
+            // Use index instead of i inside the closure
+            deleteBtn[index].classList.toggle("active");
+          });
+        })(i);
+      }
+    };
+
+    /* let Sorted = sortedSelfMsgs;
+
+    Sorted.forEach((msg) => {
+      let ellipsisIcon = document.getElementById(msg._id);
+      let deleteButton = document.getElementById("btn" + msg._id);
+
+      ellipsisIcon.addEventListener("click", function () {
+        deleteButton.style = "display:block";
+      });
+    }); */
+
+    /* const ellipsisIcon = document.getElementsByClassName("iconOption");
+    const deleteButton = document.getElementsByClassName("delBtn");
+
+    ellipsisIcon.forEach((element) => {
+      element.addEventListener("click", function () {
+        console.log("in delete btn");
+        deleteButton.classList.toggle("active");
+      });
+    }); */
+
+    /* var loadPage = setInterval(function () {
       location.reload();
-    }, 10000);
-  });
+    }, 10000); */
+  }); // Get references to the input and preview elements
+  const fileInput = document.getElementById("fileInput");
+  const imagePreview = document.getElementById("imagePreview");
+  const form = document.getElementById("priviewForm");
+  const previewBottom = document.getElementById("previewBottom");
+
+  previewBottom.style = "margin-bottom: 0.5rem";
+
+  // Create the send button outside of the handleFileSelect function
+  const btn = document.createElement("button");
+  btn.classList.add("btn", "btn-success");
+  btn.innerHTML = "Send";
+  btn.style = "margin-left: 0.5rem";
+  btn.type = "submit";
+
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.placeholder = "Enter Captions";
+  inp.style = "width:60%; border-radius:1rem; text-align:center ";
+  inp.name = "caption";
+
+  // Add an event listener to the input
+  fileInput.addEventListener("change", handleFileSelect);
+
+  // Function to handle file selection
+  function handleFileSelect() {
+    // Get the selected file from the input
+    const file = fileInput.files[0];
+
+    // Check if a file is selected
+    if (file) {
+      // Create a FileReader object to read the file
+      const reader = new FileReader();
+
+      // Set up the FileReader to display the image when it's loaded
+      reader.onload = function (e) {
+        // Create an image element
+        const img = document.createElement("img");
+
+        // Set the source of the image to the loaded data URL
+        img.src = e.target.result;
+
+        imagePreview.appendChild(img);
+        previewBottom.appendChild(inp);
+        previewBottom.appendChild(btn);
+      };
+
+      // Read the file as a data URL
+      reader.readAsDataURL(file);
+    } else {
+      // If no file is selected, clear the preview
+    }
+  }
 </script>

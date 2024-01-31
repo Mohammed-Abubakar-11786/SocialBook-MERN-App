@@ -1,17 +1,32 @@
+const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message");
-const user = require("../models/user.js");
 const User = require("../models/user.js");
 const luxon = require("luxon");
+const multer = require("multer");
+const { storage, cloudinary } = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 module.exports.renderChatWindow = async (req, res) => {
   let { chatId } = req.params;
   let chatUser = await User.findById(chatId);
   /*   let allMsgs = await Message.find(); */
   const allUsers = await User.find({});
-  /*   let sendMsgs = await Message.find({ sender: req.user._id, receiver: chatId });
-  let recMsgs = await Message.find({ receiver: req.user._id, sender: chatId }); */
+  // Update all documents in the User collection
+  /* await User.updateMany(
+    {},
+    {
+      $set: {
+        sendMsgs: [],
+        recMsgs: [],
+        sendImgs: [],
+        recImgs: [],
+      },
+    }
+  ); */
   let sendMsgs = [];
   let recMsgs = [];
+  let sendImgs = [];
+  let recImgs = [];
   let currUser = req.user;
 
   if (chatUser && currUser && currUser.sendMsgs.length > 0) {
@@ -22,28 +37,63 @@ module.exports.renderChatWindow = async (req, res) => {
     }
   }
 
-  if (currUser && chatUser && chatUser.sendMsgs.length > 0) {
-    for (msg of chatUser.sendMsgs) {
-      if (msg.sendUser.toString() === currUser._id.toString()) {
+  if (currUser && chatUser && currUser.recMsgs.length > 0) {
+    for (msg of currUser.recMsgs) {
+      if (msg.recUser.toString() === chatId.toString()) {
         recMsgs.push(msg);
+      }
+    }
+  }
+  //storing all sendImgs
+  if (chatUser && currUser && currUser.sendImgs.length > 0) {
+    for (img of currUser.sendImgs) {
+      if (img.sendUser.toString() === chatId.toString()) {
+        sendImgs.push(img);
+      }
+    }
+  }
+
+  //storing all recImgs
+  if (currUser && chatUser && currUser.recImgs.length > 0) {
+    for (img of currUser.recImgs) {
+      if (img.recUser.toString() === chatId.toString()) {
+        recImgs.push(img);
       }
     }
   }
 
   for (usr of allUsers) {
     let allMsgs = [];
-    if (usr.sendMsgs.length > 0 && currUser) {
-      for (msg of usr.sendMsgs) {
-        if (msg.sendUser.toString() === currUser._id.toString()) {
+
+    if (currUser && currUser.sendMsgs.length > 0) {
+      for (msg of currUser.sendMsgs) {
+        if (msg.sendUser.toString() === usr._id.toString()) {
           allMsgs.push(msg);
         }
       }
     }
 
-    if (usr.recMsgs.length > 0 && currUser) {
-      for (msg of usr.recMsgs) {
-        if (msg.recUser.toString() === currUser._id.toString()) {
+    if (currUser && currUser.recMsgs.length > 0) {
+      for (msg of currUser.recMsgs) {
+        if (msg.recUser.toString() === usr._id.toString()) {
           allMsgs.push(msg);
+        }
+      }
+    }
+    //storing all sendImgs
+    if (currUser && currUser.sendImgs.length > 0) {
+      for (img of currUser.sendImgs) {
+        if (img.sendUser.toString() === usr._id.toString()) {
+          allMsgs.push(img);
+        }
+      }
+    }
+
+    //storing all recImgs
+    if (currUser && currUser.recImgs.length > 0) {
+      for (img of currUser.recImgs) {
+        if (img.recUser.toString() === usr._id.toString()) {
+          allMsgs.push(img);
         }
       }
     }
@@ -85,63 +135,65 @@ module.exports.renderChatWindow = async (req, res) => {
     }
   }
 
-  /*   for (user of allUsers) {
-    if (currUser && currUser._id === user._id) {
-      const userMsgs = allMsgs.filter(
-        (msg) =>
-          msg.sender === user._id.toString() &&
-          msg.receiver.toString() === user._id.toString() &&
-          msg.sender.toString() === currUser._id.toString() &&
-          msg.receiver.toString() === currUser._id.toString()
-      );
+  const AllMsgs = [
+    ...(recMsgs || []).map((msg) => ({
+      type: "recMsg",
+      msg: msg.msg,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+    ...(sendMsgs || []).map((msg) => ({
+      type: "sendMsg",
+      msg: msg.msg,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+    ...(sendImgs || []).map((msg) => ({
+      type: "sendMsg",
+      isImage: true,
+      caption: msg.caption,
+      img: msg.img,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+    ...(recImgs || []).map((msg) => ({
+      type: "recMsg",
+      isImage: true,
+      caption: msg.caption,
+      img: msg.img,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+  ];
+  const sortedMsgs = AllMsgs.sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+  );
 
-      if (userMsgs.length > 0) {
-        latestMsg = userMsgs.reduce((prevMsg, currentMsg) =>
-          new Date(currentMsg.createdAt) > new Date(prevMsg.createdAt)
-            ? currentMsg
-            : prevMsg
-        );
-
-        let saveInDB = async () => {
-          user.latestMsg = latestMsg.createdAt;
-          await user.save();
-        };
-        saveInDB();
-      }
-    } else if (currUser) {
-      const userMsgs = allMsgs.filter(
-        (msg) =>
-          (msg.sender.toString() === user._id.toString() ||
-            msg.receiver.toString() === user._id.toString()) &&
-          (msg.sender.toString() === currUser._id.toString() ||
-            msg.receiver.toString() === currUser._id.toString())
-      );
-      if (userMsgs.length > 0) {
-        latestMsg = userMsgs.reduce((prevMsg, currentMsg) =>
-          new Date(currentMsg.createdAt) > new Date(prevMsg.createdAt)
-            ? currentMsg
-            : prevMsg
-        );
-        let saveInDB = async () => {
-          user.latestMsg = latestMsg.createdAt;
-          await user.save();
-        };
-        saveInDB();
-      }
-    }
-  }
-  allUsers.sort((a, b) => {
-    const dateA = a.latestMsg ? new Date(a.latestMsg) : new Date(0);
-    const dateB = b.latestMsg ? new Date(b.latestMsg) : new Date(0);
-    return dateB - dateA;
-  });
-
-  // Sort allUsers array to place currUser at the top
-  allUsers.sort((a, b) => {
-    if (a._id.toString() === currUserId) return -1;
-    if (b._id.toString() === currUserId) return 1;
-    return 0;
-  }); */
+  const AllSelfMsgs = [
+    ...(sendMsgs || []).map((msg) => ({
+      type: "sendMsg",
+      msg: msg.msg,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+    ...(sendImgs || []).map((msg) => ({
+      type: "sendMsg",
+      isImage: true,
+      caption: msg.caption,
+      img: msg.img,
+      id: msg._id,
+      isDeleted: msg.isDeleted,
+      createdAt: msg.createdAt,
+    })),
+  ];
+  const sortedSelfMsgs = AllSelfMsgs.sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+  );
 
   async function removeLatestMsgField() {
     try {
@@ -153,6 +205,7 @@ module.exports.renderChatWindow = async (req, res) => {
       console.error("Error:", error);
     }
   }
+
   // Call the function
   /* removeLatestMsgField(); */
   if (chatId) {
@@ -160,8 +213,8 @@ module.exports.renderChatWindow = async (req, res) => {
       allUsers,
       chatUser,
       currUser,
-      sendMsgs,
-      recMsgs,
+      sortedMsgs,
+      sortedSelfMsgs,
       luxon,
     });
   } else {
@@ -169,8 +222,8 @@ module.exports.renderChatWindow = async (req, res) => {
       allUsers,
       chatUser,
       currUser,
-      sendMsgs,
-      recMsgs,
+      sortedMsgs,
+      sortedSelfMsgs,
       luxon,
     });
   }
@@ -192,8 +245,10 @@ module.exports.saveMsg = async (req, res) => {
   message.sender = req.user._id;
   message.receiver = chatId;
   message.createdAt = Date.now(); */
+  const _id = uuidv4();
 
   let obj1 = {
+    _id: _id,
     msg: msg,
     sendUser: chatUser._id,
     createdAt: Date.now(),
@@ -202,6 +257,7 @@ module.exports.saveMsg = async (req, res) => {
   await currentUser.save();
 
   let obj2 = {
+    _id: _id,
     msg: msg,
     recUser: currentUser._id,
     createdAt: Date.now(),
@@ -209,5 +265,365 @@ module.exports.saveMsg = async (req, res) => {
   chatUser.recMsgs.push(obj2);
   await chatUser.save();
 
+  req.flash("success", `Message sent to ${chatUser.username}`);
   res.redirect(`/chatWindow/${chatId}`);
+};
+
+module.exports.saveImg = async (req, res) => {
+  let { chatId } = req.params;
+  let { caption } = req.body;
+
+  let url = req.file.path;
+
+  // Find user with chatID
+  const chatUser = await User.findById(chatId).exec();
+  req.flash("success", `Image sent to ${chatUser.username}`);
+  // Find user with currUser._id
+  const currentUser = await User.findById(req.user._id).exec();
+
+  /* let message = new Message();
+  message.msg = msg;
+
+  message.sender = req.user._id;
+  message.receiver = chatId;
+  message.createdAt = Date.now(); */
+
+  const _id = uuidv4();
+
+  let obj1 = {
+    _id: _id,
+    img: url,
+    caption: caption,
+    sendUser: chatUser._id,
+    createdAt: Date.now(),
+  };
+  currentUser.sendImgs.push(obj1);
+  await currentUser.save();
+
+  let obj2 = {
+    _id: _id,
+    img: url,
+    caption: caption,
+    recUser: currentUser._id,
+    createdAt: Date.now(),
+  };
+  chatUser.recImgs.push(obj2);
+  await chatUser.save();
+  res.redirect(`/chatWindow/${chatId}`);
+};
+
+module.exports.delMsgs = async (req, res) => {
+  let { currUser_id, chatUser_id, msgType, msgId, delType, is_img, imgName } =
+    req.params;
+  console.log(
+    currUser_id,
+    " ",
+    chatUser_id,
+    " ",
+    msgType,
+    " ",
+    msgId,
+    " ",
+    delType,
+    " ",
+    imgName
+  );
+
+  const chatUser = await User.findById(chatUser_id);
+  const currUser = await User.findById(currUser_id);
+  if (
+    chatUser._id.toString() === currUser._id.toString() &&
+    (delType === "delTypeM" || delType === "delTypeE") &&
+    is_img === "false"
+  ) {
+    const sendMsgToUpdate = currUser.sendMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+    const recMsgToUpdate = chatUser.recMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (sendMsgToUpdate && recMsgToUpdate) {
+      sendMsgToUpdate.isDeleted = true;
+      recMsgToUpdate.isDeleted = true;
+      await currUser.save();
+      await chatUser.save();
+      req.flash("success", `Message deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      // Find the index of the message in the array
+      const sendIndexToDelete = currUser.sendMsgs.findIndex(
+        (msg) => msg._id.toString() === msgId.toString()
+      );
+
+      const recIndexToDelete = chatUser.recMsgs.findIndex(
+        (msg) => msg._id.toString() === msgId.toString()
+      );
+      // Remove the message from the array
+      currUser.recMsgs.splice(recIndexToDelete, 1);
+      currUser.sendMsgs.splice(sendIndexToDelete, 1);
+
+      await currUser.save();
+      await chatUser.save();
+      req.flash("success", `Message deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    }
+  } else if (
+    chatUser._id.toString() === currUser._id.toString() &&
+    (delType === "delTypeM" || delType === "delTypeE") &&
+    is_img === "true"
+  ) {
+    const sendMsgToUpdate = currUser.sendImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+    const recMsgToUpdate = chatUser.recImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (sendMsgToUpdate && recMsgToUpdate) {
+      sendMsgToUpdate.isDeleted = true;
+      recMsgToUpdate.isDeleted = true;
+      await currUser.save();
+      await chatUser.save();
+      req.flash("success", `Image deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      // Find the index of the message in the array
+      const sendIndexToDelete = currUser.sendImgs.findIndex(
+        (msg) => msg._id.toString() === msgId.toString()
+      );
+
+      const recIndexToDelete = chatUser.recImgs.findIndex(
+        (msg) => msg._id.toString() === msgId.toString()
+      );
+      // Remove the message from the array
+      currUser.recImgs.splice(recIndexToDelete, 1);
+      currUser.sendImgs.splice(sendIndexToDelete, 1);
+
+      await currUser.save();
+      await chatUser.save();
+
+      cloudinary.uploader.destroy(imgName, (err, res) => {
+        console.log(err, " ", res);
+      });
+
+      req.flash("success", `Image deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    }
+  } else if (
+    delType === "delTypeM" &&
+    msgType === "sendMsg" &&
+    is_img === "true"
+  ) {
+    const msgToUpdate = currUser.sendImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (msgToUpdate) {
+      msgToUpdate.isDeleted = true;
+      await currUser.save();
+      req.flash("success", `Image deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      const msgToDelete = currUser.sendImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+      );
+      if (msgToDelete) {
+        // Find the index of the message in the array
+        const indexToDelete = currUser.sendImgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
+
+        // Remove the message from the array
+        currUser.sendImgs.splice(indexToDelete, 1);
+
+        await currUser.save();
+
+        const recMsgToDelete = chatUser.recImgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === false
+        );
+        if (!recMsgToDelete) {
+          console.log("deleted");
+          upload.destroy(imgName, (err, res) => {
+            console.log(err, res);
+          });
+        }
+        req.flash("success", `Image deleted Successfully`);
+        res.redirect(`/chatWindow/${chatUser._id}`);
+      }
+    }
+  } else if (
+    delType === "delTypeE" &&
+    msgType === "sendMsg" &&
+    is_img === "true"
+  ) {
+    const sendMsgToUpdate = currUser.sendImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+    const recMsgToUpdate = chatUser.recImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (sendMsgToUpdate || recMsgToUpdate) {
+      if (sendMsgToUpdate) {
+        sendMsgToUpdate.isDeleted = true;
+      }
+      if (recMsgToUpdate) {
+        recMsgToUpdate.isDeleted = true;
+      }
+
+      await currUser.save();
+      await chatUser.save();
+      req.flash("success", `Image deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    }
+  } else if (
+    delType === "delTypeM" &&
+    msgType === "recMsg" &&
+    is_img === "true"
+  ) {
+    const msgToUpdate = currUser.recImgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (msgToUpdate) {
+      msgToUpdate.isDeleted = true;
+      await currUser.save();
+      req.flash("success", `Image deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      const msgToDelete = currUser.recImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+      );
+      if (msgToDelete) {
+        // Find the index of the message in the array
+        const indexToDelete = currUser.recImgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
+
+        // Remove the message from the array
+        currUser.recImgs.splice(indexToDelete, 1);
+
+        await currUser.save();
+
+        const sendMsgToDelete = chatUser.sendImgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === false
+        );
+        if (!sendMsgToDelete) {
+          console.log("deleted");
+          upload.destroy(imgName, (err, res) => {
+            console.log(err, res);
+          });
+        }
+        req.flash("success", `Image deleted Successfully`);
+        res.redirect(`/chatWindow/${chatUser._id}`);
+      }
+    }
+  } else if (
+    delType === "delTypeM" &&
+    msgType === "sendMsg" &&
+    is_img === "false"
+  ) {
+    const msgToUpdate = currUser.sendMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (msgToUpdate) {
+      msgToUpdate.isDeleted = true;
+      await currUser.save();
+      req.flash("success", `Message deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      const msgToDelete = currUser.sendMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+      );
+      if (msgToDelete) {
+        // Find the index of the message in the array
+        const indexToDelete = currUser.sendMsgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
+
+        // Remove the message from the array
+        currUser.sendMsgs.splice(indexToDelete, 1);
+
+        await currUser.save();
+        req.flash("success", `Message deleted Successfully`);
+        res.redirect(`/chatWindow/${chatUser._id}`);
+      }
+    }
+  } else if (
+    delType === "delTypeE" &&
+    msgType === "sendMsg" &&
+    is_img === "false"
+  ) {
+    const sendMsgToUpdate = currUser.sendMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+    const recMsgToUpdate = chatUser.recMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (sendMsgToUpdate || recMsgToUpdate) {
+      if (sendMsgToUpdate) {
+        sendMsgToUpdate.isDeleted = true;
+      }
+      if (recMsgToUpdate) {
+        recMsgToUpdate.isDeleted = true;
+      }
+      await currUser.save();
+      await chatUser.save();
+      req.flash("success", `Message deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    }
+  } else if (
+    delType === "delTypeM" &&
+    msgType === "recMsg" &&
+    is_img === "false"
+  ) {
+    const msgToUpdate = currUser.recMsgs.find(
+      (msg) =>
+        msg._id.toString() === msgId.toString() && msg.isDeleted === false
+    );
+
+    if (msgToUpdate) {
+      msgToUpdate.isDeleted = true;
+      await currUser.save();
+      req.flash("success", `Message deleted Successfully`);
+      res.redirect(`/chatWindow/${chatUser._id}`);
+    } else {
+      const msgToDelete = currUser.recMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+      );
+      if (msgToDelete) {
+        // Find the index of the message in the array
+        const indexToDelete = currUser.recMsgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
+
+        // Remove the message from the array
+        currUser.recMsgs.splice(indexToDelete, 1);
+
+        await currUser.save();
+        req.flash("success", `Message deleted Successfully`);
+        res.redirect(`/chatWindow/${chatUser._id}`);
+      }
+    }
+  }
 };
