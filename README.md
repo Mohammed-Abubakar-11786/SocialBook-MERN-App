@@ -1,2 +1,2 @@
 # Social-Networking-Site
- TEKKYBENCH Project
+ Project
