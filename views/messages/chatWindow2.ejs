@@ -1,5 +1,4 @@
 <!-- Include Luxon library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
 
 <% layout("/layouts/boilerplate") %>
 <style>
@@ -305,11 +304,7 @@
     .AllUsers {
       display: none;
     }
-    .chatOuterBoundry {
-      width: 95%;
-      /* height: 86.3vh; */
-      height: 80vh;
-    }
+
     .typeMsg input {
       display: inline;
       border-radius: 1rem;
@@ -339,6 +334,28 @@
     }
     .back2AllUser {
       display: block;
+    }
+    .chatUser {
+      position: fixed;
+      border-radius: 0;
+      border-top: 1px solid black;
+    }
+    .outerChat {
+      height: 100%;
+    }
+    .chatOuterBoundry {
+      width: 95%;
+      /* height: 86.3vh; */
+      height: 90vh;
+
+      width: 100%;
+      height: 100%;
+      border: none;
+      margin-top: 1rem;
+    }
+    .messages {
+      height: 100vh;
+      margin-top: 5rem;
     }
   }
 </style>
@@ -846,7 +863,6 @@
     </div>
   </div>
 </body>
-
 <script>
   function submitDelBtn(currUser_id, chatUser_id, delType) {
     let msg_id = document.getElementById("msg_id");
@@ -955,31 +971,6 @@
         })(i);
       }
     };
-
-    /* let Sorted = sortedSelfMsgs;
-
-    Sorted.forEach((msg) => {
-      let ellipsisIcon = document.getElementById(msg._id);
-      let deleteButton = document.getElementById("btn" + msg._id);
-
-      ellipsisIcon.addEventListener("click", function () {
-        deleteButton.style = "display:block";
-      });
-    }); */
-
-    /* const ellipsisIcon = document.getElementsByClassName("iconOption");
-    const deleteButton = document.getElementsByClassName("delBtn");
-
-    ellipsisIcon.forEach((element) => {
-      element.addEventListener("click", function () {
-        console.log("in delete btn");
-        deleteButton.classList.toggle("active");
-      });
-    }); */
-
-    /* var loadPage = setInterval(function () {
-      location.reload();
-    }, 10000); */
   }); // Get references to the input and preview elements
   const fileInput = document.getElementById("fileInput");
   const imagePreview = document.getElementById("imagePreview");

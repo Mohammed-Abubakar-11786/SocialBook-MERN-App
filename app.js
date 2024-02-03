@@ -17,6 +17,17 @@ const User = require("./models/user.js");
 const luxon = require("luxon");
 const fileUpload = require("express-fileupload");
 
+/* const EventEmitter = require("events");
+const changeEmitter = new EventEmitter();
+const { MongoClient } = require("mongodb");
+const mongoURI = `${process.env.ATLASDB_URL}`;
+
+const http = require("http");
+const socketIo = require("socket.io");
+
+const server = http.createServer(app);
+const io = socketIo(server); */
+
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
 const storyRouter = require("./routes/story.js");
@@ -41,10 +52,6 @@ main()
 async function main() {
   await mongoose.connect(dbUrl);
 }
-
-app.listen(process.env.PORT, () => {
-  console.log("listing to port 3030");
-});
 
 app.use(
   fileUpload({
@@ -91,6 +98,33 @@ app.use((req, res, next) => {
   next();
 });
 
+/* async function setupChangeStream() {
+  const client = new MongoClient(mongoURI, { useUnifiedTopology: true });
+
+  try {
+    await client.connect();
+
+    const database = client.db("test");
+    const collection = database.collection("users");
+
+    // Set up a change stream on the collection
+    const changeStream = collection.watch();
+
+    // Listen for changes
+    changeStream.on("change", (change) => {
+      // Notify connected clients about the change
+      io.emit("change", change);
+    });
+
+    console.log("Change stream is set up.");
+  } catch (error) {
+    console.error("Error setting up change stream:", error);
+  }
+}
+
+// Call the setupChangeStream function
+setupChangeStream(); */
+
 app.get("/", async (req, res) => {
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
@@ -111,3 +145,16 @@ app.use("/", usersRouter);
 app.use("/", postsRouter);
 app.use("/", storyRouter);
 app.use("/", msgRouter);
+
+app.listen(process.env.PORT, () => {
+  console.log("listing to port 3030");
+});
+
+/* io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Handle disconnect event
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+}); */

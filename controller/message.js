@@ -1,3 +1,6 @@
+/* if (process.env.NODE_ENV != "production") {
+  require("dotenv").config();
+} */
 const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message");
 const User = require("../models/user.js");
@@ -6,23 +9,15 @@ const multer = require("multer");
 const { storage, cloudinary } = require("../cloudConfig.js");
 const upload = multer({ storage });
 
+/* const { MongoClient } = require("mongodb");
+const mongoURI = `${process.env.ATLASDB_URL}`; */
+
 module.exports.renderChatWindow = async (req, res) => {
   let { chatId } = req.params;
   let chatUser = await User.findById(chatId);
-  /*   let allMsgs = await Message.find(); */
+
   const allUsers = await User.find({});
-  // Update all documents in the User collection
-  /* await User.updateMany(
-    {},
-    {
-      $set: {
-        sendMsgs: [],
-        recMsgs: [],
-        sendImgs: [],
-        recImgs: [],
-      },
-    }
-  ); */
+
   let sendMsgs = [];
   let recMsgs = [];
   let sendImgs = [];
@@ -205,9 +200,36 @@ module.exports.renderChatWindow = async (req, res) => {
       console.error("Error:", error);
     }
   }
+  /* 
+  let isChanged = false;
 
-  // Call the function
-  /* removeLatestMsgField(); */
+  async function setupChangeStream() {
+    const client = new MongoClient(mongoURI, { useUnifiedTopology: true });
+
+    try {
+      await client.connect();
+
+      const database = client.db("test");
+      const collection = database.collection("users");
+
+      // Set up a change stream on the collection
+      const changeStream = collection.watch();
+
+      // Listen for changes
+      changeStream.on("change", (change) => {
+        // Notify connected clients about the change
+        isChanged = true;
+      });
+
+      console.log("Change stream is set up.");
+    } catch (error) {
+      console.error("Error setting up change stream:", error);
+    }
+  }
+
+  // Call the setupChangeStream function
+  setupChangeStream(); */
+
   if (chatId) {
     res.render("messages/chatWindow2.ejs", {
       allUsers,
