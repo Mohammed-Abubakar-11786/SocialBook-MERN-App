@@ -1,10 +1,10 @@
 <% layout("/layouts/boilerplate") -%>
-<style></style>
 <body>
   <div class="row mt-4">
     <div class="col-6 offset-3">
       <h3 class="mb-3">Welcome User SignUp on 🌐SocialBook Here</h3>
       <form
+        id="signUPForm"
         method="post"
         action="/signup"
         novalidate
@@ -51,14 +51,29 @@
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
           <input
+            id="origPass"
             type="password"
             class="form-control"
             name="password"
             placeholder="Enter Your Password"
             required
           />
-          <div class="valid-feedback">Looks good!</div>
-          <div class="invalid-feedback">Password required</div>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Confirm Password</label>
+          <input
+            id="cnfPass"
+            type="password"
+            class="form-control"
+            placeholder="Enter Your Password"
+            required
+          />
+          <div class="invalid-feedback" id="passCheck" style="display: none">
+            Your Confirm Password Hasn't Matched 🙁
+          </div>
+          <div class="valid-feedback" id="passCheckPass" style="display: none">
+            Your Confirm Password Has Matched 😀
+          </div>
         </div>
 
         <button class="btn btn-success mb-3">SignUp</button>
@@ -66,3 +81,36 @@
     </div>
   </div>
 </body>
+<script>
+  let origPass = document.getElementById("origPass");
+  let cnfPass = document.getElementById("cnfPass");
+  let form = document.getElementById("signUPForm");
+  let passCheck = document.getElementById("passCheck");
+  let passCheckPass = document.getElementById("passCheckPass");
+
+  cnfPass.addEventListener("input", function () {
+    // Get the values of the password fields
+    let origPassValue = origPass.value;
+    let cnfPassValue = cnfPass.value;
+
+    if (origPassValue && cnfPassValue) {
+      if (origPassValue === cnfPassValue) {
+        passCheckPass.style.display = "block";
+        passCheck.style.display = "none";
+      } else {
+        passCheck.style.display = "block";
+        passCheckPass.style.display = "none";
+      }
+    } else {
+      passCheck.style.display = "none";
+      passCheckPass.style.display = "none";
+    }
+  });
+
+  form.addEventListener("submit", function (event) {
+    // Prevent form submission if passwords don't match
+    if (passCheck.style.display === "block") {
+      event.preventDefault();
+    }
+  });
+</script>

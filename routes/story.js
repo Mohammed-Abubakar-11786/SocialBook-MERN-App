@@ -12,6 +12,6 @@ const storyController = require("../controller/story.js");
 router
   .route("/newStory")
   .get(isLoggedIn, storyController.renderStoryForm)
-  .post(upload.single("storyImage"), storyController.saveStory);
+  .post(/* upload.single("storyImage"), */ storyController.saveStory);
 
 module.exports = router;

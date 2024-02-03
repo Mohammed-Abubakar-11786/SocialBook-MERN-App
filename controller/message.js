@@ -273,49 +273,54 @@ module.exports.saveImg = async (req, res) => {
   let { chatId } = req.params;
   let { caption } = req.body;
 
-  let url = req.file.path;
+  /* let url = req.file.path; */
+  /*  console.log(req.files.chatImg); the file to upload */
+  const uploadOptions = { folder: "SocialBook" };
+  const file = req.files.chatImg;
+  cloudinary.uploader.upload(
+    file.tempFilePath,
+    uploadOptions,
+    async (err, result) => {
+      let url = result.url;
+      // Find user with chatID
+      const chatUser = await User.findById(chatId).exec();
 
-  // Find user with chatID
-  const chatUser = await User.findById(chatId).exec();
-  req.flash("success", `Image sent to ${chatUser.username}`);
-  // Find user with currUser._id
-  const currentUser = await User.findById(req.user._id).exec();
+      // Find user with currUser._id
+      const currentUser = await User.findById(req.user._id).exec();
 
-  /* let message = new Message();
-  message.msg = msg;
+      const _id = uuidv4();
 
-  message.sender = req.user._id;
-  message.receiver = chatId;
-  message.createdAt = Date.now(); */
+      let obj1 = {
+        _id: _id,
+        img: url,
+        caption: caption,
+        sendUser: chatUser._id,
+        createdAt: Date.now(),
+      };
 
-  const _id = uuidv4();
+      currentUser.sendImgs.push(obj1);
+      await currentUser.save();
 
-  let obj1 = {
-    _id: _id,
-    img: url,
-    caption: caption,
-    sendUser: chatUser._id,
-    createdAt: Date.now(),
-  };
-  currentUser.sendImgs.push(obj1);
-  await currentUser.save();
+      let obj2 = {
+        _id: _id,
+        img: url,
+        caption: caption,
+        recUser: currentUser._id,
+        createdAt: Date.now(),
+      };
+      chatUser.recImgs.push(obj2);
+      await chatUser.save();
 
-  let obj2 = {
-    _id: _id,
-    img: url,
-    caption: caption,
-    recUser: currentUser._id,
-    createdAt: Date.now(),
-  };
-  chatUser.recImgs.push(obj2);
-  await chatUser.save();
-  res.redirect(`/chatWindow/${chatId}`);
+      req.flash("success", `Image sent to ${chatUser.username}`);
+      res.redirect(`/chatWindow/${chatId}`);
+    }
+  );
 };
 
 module.exports.delMsgs = async (req, res) => {
-  let { currUser_id, chatUser_id, msgType, msgId, delType, is_img, imgName } =
+  let { currUser_id, chatUser_id, msgType, msgId, delType, is_img, img_Name } =
     req.params;
-  console.log(
+  /* console.log(
     currUser_id,
     " ",
     chatUser_id,
@@ -326,8 +331,11 @@ module.exports.delMsgs = async (req, res) => {
     " ",
     delType,
     " ",
-    imgName
-  );
+    img_Name
+  ); */
+
+  const folderPath = "SocialBook/";
+  const imgName = `${folderPath}${img_Name}`;
 
   const chatUser = await User.findById(chatUser_id);
   const currUser = await User.findById(currUser_id);
@@ -451,8 +459,8 @@ module.exports.delMsgs = async (req, res) => {
         );
         if (!recMsgToDelete) {
           console.log("deleted");
-          upload.destroy(imgName, (err, res) => {
-            console.log(err, res);
+          cloudinary.uploader.destroy(imgName, (err, res) => {
+            console.log(err, " ", res);
           });
         }
         req.flash("success", `Image deleted Successfully`);
@@ -522,9 +530,8 @@ module.exports.delMsgs = async (req, res) => {
             msg._id.toString() === msgId.toString() && msg.isDeleted === false
         );
         if (!sendMsgToDelete) {
-          console.log("deleted");
-          upload.destroy(imgName, (err, res) => {
-            console.log(err, res);
+          cloudinary.uploader.destroy(imgName, (err, res) => {
+            console.log(err, " ", res);
           });
         }
         req.flash("success", `Image deleted Successfully`);

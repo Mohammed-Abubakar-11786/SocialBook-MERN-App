@@ -14,7 +14,7 @@ router.post("/newpost", isLoggedIn, postController.renderNewPostForm);
 router.get("/incLike/:id", postController.incrementLike);
 router.post(
   "/newPostAllDetails",
-  upload.single("post[image]"),
+  /* upload.single("post[image]"), */
   postController.saveNewPost
 );
 module.exports = router;

@@ -15,6 +15,7 @@ const Post = require("./models/post");
 const Story = require("./models/story");
 const User = require("./models/user.js");
 const luxon = require("luxon");
+const fileUpload = require("express-fileupload");
 
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
@@ -44,6 +45,12 @@ async function main() {
 app.listen(process.env.PORT, () => {
   console.log("listing to port 3030");
 });
+
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,

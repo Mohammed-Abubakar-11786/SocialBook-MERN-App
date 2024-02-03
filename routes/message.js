@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const { storage } = require("../cloudConfig.js");
+const { storage, cloudinary } = require("../cloudConfig.js");
 const upload = multer({ storage });
 
 const { isLoggedIn, isSame, isEmptyMsg } = require("../middleware.js");
@@ -15,11 +15,11 @@ router
   .post(isLoggedIn, isEmptyMsg, msgController.saveMsg);
 router
   .route("/saveImg/:chatId")
-  .post(isLoggedIn, upload.single("chatImg"), msgController.saveImg);
+  .post(isLoggedIn, /* upload.single("chatImg"), */ msgController.saveImg);
 
 router
   .route(
-    "/deleteMsg/:currUser_id/:chatUser_id/:msgType/:msgId/:delType/:is_img/:imgName"
+    "/deleteMsg/:currUser_id/:chatUser_id/:msgType/:msgId/:delType/:is_img/:img_Name"
   )
   .get(msgController.delMsgs);
 module.exports = router;

@@ -1,0 +1,106 @@
+<% layout("/layouts/boilerplate") -%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set New Password</title>
+  </head>
+  <body>
+    <div class="row mt-4">
+      <div class="col-6 offset-3">
+        <h3 class="mb-3">Set Your New Password Here !!!</h3>
+        <!-- //password -->
+        <form
+          id="signUPForm"
+          method="post"
+          action="/updatePassWord"
+          novalidate
+          class="needs-validation"
+          enctype="multipart/form-data"
+        >
+          <div class="mb-3">
+            <label for="password" class="form-label">Enter New Password</label>
+            <input
+              id="origPass"
+              type="password"
+              class="form-control"
+              name="password"
+              placeholder="New Password"
+              required
+            />
+            <div class="invalid-feedback">Password required</div>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Confirm Password</label>
+            <input
+              id="cnfPass"
+              type="password"
+              class="form-control"
+              placeholder="Confirm Password"
+              required
+            />
+            <div class="invalid-feedback">Confirm Password required</div>
+            <div class="invalid-feedback" id="passCheck" style="display: none">
+              Your Confirm Password Hasn't Matched 🙁
+            </div>
+            <div
+              class="valid-feedback"
+              id="passCheckPass"
+              style="display: none"
+            >
+              Your Confirm Password Has Matched 😀
+            </div>
+          </div>
+
+          <input
+            type="text"
+            name="username"
+            style="display: none"
+            value="<%= username %>"
+          />
+          <input
+            type="text"
+            name="email"
+            style="display: none"
+            value="<%= email %>"
+          />
+          <button class="btn btn-success">Submit</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  let origPass = document.getElementById("origPass");
+  let cnfPass = document.getElementById("cnfPass");
+  let form = document.getElementById("signUPForm");
+  let passCheck = document.getElementById("passCheck");
+  let passCheckPass = document.getElementById("passCheckPass");
+
+  cnfPass.addEventListener("input", function () {
+    // Get the values of the password fields
+    let origPassValue = origPass.value;
+    let cnfPassValue = cnfPass.value;
+
+    if (origPassValue && cnfPassValue) {
+      if (origPassValue === cnfPassValue) {
+        passCheckPass.style.display = "block";
+        passCheck.style.display = "none";
+      } else {
+        passCheck.style.display = "block";
+        passCheckPass.style.display = "none";
+      }
+    } else {
+      passCheck.style.display = "none";
+      passCheckPass.style.display = "none";
+    }
+  });
+
+  form.addEventListener("submit", function (event) {
+    // Prevent form submission if passwords don't match
+    if (passCheck.style.display === "block") {
+      event.preventDefault();
+    }
+  });
+</script>

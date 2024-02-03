@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Post = require("../models/post");
 const luxon = require("luxon");
+const { storage, cloudinary } = require("../cloudConfig.js");
 
 module.exports.renderNewPostForm = (req, res) => {
   let { description } = req.body;
@@ -8,22 +9,33 @@ module.exports.renderNewPostForm = (req, res) => {
 };
 
 module.exports.saveNewPost = async (req, res) => {
-  let url = req.file.path;
-  let filename = req.file.filename;
+  const uploadOptions = { folder: "SocialBook" };
+  let { post_description } = req.body;
 
-  let post = new Post(req.body.post);
-  post.owner = req.user._id;
-  post.image = {
-    url: url,
-    filename: filename,
-  };
+  const file = req.files.post_image;
+  cloudinary.uploader.upload(
+    file.tempFilePath,
+    uploadOptions,
+    async (err, result) => {
+      let url = result.url;
+      let filename = result.original_filename;
 
-  // Set the 'createdAt' property to the current time
-  post.createdAt = luxon.DateTime.now();
+      let post = new Post();
+      post.description = post_description;
+      post.owner = req.user._id;
+      post.image = {
+        url: url,
+        filename: filename,
+      };
 
-  await post.save();
-  req.flash("success", "New Post Created");
-  res.redirect("/");
+      // Set the 'createdAt' property to the current time
+      post.createdAt = luxon.DateTime.now();
+
+      await post.save();
+      req.flash("success", "New Post Created");
+      res.redirect("/");
+    }
+  );
 };
 
 module.exports.incrementLike = async (req, res) => {

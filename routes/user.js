@@ -9,7 +9,7 @@ const userController = require("../controller/user.js");
 
 router.route("/signup").get(userController.renderSignupPage).post(
   /* isLoggedIn, */
-  upload.single("userImage"),
+  /* upload.single("userImage"), */
   /* validateListing, */
   userController.signup
 );
@@ -25,5 +25,20 @@ router.route("/login").post(
 
 //to logout
 router.get("/logout", userController.logoutUser);
+
+router.get("/forgetPass", userController.renderForgetPassForm);
+router.post("/forgetPass", userController.renderForgetPassForm);
+
+router.post(
+  "/forgetPass/checkOTP/:sendOTP",
+  userController.renderForgetPassForm
+);
+
+router.get(
+  "/enterNewPassForm/:username/:email",
+  userController.renderNewPassForm
+);
+
+router.post("/updatePassWord", userController.updatePassWord);
 
 module.exports = router;
