@@ -16,6 +16,17 @@
         background-color: rgb(185, 243, 99);
         border-radius: 2rem;
       }
+      .mob {
+        display: none;
+      }
+      @media only screen and (max-width: 435px) {
+        .Desk {
+          display: none;
+        }
+        .mob {
+          display: block;
+        }
+      }
     </style>
     <div class="row mt-4">
       <div class="col-6 offset-3">
@@ -62,10 +73,14 @@
         </form>
 
         <% if(isOTPsent){ %>
-        <div class="otpsent mt-3">
+        <div class="otpsent Desk mt-3">
           <h4 style="margin-bottom: 0">
-            OTP Successfully sent to <%= targetUser.email %>
+            OTP Successfully Sent to <%= targetUser.email %>
           </h4>
+        </div>
+
+        <div class="otpsent mob mt-3">
+          <h4 style="margin-bottom: 0">OTP Successfully Sent !!!</h4>
         </div>
 
         <div class="mt-3">
