@@ -1,5 +1,3 @@
-<!-- Include Luxon library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
 <% layout("/layouts/boilerplate") %>
 <style>
   .outerChat {
@@ -33,14 +31,14 @@
     border: 2px solid #1876f2;
   }
 
-  .chatUser img {
+  /*  .chatUser img {
     width: 8%;
     height: 4rem;
     border-radius: 50%;
     margin-right: 0.6rem;
     position: relative;
     bottom: 0.2rem;
-  }
+  } */
   .chatUser img:hover {
     cursor: pointer;
   }
@@ -102,7 +100,7 @@
   .recMsg {
     height: fit-content;
     min-width: 30%;
-    max-width: 85%;
+    max-width: 65%;
     background-color: rgb(0, 255, 255);
     border-radius: 1rem;
     border-bottom: 1px solid black;
@@ -188,14 +186,14 @@
     background-color: rgb(205, 255, 255);
     cursor: pointer;
   }
-  .userInfo img {
+  /*   .userInfo img {
     width: 8%;
     height: 100%;
     border-radius: 50%;
     margin-right: 0.6rem;
     position: relative;
     bottom: 0.2rem;
-  }
+  } */
 
   .userInfo i {
     position: relative;
@@ -322,12 +320,11 @@
       height: 4rem;
     }
     .chatUser img {
-      width: 13%;
-      height: 3rem;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       margin-right: 0.6rem;
       position: relative;
-      bottom: 0.2rem;
     }
     .backToHome {
       display: none;
@@ -356,6 +353,64 @@
       height: 100vh;
       margin-top: 5rem;
     }
+  }
+  .profile-container {
+    position: relative;
+    display: inline-block;
+  }
+  .profile-image {
+    width: 65px; /* Adjust the size as needed */
+    height: 65px; /* Adjust the size as needed */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff; /* Border color for the image */
+    margin-right: 0.6rem;
+  }
+
+  .user-profile-image {
+    width: 50px; /* Adjust the size as needed */
+    height: 50px; /* Adjust the size as needed */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff; /* Border color for the image */
+    margin-right: 0.6rem;
+  }
+
+  .online-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    background-color: #2ecc71; /* Green color for online indicator */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Border color for the indicator */
+  }
+  .offline-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    background-color: #cecdcd; /* Green color for online indicator */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Border color for the indicator */
+  }
+  .chat-online {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    border: 1px solid black;
+    background-color: greenyellow;
+    border-radius: 1rem;
+  }
+  .chat-offline {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    border: 1px solid black;
+    background-color: rgb(214, 211, 211);
+    border-radius: 1rem;
   }
 </style>
 
@@ -471,7 +526,24 @@
           style="text-decoration: none; color: black"
         >
           <div class="userInfo">
-            <img src="<%= user.image.url %>" alt="user" />
+            <div class="profile-container">
+              <img
+                class="user-profile-image"
+                src="<%= user.image.url %>"
+                alt="User Profile"
+              />
+              <% if(user.is_online) { %>
+              <div
+                class="online-indicator"
+                id="<%= user._id %>-usersArray"
+              ></div>
+              <% }else{ %>
+              <div
+                class="offline-indicator"
+                id="<%= user._id %>-usersArray"
+              ></div>
+              <% } %>
+            </div>
             <div class="info">
               <h6>
                 <%= user.username %><%= currUser && user._id.toString() ===
@@ -500,10 +572,40 @@
       <% if(chatUser){ %>
       <div class="chatUser">
         <!-- userimage -->
-        <img src="<%= chatUser.image.url %>" alt="" />
+        <div class="profile-container">
+          <img
+            class="profile-image"
+            src="<%= chatUser.image.url %>"
+            alt="User Profile"
+          />
+          <% if(chatUser.is_online) { %>
+          <div class="online-indicator" id="<%= chatUser._id %>-chatUser"></div>
+          <% }else{ %>
+          <div
+            class="offline-indicator"
+            id="<%= chatUser._id %>-chatUser"
+          ></div>
+          <% } %>
+        </div>
+
         <div class="newInfo">
           <h6><%= chatUser.username %></h6>
-          <p>Public</p>
+          <div style="display: flex">
+            <p style="margin-right: 5px">Public</p>
+            <% if(chatUser.is_online) {%>
+            <div class="chat-online" id="<%= chatUser._id %>">
+              <p id="<%= chatUser._id %>-text" style="color: black">
+                <b>online</b>
+              </p>
+            </div>
+            <% }else { %>
+            <div class="chat-offline" id="<%= chatUser._id %>">
+              <p id="<%= chatUser._id %>-text" style="color: black">
+                <b>Offline</b>
+              </p>
+            </div>
+            <% } %>
+          </div>
         </div>
         <div class="homeBtn">
           <a style="text-decoration: none; color: black" href="/"
@@ -848,179 +950,233 @@
             </div>
           </div>
         </form>
-        <% } else {%>
-        <form method="post">
-          <input
-            class="form-control msgInp"
-            type="text"
-            name="msg"
-            placeholder="Select a chat"
-          />
-        </form>
-        <%}%>
+        <% } %>
       </div>
     </div>
   </div>
-</body>
-<script>
-  function submitDelBtn(currUser_id, chatUser_id, delType) {
-    let msg_id = document.getElementById("msg_id");
-    let msg_type = document.getElementById("msg_type");
-    let isImg = document.getElementById("isImg");
-    let img_URL = document.getElementById("imgURL");
 
-    let msgId = msg_id.innerHTML;
-    let msgType = msg_type.innerHTML;
-    let is_img = isImg.innerHTML;
-    let imgURL = img_URL.innerHTML;
-
-    if (is_img !== "true") {
-      is_img = "false";
-    }
-    if (!imgURL) {
-      imgURL = "noURL";
-    }
-
-    cnfForm.action = `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`;
-    cnfForm.submit();
-  }
-  function openDelCnf(
-    currUser_id,
-    chatUser_id,
-    msgTime,
-    msgType,
-    msgId,
-    isDeleted,
-    isImage,
-    imgURL
-  ) {
-    let imgURLarray = imgURL.split("/");
-    let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
-    let imgURLL = imgURLName[0];
-
-    let time = document.getElementById("time");
-    let cnfForm = document.getElementById("cnfForm");
-
-    let msg_id = document.getElementById("msg_id");
-    let msg_type = document.getElementById("msg_type");
-    let isImg = document.getElementById("isImg");
-    let img_URL = document.getElementById("imgURL");
-
-    msg_id.innerHTML = `${msgId}`;
-    msg_type.innerHTML = `${msgType}`;
-    isImg.innerHTML = `${isImage}`;
-    img_URL.innerHTML = `${imgURLL}`;
-
-    /*  cnfForm.action = `/deleteMsg/${currUser._id}/${chatUser._id}/${msgType}`; */
-
-    time.innerHTML = luxon.DateTime.fromJSDate(new Date(msgTime), {
-      zone: "Asia/Kolkata",
-    }).toLocaleString({
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: true,
+  <script>
+    console.log("<%= currUser._id %>");
+    const socket = io("/user_namespace", {
+      auth: {
+        token: "<%= currUser._id %>",
+      },
     });
-    var delForE = document.getElementById("delForE");
-    //always code to disable should be  before then code to hide/unhide delE
-    if (isDeleted === "true") {
-      delForE.disabled = true;
-      delForE.style.backgroundColor = "rgb(215, 213, 213)";
-      delForE.style.color = "black";
-    } else {
-      delForE.disabled = false;
-      delForE.style = ""; // Reset to the default style
-    }
-    if (msgType === "recMsg") {
-      delForE.style.display = "none";
-    } else {
-      delForE.style.display = "block";
-      delForE.style.display = "inline"; // Change display to "inline" for span
-    }
+    socket.on("userOnline", (data) => {
+      /* console.log("connectedUser", data.user_id);
+      $("#" + data.user_id).removeClass("chat-offline");
+      $("#" + data.user_id).addClass("chat-online");
+      $("#" + data.user_id + "-text").text("Online"); */
+      document
+        .getElementById(`${data.user_id}`)
+        .classList.remove("chat-offline");
+      document.getElementById(`${data.user_id}`).classList.add("chat-online");
+      document.getElementById(`${data.user_id}-text`).innerText = "Online";
 
-    document.getElementById("delCnfOverlay").style.display = "flex";
-  }
-  function closeDelCnf() {
-    document.getElementById("delCnfOverlay").style.display = "none";
-  }
-  document.addEventListener("DOMContentLoaded", function () {
-    // Get the element by its ID
-    var defaultSection = document.getElementById("defaultSection");
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.remove("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.add("online-indicator");
 
-    // Scroll to the element if it exists
-    if (defaultSection) {
-      defaultSection.scrollIntoView();
-    }
+      document
+        .getElementById(`${data.user_id}-chatUser`)
+        .classList.remove("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-chatUser`)
+        .classList.add("online-indicator");
+    });
+    socket.on("userOffline", (data) => {
+      document.getElementById(`${data.user_id}`).classList.add("chat-offline");
+      document
+        .getElementById(`${data.user_id}`)
+        .classList.remove("chat-online");
+      document.getElementById(`${data.user_id}-text`).innerText = "offline";
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.add("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.remove("online-indicator");
 
-    let Eicon = document.querySelectorAll(".Eicon");
-    let deleteBtn = document.querySelectorAll(".deleteBtn");
+      document
+        .getElementById(`${data.user_id}-chatUser`)
+        .classList.add("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-chatUser`)
+        .classList.remove("online-indicator");
+    });
 
-    window.onload = function () {
-      for (var i = 0; i < Eicon.length; i++) {
-        // Use a closure to capture the current value of i
-        (function (index) {
-          Eicon[index].addEventListener("click", function (e) {
-            // Use index instead of i inside the closure
-            deleteBtn[index].classList.toggle("active");
-          });
-        })(i);
+    socket.on("receive", (data) => {
+      let msgbox = document.getElementById("messages");
+      let newMsg = document.createElement("div");
+      newMsg.classList.add("sendMsg");
+      newMsg.innerText = data.msg;
+      msgbox.appendChild(newMsg);
+    });
+  </script>
+
+  <script>
+    function submitDelBtn(currUser_id, chatUser_id, delType) {
+      let msg_id = document.getElementById("msg_id");
+      let msg_type = document.getElementById("msg_type");
+      let isImg = document.getElementById("isImg");
+      let img_URL = document.getElementById("imgURL");
+
+      let msgId = msg_id.innerHTML;
+      let msgType = msg_type.innerHTML;
+      let is_img = isImg.innerHTML;
+      let imgURL = img_URL.innerHTML;
+
+      if (is_img !== "true") {
+        is_img = "false";
       }
-    };
-  }); // Get references to the input and preview elements
-  const fileInput = document.getElementById("fileInput");
-  const imagePreview = document.getElementById("imagePreview");
-  const form = document.getElementById("priviewForm");
-  const previewBottom = document.getElementById("previewBottom");
+      if (!imgURL) {
+        imgURL = "noURL";
+      }
 
-  previewBottom.style = "margin-bottom: 0.5rem";
-
-  // Create the send button outside of the handleFileSelect function
-  const btn = document.createElement("button");
-  btn.classList.add("btn", "btn-success");
-  btn.innerHTML = "Send";
-  btn.style = "margin-left: 0.5rem";
-  btn.type = "submit";
-
-  const inp = document.createElement("input");
-  inp.type = "text";
-  inp.placeholder = "Enter Captions";
-  inp.style = "width:60%; border-radius:1rem; text-align:center ";
-  inp.name = "caption";
-
-  // Add an event listener to the input
-  fileInput.addEventListener("change", handleFileSelect);
-
-  // Function to handle file selection
-  function handleFileSelect() {
-    // Get the selected file from the input
-    const file = fileInput.files[0];
-
-    // Check if a file is selected
-    if (file) {
-      // Create a FileReader object to read the file
-      const reader = new FileReader();
-
-      // Set up the FileReader to display the image when it's loaded
-      reader.onload = function (e) {
-        // Create an image element
-        const img = document.createElement("img");
-
-        // Set the source of the image to the loaded data URL
-        img.src = e.target.result;
-
-        imagePreview.appendChild(img);
-        previewBottom.appendChild(inp);
-        previewBottom.appendChild(btn);
-      };
-
-      // Read the file as a data URL
-      reader.readAsDataURL(file);
-    } else {
-      // If no file is selected, clear the preview
+      cnfForm.action = `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`;
+      cnfForm.submit();
     }
-  }
-</script>
+    function openDelCnf(
+      currUser_id,
+      chatUser_id,
+      msgTime,
+      msgType,
+      msgId,
+      isDeleted,
+      isImage,
+      imgURL
+    ) {
+      let imgURLarray = imgURL.split("/");
+      let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
+      let imgURLL = imgURLName[0];
+
+      let time = document.getElementById("time");
+      let cnfForm = document.getElementById("cnfForm");
+
+      let msg_id = document.getElementById("msg_id");
+      let msg_type = document.getElementById("msg_type");
+      let isImg = document.getElementById("isImg");
+      let img_URL = document.getElementById("imgURL");
+
+      msg_id.innerHTML = `${msgId}`;
+      msg_type.innerHTML = `${msgType}`;
+      isImg.innerHTML = `${isImage}`;
+      img_URL.innerHTML = `${imgURLL}`;
+
+      /*  cnfForm.action = `/deleteMsg/${currUser._id}/${chatUser._id}/${msgType}`; */
+
+      time.innerHTML = luxon.DateTime.fromJSDate(new Date(msgTime), {
+        zone: "Asia/Kolkata",
+      }).toLocaleString({
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: true,
+      });
+      var delForE = document.getElementById("delForE");
+      //always code to disable should be  before then code to hide/unhide delE
+      if (isDeleted === "true") {
+        delForE.disabled = true;
+        delForE.style.backgroundColor = "rgb(215, 213, 213)";
+        delForE.style.color = "black";
+      } else {
+        delForE.disabled = false;
+        delForE.style = ""; // Reset to the default style
+      }
+      if (msgType === "recMsg") {
+        delForE.style.display = "none";
+      } else {
+        delForE.style.display = "block";
+        delForE.style.display = "inline"; // Change display to "inline" for span
+      }
+
+      document.getElementById("delCnfOverlay").style.display = "flex";
+    }
+    function closeDelCnf() {
+      document.getElementById("delCnfOverlay").style.display = "none";
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      // Get the element by its ID
+      var defaultSection = document.getElementById("defaultSection");
+
+      // Scroll to the element if it exists
+      if (defaultSection) {
+        defaultSection.scrollIntoView();
+      }
+
+      let Eicon = document.querySelectorAll(".Eicon");
+      let deleteBtn = document.querySelectorAll(".deleteBtn");
+
+      window.onload = function () {
+        for (var i = 0; i < Eicon.length; i++) {
+          // Use a closure to capture the current value of i
+          (function (index) {
+            Eicon[index].addEventListener("click", function (e) {
+              // Use index instead of i inside the closure
+              deleteBtn[index].classList.toggle("active");
+            });
+          })(i);
+        }
+      };
+    }); // Get references to the input and preview elements
+    const fileInput = document.getElementById("fileInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const form = document.getElementById("priviewForm");
+    const previewBottom = document.getElementById("previewBottom");
+
+    previewBottom.style = "margin-bottom: 0.5rem";
+
+    // Create the send button outside of the handleFileSelect function
+    const btn = document.createElement("button");
+    btn.classList.add("btn", "btn-success");
+    btn.innerHTML = "Send";
+    btn.style = "margin-left: 0.5rem";
+    btn.type = "submit";
+
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.placeholder = "Enter Captions";
+    inp.style = "width:60%; border-radius:1rem; text-align:center ";
+    inp.name = "caption";
+
+    // Add an event listener to the input
+    fileInput.addEventListener("change", handleFileSelect);
+
+    // Function to handle file selection
+    function handleFileSelect() {
+      // Get the selected file from the input
+      const file = fileInput.files[0];
+
+      // Check if a file is selected
+      if (file) {
+        // Create a FileReader object to read the file
+        const reader = new FileReader();
+
+        // Set up the FileReader to display the image when it's loaded
+        reader.onload = function (e) {
+          // Create an image element
+          const img = document.createElement("img");
+
+          // Set the source of the image to the loaded data URL
+          img.src = e.target.result;
+
+          imagePreview.appendChild(img);
+          previewBottom.appendChild(inp);
+          previewBottom.appendChild(btn);
+        };
+
+        // Read the file as a data URL
+        reader.readAsDataURL(file);
+      } else {
+        // If no file is selected, clear the preview
+      }
+    }
+  </script>
+</body>

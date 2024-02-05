@@ -15,6 +15,10 @@ const userSchema = new Schema({
   latestMsg: {
     type: Date,
   },
+  is_online: {
+    type: Boolean,
+    default: false,
+  },
   sendMsgs: [
     {
       _id: {

@@ -175,14 +175,14 @@
     background-color: rgb(205, 255, 255);
     cursor: pointer;
   }
-  .userInfo img {
+  /*  .userInfo img {
     width: 8%;
     height: 100%;
     border-radius: 50%;
     margin-right: 0.6rem;
     position: relative;
     bottom: 0.2rem;
-  }
+  } */
 
   .userInfo i {
     position: relative;
@@ -239,7 +239,8 @@
       border: 0;
     }
     .userInfo img {
-      width: 12%;
+      width: 55px;
+      height: 55px;
     }
     .backToHome {
       display: none;
@@ -248,6 +249,39 @@
       border-radius: 0;
       height: 3rem;
     }
+  }
+  .profile-container {
+    position: relative;
+    display: inline-block;
+  }
+  .user-profile-image {
+    width: 50px; /* Adjust the size as needed */
+    height: 50px; /* Adjust the size as needed */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff; /* Border color for the image */
+    margin-right: 0.6rem;
+  }
+
+  .online-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    background-color: #2ecc71; /* Green color for online indicator */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Border color for the indicator */
+  }
+  .offline-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    background-color: #cecdcd; /* Green color for online indicator */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Border color for the indicator */
   }
 </style>
 <body>
@@ -264,7 +298,24 @@
           style="text-decoration: none; color: black"
         >
           <div class="userInfo">
-            <img src="<%= user.image.url %>" alt="user" />
+            <div class="profile-container">
+              <img
+                class="user-profile-image"
+                src="<%= user.image.url %>"
+                alt="User Profile"
+              />
+              <% if(user.is_online) { %>
+              <div
+                class="online-indicator"
+                id="<%= user._id %>-usersArray"
+              ></div>
+              <% }else{ %>
+              <div
+                class="offline-indicator"
+                id="<%= user._id %>-usersArray"
+              ></div>
+              <% } %>
+            </div>
             <div class="info">
               <h6>
                 <%= user.username %><%= currUser && user._id.toString() ===
@@ -435,6 +486,31 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const socket = io("/user_namespace", {
+      auth: {
+        token: "<%= currUser._id %>",
+      },
+    });
+
+    socket.on("userOnline", (data) => {
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.remove("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.add("online-indicator");
+    });
+    socket.on("userOffline", (data) => {
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.add("offline-indicator");
+      document
+        .getElementById(`${data.user_id}-usersArray`)
+        .classList.remove("online-indicator");
+    });
+  </script>
 </body>
 
 <script>

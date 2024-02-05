@@ -20,13 +20,7 @@ const fileUpload = require("express-fileupload");
 /* const EventEmitter = require("events");
 const changeEmitter = new EventEmitter();
 const { MongoClient } = require("mongodb");
-const mongoURI = `${process.env.ATLASDB_URL}`;
-
-const http = require("http");
-const socketIo = require("socket.io");
-
-const server = http.createServer(app);
-const io = socketIo(server); */
+const mongoURI = `${process.env.ATLASDB_URL}`; */
 
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
@@ -125,6 +119,10 @@ app.use((req, res, next) => {
 // Call the setupChangeStream function
 setupChangeStream(); */
 
+const http = require("http").Server(app);
+let io = require("socket.io")(http);
+let usp = io.of("/user_namespace");
+
 app.get("/", async (req, res) => {
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
@@ -141,20 +139,31 @@ app.get("/", async (req, res) => {
   });
 });
 
+usp.on("connection", async (socket) => {
+  console.log("user-Connected");
+  let currUserID = socket.handshake.auth.token;
+  await User.findByIdAndUpdate(currUserID, { is_online: true });
+
+  socket.broadcast.emit("userOnline", { user_id: currUserID });
+
+  /*  socket.on("newMsg", (data) => {
+    socket.broadcast.emit("receive", data);
+  }); */
+
+  socket.on("disconnect", async () => {
+    console.log("user-disconnected");
+    await User.findByIdAndUpdate(currUserID, { is_online: false });
+    socket.broadcast.emit("userOffline", { user_id: currUserID });
+  });
+});
+
 app.use("/", usersRouter);
 app.use("/", postsRouter);
 app.use("/", storyRouter);
 app.use("/", msgRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log("listing to port 3030");
+const PORT = process.env.PORT || 3030;
+
+http.listen(PORT, () => {
+  console.log(`listing to port ${PORT}`);
 });
-
-/* io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Handle disconnect event
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-}); */

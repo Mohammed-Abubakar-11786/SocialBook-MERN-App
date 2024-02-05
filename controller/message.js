@@ -1,6 +1,7 @@
 /* if (process.env.NODE_ENV != "production") {
   require("dotenv").config();
 } */
+
 const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message");
 const User = require("../models/user.js");
@@ -287,6 +288,18 @@ module.exports.saveMsg = async (req, res) => {
   chatUser.recMsgs.push(obj2);
   await chatUser.save();
 
+  /*  const socket = io("/user_namespace", {
+    auth: {
+      token: currentUser._id,
+    },
+  });
+
+  socket.emit("newMsg", {
+    sendUser: currentUser._id,
+    recUser: chatUser._id,
+    msg: msg,
+  });
+ */
   req.flash("success", `Message sent to ${chatUser.username}`);
   res.redirect(`/chatWindow/${chatId}`);
 };
