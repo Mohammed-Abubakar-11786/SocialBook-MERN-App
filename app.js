@@ -146,9 +146,9 @@ usp.on("connection", async (socket) => {
 
   socket.broadcast.emit("userOnline", { user_id: currUserID });
 
-  /*  socket.on("newMsg", (data) => {
-    socket.broadcast.emit("receive", data);
-  }); */
+  socket.on("msgSent", (data) => {
+    usp.emit("receiveMsg", data);
+  });
 
   socket.on("disconnect", async () => {
     console.log("user-disconnected");

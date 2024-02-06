@@ -909,6 +909,7 @@
       <div class="typeMsg">
         <%if(chatUser){ %>
         <form
+          id="msgSendForm"
           method="post"
           action="/saveMsg/<%=chatUser._id %>"
           style="width: 100%"
@@ -923,6 +924,7 @@
                 name="msg"
                 placeholder="Enter Message"
                 required
+                id="sentMsg"
               />
             </div>
             <div>
@@ -1015,6 +1017,149 @@
       newMsg.innerText = data.msg;
       msgbox.appendChild(newMsg);
     });
+
+    //when user sends the msg
+
+    let msgSendForm = document.getElementById("msgSendForm");
+
+    msgSendForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let msg = $("#sentMsg").val();
+      $.ajax({
+        url: "/saveMsg/<%=chatUser._id %>",
+        type: "post",
+        data: { msg: msg },
+        success: (data) => {
+          $("#sentMsg").val("");
+          let chat = data.msg;
+          let LrgCreatedAt = luxon.DateTime.fromJSDate(
+            new Date(data.createdAt),
+            {
+              zone: "Asia/Kolkata",
+            }
+          ).toLocaleString({
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          });
+
+          let SmlCreatedAt = luxon.DateTime.fromJSDate(
+            new Date(data.createdAt),
+            {
+              zone: "Asia/Kolkata",
+            }
+          ).toLocaleString({
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+          });
+
+          let html =
+            `
+          <div class="sendMsg">
+          <div
+            class="sendInnerMsg"
+          >
+            <p>` +
+            chat +
+            `</p>
+          </div>
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+            LrgCreatedAt +
+            `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+            SmlCreatedAt +
+            `
+          </p>
+        </div>
+          `;
+          $(".messages").append(html);
+          scrollChat();
+          socket.emit("msgSent", {
+            sendUser: "<%=currUser._id%>",
+            recUser: "<%=chatUser._id%>",
+            msg: chat,
+            SmlCreatedAt,
+            LrgCreatedAt,
+          });
+        },
+      });
+    });
+
+    var audio = new Audio("notification.mp3");
+
+    socket.on("receiveMsg", (data) => {
+      if (
+        data.recUser === "<%=currUser._id%>" &&
+        data.sendUser === "<%=chatUser._id%>"
+      ) {
+        let chat = data.msg;
+        let LrgCreatedAt = data.LrgCreatedAt;
+        let SmlCreatedAt = data.SmlCreatedAt;
+        let html =
+          `
+        <div class="recMsg">
+          <div
+            class="recInnerMsg"
+          >
+            <p>` +
+          chat +
+          `</p>
+          </div>
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+          LrgCreatedAt +
+          `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+          SmlCreatedAt +
+          `
+          </p>
+        </div>
+        `;
+        $(".messages").append(html);
+        scrollChat();
+        audio.play();
+      }
+    });
+
+    function scrollChat() {
+      $(".messages").animate(
+        {
+          scrollTop:
+            $(".messages").offset().top + $(".messages")[0].scrollHeight,
+        },
+        0
+      );
+    }
   </script>
 
   <script>

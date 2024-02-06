@@ -455,12 +455,17 @@
 
       <div class="typeMsg">
         <%if(chatUser){ %>
-        <form method="post" action="/saveMsg/<%=chatUser._id %>">
+        <form
+          id="msgSendForm"
+          method="post"
+          action="/saveMsg/<%=chatUser._id %>"
+        >
           <input
             class="form-control msgInp"
             type="text"
             name="msg"
             placeholder="Enter Message"
+            id="sentMsg"
             required
           />
           <button
@@ -488,6 +493,8 @@
   </div>
 
   <script>
+    let msgSendForm = document.getElementById("msgSendForm");
+
     const socket = io("/user_namespace", {
       auth: {
         token: "<%= currUser._id %>",

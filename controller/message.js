@@ -270,6 +270,7 @@ module.exports.saveMsg = async (req, res) => {
   message.createdAt = Date.now(); */
   const _id = uuidv4();
 
+  let msgDate = Date.now();
   let obj1 = {
     _id: _id,
     msg: msg,
@@ -288,20 +289,9 @@ module.exports.saveMsg = async (req, res) => {
   chatUser.recMsgs.push(obj2);
   await chatUser.save();
 
-  /*  const socket = io("/user_namespace", {
-    auth: {
-      token: currentUser._id,
-    },
-  });
-
-  socket.emit("newMsg", {
-    sendUser: currentUser._id,
-    recUser: chatUser._id,
-    msg: msg,
-  });
- */
-  req.flash("success", `Message sent to ${chatUser.username}`);
-  res.redirect(`/chatWindow/${chatId}`);
+  /*   req.flash("success", `Message sent to ${chatUser.username}`); */
+  /* res.redirect(`/chatWindow/${chatId}`) */
+  res.status(200).send({ success: true, msg: msg, createdAt: msgDate });
 };
 
 module.exports.saveImg = async (req, res) => {
