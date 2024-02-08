@@ -118,6 +118,11 @@ usp.on("connection", async (socket) => {
     usp.emit("receiveMsg", data);
   });
 
+  //to sence the img sent
+  socket.on("imgSent", (data) => {
+    usp.emit("receiveImg", data);
+  });
+
   socket.on("disconnect", async () => {
     console.log("user-disconnected");
     await User.findByIdAndUpdate(currUserID, { is_online: false });

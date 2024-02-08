@@ -412,6 +412,42 @@
     background-color: rgb(214, 211, 211);
     border-radius: 1rem;
   }
+
+  #progressBar {
+    position: relative;
+    height: 10px;
+    width: 70%;
+    border: 10px solid #f4a261;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  #progressBar .BarColor {
+    position: relative;
+    bottom: 4px;
+    background-color: #ffffff;
+    width: 0px;
+    height: 10px;
+    border-radius: 15px;
+    animation: progres 2s infinite linear;
+  }
+  @keyframes progres {
+    0% {
+      width: 0%;
+    }
+    25% {
+      width: 50%;
+    }
+    50% {
+      width: 75%;
+    }
+    75% {
+      width: 85%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
 </style>
 
 <style>
@@ -803,9 +839,9 @@
           </div>
           <div class="deleteBtn">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
-            msgType = msg.type; let time = msg.createdAt; let msg_id = msg.id;
-            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
-            = msg.img; %>
+            let msgType = msg.type; let time = msg.createdAt; let msg_id =
+            msg.id; let isDeleted = msg.isDeleted; let isImage = msg.isImage;
+            let imgURL = msg.img; %>
             <button
               onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
             >
@@ -859,9 +895,9 @@
           </div>
           <div class="deleteBtn">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
-            msgType = msg.type; let time = msg.createdAt; let msg_id = msg.id;
-            let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
-            = msg.img; %>
+            let msgType = msg.type; let time = msg.createdAt; let msg_id =
+            msg.id; let isDeleted = msg.isDeleted; let isImage = msg.isImage;
+            let imgURL = msg.img; %>
             <button
               onclick="openDelCnf('<%=currUser_id %>','<%=chatUser_id%>','<%=time%>','<%=msgType%>','<%=msg_id%>','<%=isDeleted%>','<%=isImage%>','<%=imgURL%>')"
             >
@@ -891,6 +927,9 @@
           </div>
           <div id="previewBottom"></div>
         </form>
+        <div id="progressBar">
+          <div class="BarColor">Loading...</div>
+        </div>
       </center>
       <%}%> <% } %> <% }else{ %>
       <div class="chatUser">
@@ -1009,64 +1048,85 @@
 
     let msgSendForm = document.getElementById("msgSendForm");
 
+    //when user sends the msg
     msgSendForm.addEventListener("submit", (e) => {
       e.preventDefault();
       let msg = $("#sentMsg").val();
-      $.ajax({
-        url: "/saveMsg/<%=chatUser._id %>",
-        type: "post",
-        data: { msg: msg },
-        success: (data) => {
-          $("#sentMsg").val("");
-          let chat = data.msg;
-          let LrgCreatedAt = luxon.DateTime.fromJSDate(
-            new Date(data.createdAt),
-            {
-              zone: "Asia/Kolkata",
-            }
-          ).toLocaleString({
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric",
-            hour12: true,
-          });
+      if (msg) {
+        $.ajax({
+          url: "/saveMsg/<%=chatUser._id %>",
+          type: "post",
+          data: { msg: msg },
+          success: (data) => {
+            $("#sentMsg").val("");
+            let chat = data.msg;
+            let time = data.createdAt;
+            let data_img = data._img;
+            let data_id = data._id;
+            let currUser_id = "<%= currUser._id %>";
+            let chatUser_id = "<%= chatUser._id %>";
+            let msgType = "sendMsg";
 
-          let SmlCreatedAt = luxon.DateTime.fromJSDate(
-            new Date(data.createdAt),
-            {
-              zone: "Asia/Kolkata",
-            }
-          ).toLocaleString({
-            day: "numeric",
-            month: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          });
+            let msg_id = data_id;
+            let isDeleted = false;
+            let isImage = false;
+            let imgURL = data_img;
+            let LrgCreatedAt = luxon.DateTime.fromJSDate(
+              new Date(data.createdAt),
+              {
+                zone: "Asia/Kolkata",
+              }
+            ).toLocaleString({
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              hour12: true,
+            });
 
-          let html =
-            `
+            let SmlCreatedAt = luxon.DateTime.fromJSDate(
+              new Date(data.createdAt),
+              {
+                zone: "Asia/Kolkata",
+              }
+            ).toLocaleString({
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            });
+
+            let html =
+              `
           <div class="sendMsg">
           <div
             class="sendInnerMsg"
           >
             <p>` +
-            chat +
-            `</p>
+              chat +
+              `</p>
           </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
           <p
             id="dateLarge"
             class="date-format-large"
             style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
           >
             ` +
-            LrgCreatedAt +
-            `
+              LrgCreatedAt +
+              `
           </p>
           <p
             id="dateSmall"
@@ -1074,31 +1134,170 @@
             style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
           >
           ` +
-            SmlCreatedAt +
-            `
+              SmlCreatedAt +
+              `
           </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id= "deleteBtn">
+            
+            <button
+              onclick="openDelCnf(
+                '` +
+              currUser_id +
+              `','` +
+              chatUser_id +
+              `',` +
+              time +
+              `,'` +
+              msgType +
+              `','` +
+              msg_id +
+              `','` +
+              isDeleted +
+              `','` +
+              isImage +
+              `','` +
+              imgURL +
+              `'
+              )"
+            >
+              Delete
+            </button>
         </div>`;
-          $(".messages").append(html);
-          scrollChat();
-          socket.emit("msgSent", {
-            sendUser: "<%=currUser._id%>",
-            recUser: "<%=chatUser._id%>",
-            msg: chat,
-            SmlCreatedAt,
-            LrgCreatedAt,
-          });
-        },
-      });
+            $(".messages").append(html);
+            scrollChat();
+            socket.emit("msgSent", {
+              sendUser: "<%=currUser._id%>",
+              recUser: "<%=chatUser._id%>",
+              msg: chat,
+              createdAt: data.createdAt,
+              time,
+              data_img,
+              data_id,
+              msgType,
+              msg_id,
+              imgURL,
+            });
+          },
+        });
+      } else {
+        e.submit();
+      }
     });
 
+    function openDelBTN() {
+      document.getElementById("deleteBtn").style.display === "none"
+        ? (document.getElementById("deleteBtn").style.display = "block")
+        : (document.getElementById("deleteBtn").style.display = "none");
+    }
+
+    function openDelCnf(
+      currUser_id,
+      chatUser_id,
+      msgTime,
+      msgType,
+      msgId,
+      isDeleted,
+      isImage,
+      imgURL
+    ) {
+      let imgURLarray = imgURL.split("/");
+      let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
+      let imgURLL = imgURLName[0];
+
+      let time = document.getElementById("time");
+      let cnfForm = document.getElementById("cnfForm");
+
+      let msg_id = document.getElementById("msg_id");
+      let msg_type = document.getElementById("msg_type");
+      let isImg = document.getElementById("isImg");
+      let img_URL = document.getElementById("imgURL");
+
+      msg_id.innerHTML = `${msgId}`;
+      msg_type.innerHTML = `${msgType}`;
+      isImg.innerHTML = `${isImage}`;
+      img_URL.innerHTML = `${imgURLL}`;
+
+      /*  cnfForm.action = `/deleteMsg/${currUser._id}/${chatUser._id}/${msgType}`; */
+
+      time.innerHTML = luxon.DateTime.fromJSDate(new Date(msgTime), {
+        zone: "Asia/Kolkata",
+      }).toLocaleString({
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: true,
+      });
+      var delForE = document.getElementById("delForE");
+      //always code to disable should be  before then code to hide/unhide delE
+      if (isDeleted === "true") {
+        delForE.disabled = true;
+        delForE.style.backgroundColor = "rgb(215, 213, 213)";
+        delForE.style.color = "black";
+      } else {
+        delForE.disabled = false;
+        delForE.style = ""; // Reset to the default style
+      }
+      if (msgType === "recMsg") {
+        delForE.style.display = "none";
+      } else {
+        delForE.style.display = "block";
+        delForE.style.display = "inline"; // Change display to "inline" for span
+      }
+
+      document.getElementById("delCnfOverlay").style.display = "flex";
+    }
+
+    //to display recieved msg
     socket.on("receiveMsg", (data) => {
+      let time = data.createdAt;
+      let data_img = data.data_img;
+      let data_id = data.data_id;
+      let currUser_id = "<%= currUser._id %>";
+      let chatUser_id = "<%= chatUser._id %>";
+      let msgType = "recMsg";
+
+      let msg_id = data.msg_id;
+      let isDeleted = false;
+      let isImage = false;
+      let imgURL = data.imgURL;
       if (
         data.recUser === "<%=currUser._id%>" &&
         data.sendUser === "<%=chatUser._id%>"
       ) {
         let chat = data.msg;
-        let LrgCreatedAt = data.LrgCreatedAt;
-        let SmlCreatedAt = data.SmlCreatedAt;
+        let LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          hour12: true,
+        });
+
+        let SmlCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+
         let html =
           `
         <div class="recMsg">
@@ -1109,6 +1308,14 @@
           chat +
           `</p>
           </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
           <p
             id="dateLarge"
             class="date-format-large"
@@ -1127,14 +1334,308 @@
           SmlCreatedAt +
           `
           </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id= "deleteBtn">
+            
+            <button
+              onclick="openDelCnf(
+                '` +
+          currUser_id +
+          `','` +
+          chatUser_id +
+          `',` +
+          time +
+          `,'` +
+          msgType +
+          `','` +
+          msg_id +
+          `','` +
+          isDeleted +
+          `','` +
+          isImage +
+          `','` +
+          imgURL +
+          `'
+              )"
+            >
+              Delete
+            </button>
         </div>`;
         $(".messages").append(html);
         scrollChat();
-        /* try {
-          await playAudio("notification.mp3");
-        } catch (error) {
-          console.error("Error playing audio:", error);
-        } */
+        /*  appendRecMsg(html); */
+      }
+    });
+
+    let imgSentForm = document.getElementById("priviewForm");
+    let progressBar = document.getElementById("progressBar");
+
+    //when user sends the img
+    imgSentForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      document.getElementById("ImgSendBtn").disabled = true;
+      document.getElementById("ImgSendInp").disabled = true;
+      progressBar.style.display = "block";
+      let imgInput = document.getElementById("fileInput");
+      let imgFile = imgInput.files[0];
+      if (imgFile) {
+        let formData = new FormData();
+        formData.append("chatImg", imgFile);
+        $.ajax({
+          url: "/saveImg/<%=chatUser._id %>",
+          type: "post",
+          data: formData, // Pass FormData object directly as data
+          contentType: false,
+          processData: false, // Ensure these options are set to false for FormData
+          success: (data) => {
+            imgInput.value = ""; // Clear the input field after sending
+            let imgSrc = data.img;
+
+            let time = data.createdAt;
+            let currUser_id = "<%= currUser._id %>";
+            let chatUser_id = "<%= chatUser._id %>";
+            let msgType = "sendMsg";
+
+            let msg_id = data._id;
+            let isDeleted = false;
+            let isImage = true;
+            let imgURL = data.img;
+
+            document.getElementById("previewBottom").style.display = "none";
+            document.getElementById("imagePreview").style.display = "none";
+
+            let LrgCreatedAt = luxon.DateTime.fromJSDate(
+              new Date(data.createdAt),
+              {
+                zone: "Asia/Kolkata",
+              }
+            ).toLocaleString({
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              hour12: true,
+            });
+
+            let SmlCreatedAt = luxon.DateTime.fromJSDate(
+              new Date(data.createdAt),
+              {
+                zone: "Asia/Kolkata",
+              }
+            ).toLocaleString({
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            });
+
+            let html =
+              `
+          <div class="sendMsg">
+          <div
+            class="sendInnerMsg"
+          >
+          <img src=` +
+              imgSrc +
+              ` alt="" />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+              LrgCreatedAt +
+              `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+              SmlCreatedAt +
+              `
+          </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id= "deleteBtn">
+            
+            <button
+              onclick="openDelCnf(
+                '` +
+              currUser_id +
+              `','` +
+              chatUser_id +
+              `',` +
+              time +
+              `,'` +
+              msgType +
+              `','` +
+              msg_id +
+              `','` +
+              isDeleted +
+              `','` +
+              isImage +
+              `','` +
+              imgURL +
+              `'
+              )"
+            >
+              Delete
+            </button>
+        </div>`;
+            progressBar.style.display = "none";
+            $(".messages").append(html);
+            scrollChat();
+            socket.emit("imgSent", {
+              sendUser: "<%=currUser._id%>",
+              recUser: "<%=chatUser._id%>",
+              img: imgSrc,
+              createdAt: data.createdAt,
+              msg_id,
+            });
+          },
+          error: (xhr, status, error) => {
+            console.error("Error sending image:", error);
+            // Handle the error, show a message to the user, etc.
+          },
+        });
+      } else {
+        // Handle case where no image is selected
+        alert("No image selected");
+      }
+    });
+
+    //to display rec img
+    socket.on("receiveImg", (data) => {
+      let time = data.createdAt;
+      let currUser_id = "<%= currUser._id %>";
+      let chatUser_id = "<%= chatUser._id %>";
+      let msgType = "recMsg";
+
+      let msg_id = data.msg_id;
+      let isDeleted = false;
+      let isImage = true;
+      let imgURL = data.img;
+      if (
+        data.recUser === "<%=currUser._id%>" &&
+        data.sendUser === "<%=chatUser._id%>"
+      ) {
+        let imgSrc = data.img;
+        let LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          hour12: true,
+        });
+
+        let SmlCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+        let html =
+          `
+        <div class="recMsg">
+          <div
+            class="recInnerMsg"
+          >
+          <img src=` +
+          imgSrc +
+          ` alt="" />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+          LrgCreatedAt +
+          `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+          SmlCreatedAt +
+          `
+          </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id= "deleteBtn">
+            
+            <button
+              onclick="openDelCnf(
+                '` +
+          currUser_id +
+          `','` +
+          chatUser_id +
+          `',` +
+          time +
+          `,'` +
+          msgType +
+          `','` +
+          msg_id +
+          `','` +
+          isDeleted +
+          `','` +
+          isImage +
+          `','` +
+          imgURL +
+          `'
+              )"
+            >
+              Delete
+            </button>
+        </div>`;
+        $(".messages").append(html);
+        scrollChat();
+        /*  appendRecMsg(html); */
       }
     });
 
@@ -1147,14 +1648,14 @@
         0
       );
     }
-    // Play audio asynchronously
-    function playAudio(url) {
-      return new Promise((resolve, reject) => {
-        let audio = new Audio(url);
-        audio.onended = resolve;
-        audio.onerror = reject;
-        audio.play();
-      });
+
+    //append msg and Play audio
+    function appendRecMsg(html) {
+      $(".messages").append(html);
+      scrollChat();
+      /* // Play notification sound
+      var audio = new Audio("notification.mp3");
+      audio.play(); */
     }
   </script>
 
@@ -1280,12 +1781,14 @@
     btn.innerHTML = "Send";
     btn.style = "margin-left: 0.5rem";
     btn.type = "submit";
+    btn.id = "ImgSendBtn";
 
     const inp = document.createElement("input");
     inp.type = "text";
     inp.placeholder = "Enter Captions";
     inp.style = "width:60%; border-radius:1rem; text-align:center ";
     inp.name = "caption";
+    inp.id = "ImgSendInp";
 
     // Add an event listener to the input
     fileInput.addEventListener("change", handleFileSelect);
@@ -1311,6 +1814,9 @@
           imagePreview.appendChild(img);
           previewBottom.appendChild(inp);
           previewBottom.appendChild(btn);
+          // Re-display the preview divs if needed
+          document.getElementById("previewBottom").style.display = "block";
+          document.getElementById("imagePreview").style.display = "block";
         };
 
         // Read the file as a data URL

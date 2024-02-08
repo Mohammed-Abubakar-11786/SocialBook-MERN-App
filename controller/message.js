@@ -246,7 +246,7 @@ module.exports.saveMsg = async (req, res) => {
     _id: _id,
     msg: msg,
     sendUser: chatUser._id,
-    createdAt: Date.now(),
+    createdAt: msgDate,
   };
   currentUser.sendMsgs.push(obj1);
   await currentUser.save();
@@ -255,14 +255,14 @@ module.exports.saveMsg = async (req, res) => {
     _id: _id,
     msg: msg,
     recUser: currentUser._id,
-    createdAt: Date.now(),
+    createdAt: msgDate,
   };
   chatUser.recMsgs.push(obj2);
   await chatUser.save();
 
   /*   req.flash("success", `Message sent to ${chatUser.username}`); */
   /* res.redirect(`/chatWindow/${chatId}`) */
-  res.status(200).send({ success: true, msg: msg, createdAt: msgDate });
+  res.status(200).send({ success: true, msg: msg, createdAt: msgDate, _id });
 };
 
 module.exports.saveImg = async (req, res) => {
@@ -286,6 +286,8 @@ module.exports.saveImg = async (req, res) => {
 
       const _id = uuidv4();
 
+      let ImgDate = Date.now();
+
       let obj1 = {
         _id: _id,
         img: url,
@@ -307,8 +309,11 @@ module.exports.saveImg = async (req, res) => {
       chatUser.recImgs.push(obj2);
       await chatUser.save();
 
-      req.flash("success", `Image sent to ${chatUser.username}`);
-      res.redirect(`/chatWindow/${chatId}`);
+      /* req.flash("success", `Image sent to ${chatUser.username}`);
+      res.redirect(`/chatWindow/${chatId}`); */
+      res
+        .status(200)
+        .send({ success: true, img: url, createdAt: ImgDate, _id });
     }
   );
 };
