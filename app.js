@@ -17,11 +17,6 @@ const User = require("./models/user.js");
 const luxon = require("luxon");
 const fileUpload = require("express-fileupload");
 
-/* const EventEmitter = require("events");
-const changeEmitter = new EventEmitter();
-const { MongoClient } = require("mongodb");
-const mongoURI = `${process.env.ATLASDB_URL}`; */
-
 const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
 const storyRouter = require("./routes/story.js");
@@ -91,33 +86,6 @@ app.use((req, res, next) => {
   res.locals.currUser = req.user;
   next();
 });
-
-/* async function setupChangeStream() {
-  const client = new MongoClient(mongoURI, { useUnifiedTopology: true });
-
-  try {
-    await client.connect();
-
-    const database = client.db("test");
-    const collection = database.collection("users");
-
-    // Set up a change stream on the collection
-    const changeStream = collection.watch();
-
-    // Listen for changes
-    changeStream.on("change", (change) => {
-      // Notify connected clients about the change
-      io.emit("change", change);
-    });
-
-    console.log("Change stream is set up.");
-  } catch (error) {
-    console.error("Error setting up change stream:", error);
-  }
-}
-
-// Call the setupChangeStream function
-setupChangeStream(); */
 
 const http = require("http").Server(app);
 let io = require("socket.io")(http);

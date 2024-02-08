@@ -201,35 +201,6 @@ module.exports.renderChatWindow = async (req, res) => {
       console.error("Error:", error);
     }
   }
-  /* 
-  let isChanged = false;
-
-  async function setupChangeStream() {
-    const client = new MongoClient(mongoURI, { useUnifiedTopology: true });
-
-    try {
-      await client.connect();
-
-      const database = client.db("test");
-      const collection = database.collection("users");
-
-      // Set up a change stream on the collection
-      const changeStream = collection.watch();
-
-      // Listen for changes
-      changeStream.on("change", (change) => {
-        // Notify connected clients about the change
-        isChanged = true;
-      });
-
-      console.log("Change stream is set up.");
-    } catch (error) {
-      console.error("Error setting up change stream:", error);
-    }
-  }
-
-  // Call the setupChangeStream function
-  setupChangeStream(); */
 
   if (chatId) {
     res.render("messages/chatWindow2.ejs", {
