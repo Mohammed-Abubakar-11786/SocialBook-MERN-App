@@ -9,7 +9,7 @@ module.exports.renderNewPostForm = (req, res) => {
 };
 
 module.exports.saveNewPost = async (req, res) => {
-  const uploadOptions = { folder: "SocialBook" };
+  const uploadOptions = { folder: "SocialBook/Posts" };
   let { post_description } = req.body;
 
   const file = req.files.post_image;

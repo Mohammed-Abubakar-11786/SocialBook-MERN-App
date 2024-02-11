@@ -62,6 +62,7 @@
     font-size: small;
   }
   .chatUser {
+    display: flex;
     justify-self: flex-start;
     align-items: center;
     background-color: aqua;
@@ -228,10 +229,6 @@
   .date-format-small {
     display: none;
   }
-
-  .back2AllUser {
-    display: none;
-  }
   /* Media query for small screens (up to 412px) */
   @media only screen and (max-width: 435px) {
     .date-format-large {
@@ -296,9 +293,16 @@
   .Eicon:hover {
     cursor: pointer;
   }
+  #backBtn:hover {
+    scale: 1.1;
+  }
   @media screen and (max-width: 767px) {
     /* Styles for screens with a maximum width of 767 pixels */
-
+    div#chatOptions {
+      position: absolute;
+      top: 10%;
+      right: 8%;
+    }
     .AllUsers {
       display: none;
     }
@@ -315,6 +319,7 @@
     .chatUser {
       width: 100%;
       display: flex;
+      align-items: center;
       font-size: small;
       padding: 0.4rem 0.7rem;
       height: 4rem;
@@ -325,12 +330,6 @@
       border-radius: 50%;
       margin-right: 0.6rem;
       position: relative;
-    }
-    .backToHome {
-      display: none;
-    }
-    .back2AllUser {
-      display: block;
     }
     .chatUser {
       position: fixed;
@@ -354,6 +353,7 @@
       margin-top: 5rem;
     }
   }
+
   .profile-container {
     position: relative;
     display: inline-block;
@@ -447,6 +447,27 @@
     100% {
       width: 100%;
     }
+  }
+
+  #optionsBtn:hover {
+    cursor: pointer;
+  }
+  #chatOptions {
+    display: none;
+    background-color: cyan;
+    position: absolute;
+    top: 6rem;
+    right: 7.2rem;
+    top: 15%;
+    right: 7.2%;
+    border-radius: 1rem;
+    height: fit-content;
+    border: 1px solid black;
+  }
+  #chatOptions li:hover {
+    background-color: red;
+    color: yellow;
+    cursor: pointer;
   }
 </style>
 
@@ -608,6 +629,20 @@
       <% if(chatUser){ %>
       <div class="chatUser">
         <!-- userimage -->
+        <div>
+          <a href="/chatWindow" style="text-decoration: none; color: black"
+            ><i
+              id="backBtn"
+              style="
+                margin: auto;
+                font-size: x-large;
+                margin-bottom: 20px;
+                margin-right: 10px;
+              "
+              class="fa-solid fa-arrow-left"
+            ></i
+          ></a>
+        </div>
         <div class="profile-container">
           <img
             class="profile-image"
@@ -643,14 +678,39 @@
             <% } %>
           </div>
         </div>
-        <div class="homeBtn">
-          <a style="text-decoration: none; color: black" href="/"
-            ><button class="btn btn-warning backToHome">Back To Home</button></a
-          >
-          <a style="text-decoration: none; color: black" href="/chatWindow"
-            ><button class="btn btn-warning back2AllUser">Back</button></a
-          >
+        <div
+          id="optionsBtn"
+          onclick="openChatOpt()"
+          onmouseenter="openChatOpt()"
+          style="margin-left: auto"
+        >
+          <i
+            style="
+              margin: auto;
+              font-size: x-large;
+              margin-bottom: 20px;
+              margin-right: 10px;
+            "
+            class="fa-solid fa-ellipsis-vertical"
+          ></i>
         </div>
+      </div>
+
+      <div id="chatOptions">
+        <form
+          id="deleteMsgsForm"
+          action="/deleteAllMsgs/<%=currUser._id %>/<%= chatUser._id %>"
+          style="text-decoration: none"
+        >
+          <ul class="list-group">
+            <button
+              style="border: 1px solid black; border-radius: 1rem"
+              type="submit"
+            >
+              <li class="list-group-item">Clear Chat</li>
+            </button>
+          </ul>
+        </form>
       </div>
 
       <% if(chatUser ) {%> <% if(currUser && chatUser._id.toString() ===
@@ -924,6 +984,7 @@
               name="chatImg"
               style="display: none"
             />
+            <div id="imgOfPreview"></div>
           </div>
           <div id="previewBottom"></div>
         </form>
@@ -1506,6 +1567,10 @@
             </button>
         </div>`;
             progressBar.style.display = "none";
+            document.getElementById("ImgSendBtn").disabled = false;
+            document.getElementById("ImgSendInp").disabled = false;
+            $("#imgOfPreview").empty();
+            $("#previewBottom").empty();
             $(".messages").append(html);
             scrollChat();
             socket.emit("imgSent", {
@@ -1660,6 +1725,30 @@
   </script>
 
   <script>
+    let chatOptions = document.getElementById("chatOptions");
+    chatOptions.addEventListener("mouseleave", () => {
+      chatOptions.style.display = "none";
+    });
+    function openChatOpt() {
+      chatOptions.style.display === "block"
+        ? (chatOptions.style.display = "none")
+        : (chatOptions.style.display = "block");
+    }
+
+    let deleteMsgsForm = document.getElementById("deleteMsgsForm");
+
+    deleteMsgsForm.addEventListener("submit", function (e) {
+      let html = ``;
+      e.preventDefault();
+      $.ajax({
+        url: "/deleteAllMsgs/<%=currUser._id %>/<%= chatUser._id %>",
+        type: "get",
+        success: () => {
+          $(".messages").empty();
+        },
+      });
+    });
+
     function submitDelBtn(currUser_id, chatUser_id, delType) {
       let msg_id = document.getElementById("msg_id");
       let msg_type = document.getElementById("msg_type");
@@ -1769,6 +1858,7 @@
       };
     }); // Get references to the input and preview elements
     const fileInput = document.getElementById("fileInput");
+    const imgOfPreview = document.getElementById("imgOfPreview");
     const imagePreview = document.getElementById("imagePreview");
     const form = document.getElementById("priviewForm");
     const previewBottom = document.getElementById("previewBottom");
@@ -1811,12 +1901,13 @@
           // Set the source of the image to the loaded data URL
           img.src = e.target.result;
 
-          imagePreview.appendChild(img);
+          imgOfPreview.appendChild(img);
           previewBottom.appendChild(inp);
           previewBottom.appendChild(btn);
           // Re-display the preview divs if needed
+          imagePreview.style.display = "block";
+          document.getElementById("imgOfPreview").style.display = "block";
           document.getElementById("previewBottom").style.display = "block";
-          document.getElementById("imagePreview").style.display = "block";
         };
 
         // Read the file as a data URL

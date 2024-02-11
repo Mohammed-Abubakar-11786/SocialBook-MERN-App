@@ -22,4 +22,8 @@ router
     "/deleteMsg/:currUser_id/:chatUser_id/:msgType/:msgId/:delType/:is_img/:img_Name"
   )
   .get(msgController.delMsgs);
+
+router
+  .route("/deleteAllMsgs/:currUserId/:chatUserId")
+  .get(msgController.delAllMsgs);
 module.exports = router;

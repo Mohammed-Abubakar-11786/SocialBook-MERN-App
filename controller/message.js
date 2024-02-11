@@ -271,13 +271,22 @@ module.exports.saveImg = async (req, res) => {
 
   /* let url = req.file.path; */
   /*  console.log(req.files.chatImg); the file to upload */
-  const uploadOptions = { folder: "SocialBook" };
+  const uploadOptions = { folder: "SocialBook/Chats" };
   const file = req.files.chatImg;
   cloudinary.uploader.upload(
     file.tempFilePath,
     uploadOptions,
     async (err, result) => {
       let url = result.url;
+      console.log(url);
+      let imgURLarray = url.split("/");
+      let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
+      let imageName =
+        imgURLarray[imgURLarray.length - 3] +
+        "/" +
+        imgURLarray[imgURLarray.length - 2] +
+        "/" +
+        imgURLName[0];
       // Find user with chatID
       const chatUser = await User.findById(chatId).exec();
 
@@ -294,6 +303,7 @@ module.exports.saveImg = async (req, res) => {
         caption: caption,
         sendUser: chatUser._id,
         createdAt: Date.now(),
+        imageName: imageName,
       };
 
       currentUser.sendImgs.push(obj1);
@@ -305,6 +315,7 @@ module.exports.saveImg = async (req, res) => {
         caption: caption,
         recUser: currentUser._id,
         createdAt: Date.now(),
+        imageName: imageName,
       };
       chatUser.recImgs.push(obj2);
       await chatUser.save();
@@ -335,9 +346,10 @@ module.exports.delMsgs = async (req, res) => {
     img_Name
   ); */
 
-  const folderPath = "SocialBook/";
+  const folderPath = "SocialBook/Chats/";
   const imgName = `${folderPath}${img_Name}`;
 
+  console.log(imgName);
   const chatUser = await User.findById(chatUser_id);
   const currUser = await User.findById(currUser_id);
   if (
@@ -633,5 +645,110 @@ module.exports.delMsgs = async (req, res) => {
         res.redirect(`/chatWindow/${chatUser._id}`);
       }
     }
+  }
+};
+
+module.exports.delAllMsgs = async (req, res) => {
+  let { currUserId, chatUserId } = req.params;
+  let currUser = await User.findById(currUserId);
+  let chatUser = await User.findById(chatUserId);
+  try {
+    let sendImgToDelete = [];
+    let recImgToDelete = [];
+    // Find messages sent by current user to chat user
+    sendImgToDelete = currUser.sendImgs.filter(
+      (msg) => msg.sendUser.toString() === chatUserId.toString()
+    );
+
+    // Find messages received by current user from chat user
+    recImgToDelete = currUser.recImgs.filter(
+      (msg) => msg.recUser.toString() === chatUserId.toString()
+    );
+
+    if (sendImgToDelete) {
+      for (img of sendImgToDelete) {
+        const indexToDelete = currUser.sendImgs.findIndex(
+          (msg) => msg._id.toString() === img._id.toString()
+        );
+        console.log(indexToDelete);
+        // Remove the message from the array
+        currUser.sendImgs.splice(indexToDelete, 1);
+
+        const ToDelete = chatUser.recImgs.find(
+          (msg) =>
+            msg._id.toString() === img._id.toString() && msg.isDeleted === false
+        );
+        if (!ToDelete) {
+          let imageName = img.imageName;
+          console.log(imageName);
+          console.log("deleted");
+          cloudinary.uploader.destroy(imageName, (err, res) => {
+            console.log(err, " ", res);
+          });
+        }
+      }
+    }
+
+    if (recImgToDelete) {
+      for (img of recImgToDelete) {
+        const indexToDelete = currUser.recImgs.findIndex(
+          (msg) => msg._id.toString() === img._id.toString()
+        );
+        // Remove the message from the array
+        currUser.recImgs.splice(indexToDelete, 1);
+
+        const ToDelete = chatUser.sendImgs.find(
+          (msg) =>
+            msg._id.toString() === img._id.toString() && msg.isDeleted === false
+        );
+        if (!ToDelete) {
+          console.log("deleted");
+
+          let imageName = img.imageName;
+          cloudinary.uploader.destroy(imageName, (err, res) => {
+            console.log(err, " ", res);
+          });
+        }
+      }
+    }
+
+    let sendMsgToDelete = [];
+    let recMsgToDelete = [];
+    // Find messages sent by current user to chat user
+    sendMsgToDelete = currUser.sendMsgs.filter(
+      (msg) => msg.sendUser.toString() === chatUserId.toString()
+    );
+
+    // Find messages received by current user from chat user
+    recMsgToDelete = currUser.recMsgs.filter(
+      (msg) => msg.recUser.toString() === chatUserId.toString()
+    );
+
+    if (sendMsgToDelete) {
+      for (msg of sendMsgToDelete) {
+        const indexToDelete = currUser.sendMsgs.findIndex(
+          (msg1) => msg1._id.toString() === msg._id.toString()
+        );
+        // Remove the message from the array
+        currUser.sendMsgs.splice(indexToDelete, 1);
+      }
+    }
+
+    if (recMsgToDelete) {
+      for (msg of recMsgToDelete) {
+        const indexToDelete = currUser.recMsgs.findIndex(
+          (msg1) => msg1._id.toString() === msg._id.toString()
+        );
+        // Remove the message from the array
+        currUser.recMsgs.splice(indexToDelete, 1);
+      }
+    }
+
+    await currUser.save();
+    console.log("All Messages deleted successfully");
+    res.status(200).send({ success: true });
+  } catch (error) {
+    console.error("Error deleting messages:", error);
+    res.status(400).send({ success: false });
   }
 };

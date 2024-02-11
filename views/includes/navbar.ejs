@@ -181,9 +181,9 @@
       border-radius: 1rem;
       box-shadow: 0 0 10px rgb(166, 156, 156);
     }
-    .settingUserInfo i {
+    /*  .settingUserInfo i {
       display: none;
-    }
+    } */
     .settingUserInfo {
       align-items: center;
     }
@@ -216,11 +216,19 @@
     </div>
 
     <% if(currUser ){%>
-    <div class="profile-logo">
-      <img src="<%= currUser.image.url %>" onclick="openSetting()" />
+    <div
+      class="profile-logo"
+      onmouseover="openSetting()"
+      onclick="openSetting()"
+    >
+      <img src="<%= currUser.image.url %>" />
     </div>
     <% } else{%>
-    <button class="btn btn-success signup" onclick="openLoginForm()">
+    <button
+      class="btn btn-success signup"
+      onmouseover="openLoginForm()"
+      onclick="openLoginForm()"
+    >
       LogIn/SignUp
     </button>
     <% } %>
@@ -234,20 +242,13 @@
             <h6 style="font-size: medium"><%= currUser.username %></h6>
             <a href="">See Your Profile</a>
           </div>
-        </div>
-        <% } else{%>
-        <div class="settingUserInfo">
-          <img
-            style="width: 13%"
-            src="https://img.freepik.com/premium-vector/man-face-design-logo-premium_96853-366.jpg"
-            alt=""
-          />
-          <div class="info">
-            <h6 style="font-size: medium">UserName</h6>
-            <a href="">See Your Profile</a>
+          <div onclick="closeSetting()" style="margin-left: auto">
+            <i
+              style="margin-left: auto; font-size: x-large; margin-bottom: 20px"
+              class="fa-solid fa-xmark"
+            ></i>
           </div>
         </div>
-
         <% } %>
         <center><hr style="width: 90%; margin: 0.8rem 0 0.8rem 0" /></center>
         <div class="settingUserInfo">
@@ -328,12 +329,21 @@
   function openLoginForm() {
     document.getElementById("loginOverlay").style.display = "flex";
   }
+
   function openSetting() {
     let setting = document.getElementById("settingsMenu");
-    if (setting.style.display === "none") {
-      setting.style.display = "block"; // Use the appropriate display value (e.g., "block")
-    } else {
-      setting.style.display = "none";
-    }
+    setting.style.display = "block"; // Initially hide the settings menu
+
+    setting.addEventListener("mouseenter", function () {
+      setting.style.display = "block"; // Display the settings menu when mouse enters
+    });
+
+    setting.addEventListener("mouseleave", function () {
+      setting.style.display = "none"; // Hide the settings menu when mouse leaves
+    });
+  }
+
+  function closeSetting() {
+    document.getElementById("settingsMenu").style.display = "none";
   }
 </script>

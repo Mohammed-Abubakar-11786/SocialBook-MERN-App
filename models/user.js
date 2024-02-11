@@ -73,6 +73,7 @@ const userSchema = new Schema({
         ref: "User",
       },
       createdAt: Date,
+      imageName: String,
     },
   ],
   recImgs: [
@@ -92,6 +93,7 @@ const userSchema = new Schema({
         ref: "User",
       },
       createdAt: Date,
+      imageName: String,
     },
   ],
 });
