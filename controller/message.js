@@ -278,7 +278,6 @@ module.exports.saveImg = async (req, res) => {
     uploadOptions,
     async (err, result) => {
       let url = result.url;
-      console.log(url);
       let imgURLarray = url.split("/");
       let imgURLName = imgURLarray[imgURLarray.length - 1].split(".");
       let imageName =
@@ -349,7 +348,6 @@ module.exports.delMsgs = async (req, res) => {
   const folderPath = "SocialBook/Chats/";
   const imgName = `${folderPath}${img_Name}`;
 
-  console.log(imgName);
   const chatUser = await User.findById(chatUser_id);
   const currUser = await User.findById(currUser_id);
   if (
@@ -680,8 +678,6 @@ module.exports.delAllMsgs = async (req, res) => {
         );
         if (!ToDelete) {
           let imageName = img.imageName;
-          console.log(imageName);
-          console.log("deleted");
           cloudinary.uploader.destroy(imageName, (err, res) => {
             console.log(err, " ", res);
           });
