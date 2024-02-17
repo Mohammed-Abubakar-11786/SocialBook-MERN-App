@@ -555,7 +555,7 @@
       chatUser_id = chatUser._id; %>
       <button
         onclick="submitDelBtn('<%=currUser_id%>','<%=chatUser_id%>','<%=delTypeE%>')"
-        class="nbtn"
+        class="nbtn delBtn"
         id="delForE"
       >
         Delete For Everyone
@@ -563,11 +563,13 @@
       <% let delTypeM = "delTypeM"%>
       <button
         onclick="submitDelBtn('<%=currUser_id%>','<%=chatUser_id%>','<%=delTypeM%>')"
-        class="nbtn"
+        class="nbtn delBtn"
       >
         Delete For Me
       </button>
-      <button class="windowCloseBtn" onclick="closeDelCnf()">Close</button>
+      <button class="windowCloseBtn delBtn" onclick="closeDelCnf()">
+        Close
+      </button>
     </div>
   </div>
   <div class="outerChat">
@@ -609,7 +611,7 @@
               <!-- time -->
 
               <% if(user.latestMsg){ %>
-              <p>
+              <p id="<%= user._id %>-latestMsg">
                 Last Msg: <%= luxon.DateTime.fromJSDate(new
                 Date(user.latestMsg), { zone: 'Asia/Kolkata' })
                 .toLocaleString({ weekday: 'short', month: 'short', day:
@@ -617,7 +619,7 @@
                 second: 'numeric', hour12: true }) %>
               </p>
               <% } else { %>
-              <p>Last Msg: No messages</p>
+              <p id="<%= user._id  %>-latestMsg">Last Msg: No messages</p>
               <% }%>
             </div>
           </div>
@@ -625,7 +627,7 @@
         <% } %>
       </div>
     </div>
-    <div class="chatOuterBoundry">
+    <div class="chatOuterBoundry" id="chatOuterBoundry">
       <% if(chatUser){ %>
       <div class="chatUser">
         <!-- userimage -->
@@ -718,7 +720,7 @@
       <div class="messages">
         <!-- mesges -->
         <% sortedSelfMsgs.forEach(msg => { %> <%if(msg.isDeleted){%>
-        <div class="sendMsg">
+        <div class="sendMsg" id="<%=msg.id %>">
           <div class="recInnerMsg" style="background-color: rgb(215, 213, 213)">
             <p style="margin-bottom: 0">
               <i class="fa-regular fa-circle-xmark"></i> This Message Was
@@ -754,11 +756,15 @@
               hour12: true }) %>
             </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" style="width: 10%; text-align: center">
+            <div
+              class="Eicon"
+              onclick="openDelBTN('<%= msg.id %>-icon')"
+              style="width: 10%; text-align: center"
+            >
               <i class="fa-solid fa-caret-down"></i>
             </div>
           </div>
-          <div class="deleteBtn">
+          <div class="deleteBtn" id="<%= msg.id %>-icon">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
             msgType = "sendMsg"; let time = msg.createdAt; let msg_id = msg.id;
             let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
@@ -771,7 +777,7 @@
           </div>
         </div>
         <%} else{ %>
-        <div class="sendMsg">
+        <div class="sendMsg" id="<%=msg.id %>">
           <div class="recInnerMsg">
             <% if(msg.img){%>
             <img src="<%= msg.img %>" alt="" />
@@ -808,11 +814,15 @@
               hour12: true }) %>
             </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" style="width: 10%; text-align: center">
+            <div
+              class="Eicon"
+              onclick="openDelBTN('<%= msg.id %>-icon')"
+              style="width: 10%; text-align: center"
+            >
               <i class="fa-solid fa-caret-down"></i>
             </div>
           </div>
-          <div class="deleteBtn">
+          <div class="deleteBtn" id="<%= msg.id %>-icon">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
             msgType = "sendMsg"; let time = msg.createdAt; let msg_id = msg.id;
             let isDeleted = msg.isDeleted; let isImage = msg.isImage; let imgURL
@@ -854,7 +864,7 @@
         <!-- mesges -->
         <% sortedMsgs.forEach(msg => { if( msg.type === 'recMsg' || msg.type ===
         'sendMsg') { %> <%if(msg.isDeleted){%>
-        <div class="<%= msg.type %>">
+        <div class="<%= msg.type %>" id="<%=msg.id %>">
           <div
             style="background-color: rgb(215, 213, 213)"
             class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
@@ -893,11 +903,15 @@
               hour12: true }) %>
             </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" style="width: 10%; text-align: center">
+            <div
+              class="Eicon"
+              onclick="openDelBTN('<%= msg.id %>-icon')"
+              style="width: 10%; text-align: center"
+            >
               <i class="fa-solid fa-caret-down"></i>
             </div>
           </div>
-          <div class="deleteBtn">
+          <div class="deleteBtn" id="<%= msg.id %>-icon">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
             let msgType = msg.type; let time = msg.createdAt; let msg_id =
             msg.id; let isDeleted = msg.isDeleted; let isImage = msg.isImage;
@@ -910,7 +924,7 @@
           </div>
         </div>
         <%} else{ %>
-        <div class="<%= msg.type %>">
+        <div class="<%= msg.type %>" id="<%=msg.id %>">
           <div
             class="<%= msg.type === 'recMsg' ? 'recInnerMsg' : 'sendInnerMsg' %>"
           >
@@ -949,11 +963,15 @@
               hour12: true }) %>
             </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" style="width: 10%; text-align: center">
+            <div
+              class="Eicon"
+              onclick="openDelBTN('<%= msg.id %>-icon')"
+              style="width: 10%; text-align: center"
+            >
               <i class="fa-solid fa-caret-down"></i>
             </div>
           </div>
-          <div class="deleteBtn">
+          <div class="deleteBtn" id="<%= msg.id %>-icon">
             <%let currUser_id = currUser._id ; let chatUser_id = chatUser._id;
             let msgType = msg.type; let time = msg.createdAt; let msg_id =
             msg.id; let isDeleted = msg.isDeleted; let isImage = msg.isImage;
@@ -1004,10 +1022,8 @@
           >
         </div>
       </div>
-      <% }%>
-
+      <% }%> <%if(chatUser){ %>
       <div class="typeMsg">
-        <%if(chatUser){ %>
         <form
           id="msgSendForm"
           method="post"
@@ -1052,8 +1068,8 @@
             </div>
           </div>
         </form>
-        <% } %>
       </div>
+      <% } %>
     </div>
   </div>
 
@@ -1164,14 +1180,24 @@
 
             let html =
               `
-          <div class="sendMsg">
-          <div
-            class="sendInnerMsg"
+          <div class="sendMsg" id=${msg_id}>
+          <% if(chatUser_id.toString() === currUser_id.toString()){ %>
+            <div
+            class="sendInnerMsg" style="background-color:white;"
           >
-            <p>` +
+            <p style="margin-bottom:0">` +
               chat +
               `</p>
           </div>
+          <% } else{%>
+            <div
+            class="sendInnerMsg"
+          >
+            <p style="margin-bottom:0">` +
+              chat +
+              `</p>
+          </div>
+            <%}%>
           <div
             style="
               display: flex;
@@ -1198,13 +1224,13 @@
               SmlCreatedAt +
               `
           </p>
-            <!-- Ellipsis icon -->
-            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+            <!-- Ellipsis icon --> 
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
               <i class="fa-solid fa-caret-down"></i>
             </div>
         </div>
-          <div  class="deleteBtn" id= "deleteBtn">
-            
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
             <button
               onclick="openDelCnf(
                 '` +
@@ -1231,6 +1257,7 @@
         </div>`;
             $(".messages").append(html);
             scrollChat();
+
             socket.emit("msgSent", {
               sendUser: "<%=currUser._id%>",
               recUser: "<%=chatUser._id%>",
@@ -1243,17 +1270,19 @@
               msg_id,
               imgURL,
             });
+
+            let innerText = `Last Msg: ${LrgCreatedAt}`;
+            $("#<%=chatUser._id%>-latestMsg").empty();
+            $("#<%=chatUser._id%>-latestMsg").append(innerText);
           },
         });
-      } else {
-        e.submit();
       }
     });
 
-    function openDelBTN() {
-      document.getElementById("deleteBtn").style.display === "none"
-        ? (document.getElementById("deleteBtn").style.display = "block")
-        : (document.getElementById("deleteBtn").style.display = "none");
+    function openDelBTN(msg_id) {
+      document.getElementById(`${msg_id}`).style.display === "none"
+        ? (document.getElementById(`${msg_id}`).style.display = "block")
+        : (document.getElementById(`${msg_id}`).style.display = "none");
     }
 
     function openDelCnf(
@@ -1332,7 +1361,8 @@
       let imgURL = data.imgURL;
       if (
         data.recUser === "<%=currUser._id%>" &&
-        data.sendUser === "<%=chatUser._id%>"
+        data.sendUser === "<%=chatUser._id%>" &&
+        data.recUser !== data.sendUser
       ) {
         let chat = data.msg;
         let LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
@@ -1361,11 +1391,11 @@
 
         let html =
           `
-        <div class="recMsg">
+        <div class="recMsg" id=${msg_id}>
           <div
             class="recInnerMsg"
           >
-            <p>` +
+            <p style="margin-bottom:0">` +
           chat +
           `</p>
           </div>
@@ -1396,12 +1426,12 @@
           `
           </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
               <i class="fa-solid fa-caret-down"></i>
             </div>
         </div>
-          <div  class="deleteBtn" id= "deleteBtn">
-            
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
             <button
               onclick="openDelCnf(
                 '` +
@@ -1429,6 +1459,10 @@
         $(".messages").append(html);
         scrollChat();
         /*  appendRecMsg(html); */
+
+        let innerText = `Last Msg: ${LrgCreatedAt}`;
+        $("#<%=chatUser._id%>-latestMsg").empty();
+        $("#<%=chatUser._id%>-latestMsg").append(innerText);
       }
     });
 
@@ -1501,7 +1535,7 @@
 
             let html =
               `
-          <div class="sendMsg">
+          <div class="sendMsg" id=${msg_id}>
           <div
             class="sendInnerMsg"
           >
@@ -1536,12 +1570,12 @@
               `
           </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
               <i class="fa-solid fa-caret-down"></i>
             </div>
         </div>
-          <div  class="deleteBtn" id= "deleteBtn">
-            
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
             <button
               onclick="openDelCnf(
                 '` +
@@ -1580,6 +1614,10 @@
               createdAt: data.createdAt,
               msg_id,
             });
+
+            let innerText = `Last Msg: ${LrgCreatedAt}`;
+            $("#<%=chatUser._id%>-latestMsg").empty();
+            $("#<%=chatUser._id%>-latestMsg").append(innerText);
           },
           error: (xhr, status, error) => {
             console.error("Error sending image:", error);
@@ -1605,7 +1643,8 @@
       let imgURL = data.img;
       if (
         data.recUser === "<%=currUser._id%>" &&
-        data.sendUser === "<%=chatUser._id%>"
+        data.sendUser === "<%=chatUser._id%>" &&
+        data.recUser !== data.sendUser
       ) {
         let imgSrc = data.img;
         let LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(data.createdAt), {
@@ -1633,7 +1672,7 @@
         });
         let html =
           `
-        <div class="recMsg">
+        <div class="recMsg" id=${msg_id}>
           <div
             class="recInnerMsg"
           >
@@ -1668,12 +1707,12 @@
           `
           </p>
             <!-- Ellipsis icon -->
-            <div class="Eicon" onclick="openDelBTN()" style="width: 10%; text-align: center">
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
               <i class="fa-solid fa-caret-down"></i>
             </div>
         </div>
-          <div  class="deleteBtn" id= "deleteBtn">
-            
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
             <button
               onclick="openDelCnf(
                 '` +
@@ -1701,6 +1740,154 @@
         $(".messages").append(html);
         scrollChat();
         /*  appendRecMsg(html); */
+
+        let innerText = `Last Msg: ${LrgCreatedAt}`;
+        $("#<%=chatUser._id%>-latestMsg").empty();
+        $("#<%=chatUser._id%>-latestMsg").append(innerText);
+      }
+    });
+
+    socket.on("recDelete", (data) => {
+      let data_msgId = data.msgId.toString();
+
+      if (
+        data.chatUser_id === "<%=currUser._id%>" &&
+        data.currUser_id === "<%=chatUser._id%>"
+      ) {
+        let msg;
+        for (Emsg of data.currentUser.sendMsgs) {
+          if (Emsg._id.toString() === data_msgId) {
+            msg = Emsg;
+          }
+        }
+        if (!msg) {
+          for (Emsg of data.currentUser.sendImgs) {
+            if (Emsg._id.toString() === data_msgId) {
+              msg = Emsg;
+            }
+          }
+        }
+
+        if (!msg) {
+          for (Emsg of data.currentUser.recMsgs) {
+            if (Emsg._id.toString() === data_msgId) {
+              msg = Emsg;
+            }
+          }
+        }
+        if (!msg) {
+          for (Emsg of data.currentUser.recImgs) {
+            if (Emsg._id.toString() === data_msgId) {
+              msg = Emsg;
+            }
+          }
+        }
+
+        let currUser_id = "<%= currUser._id %>";
+        let chatUser_id = "<%= chatUser._id %>";
+        let LrgCreatedAt;
+        let msgType = "recMsg";
+        let SmlCreatedAt;
+        let msg_id = data.msgId;
+        let isDeleted = true;
+        let isImage = data.is_img;
+
+        let imgURL = data.imgURL;
+        let time;
+
+        time = msg.createdAt;
+
+        LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(msg.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          hour12: true,
+        });
+
+        SmlCreatedAt = luxon.DateTime.fromJSDate(new Date(msg.createdAt), {
+          zone: "Asia/Kolkata",
+        }).toLocaleString({
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+
+        let html =
+          `<div class="recInnerMsg" style="background-color: rgb(215, 213, 213)">
+            <p style="margin-bottom: 0">
+              <i class="fa-regular fa-circle-xmark"></i> This Message Was
+              Deleted
+            </p>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+          LrgCreatedAt +
+          `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+          SmlCreatedAt +
+          `
+          </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
+            <button
+              onclick="openDelCnf(
+                '` +
+          currUser_id +
+          `','` +
+          chatUser_id +
+          `','` +
+          time +
+          `','` +
+          msgType +
+          `','` +
+          msg_id +
+          `','` +
+          isDeleted +
+          `','` +
+          isImage +
+          `','` +
+          imgURL +
+          `'
+              )"
+            >
+              Delete
+            </button>
+        </div>`;
+
+        $(`#${msg._id}`).empty();
+        $(`#${msg._id}`).append(html);
       }
     });
 
@@ -1714,7 +1901,7 @@
       );
     }
 
-    //append msg and Play audio
+    //(Not Working)append msg and Play audio
     function appendRecMsg(html) {
       $(".messages").append(html);
       scrollChat();
@@ -1725,6 +1912,11 @@
   </script>
 
   <script>
+    function openDelBTN(msg_id) {
+      document.getElementById(`${msg_id}`).style.display === "none"
+        ? (document.getElementById(`${msg_id}`).style.display = "block")
+        : (document.getElementById(`${msg_id}`).style.display = "none");
+    }
     let chatOptions = document.getElementById("chatOptions");
     chatOptions.addEventListener("mouseleave", () => {
       chatOptions.style.display = "none";
@@ -1745,6 +1937,9 @@
         type: "get",
         success: () => {
           $(".messages").empty();
+          let innerText = `Last Msg: No messages`;
+          $("#<%=chatUser._id%>-latestMsg").empty();
+          $("#<%=chatUser._id%>-latestMsg").append(innerText);
         },
       });
     });
@@ -1767,9 +1962,267 @@
         imgURL = "noURL";
       }
 
-      cnfForm.action = `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`;
-      cnfForm.submit();
+      const elements = document.getElementsByClassName("delBtn");
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].disabled = true; // Set disabled property to true
+        elements[i].style.backgroundColor = "rgb(215, 213, 213)";
+        elements[i].style.color = "black";
+      }
+      /* cnfForm.action = `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`;
+      cnfForm.submit(); */
+      $.ajax({
+        url: `/deleteMsg/${currUser_id}/${chatUser_id}/${msgType}/${msgId}/${delType}/${is_img}/${imgURL}`,
+
+        type: "get",
+        success: (data) => {
+          let sendObj = {
+            currUser_id: "<%= currUser._id %>",
+            chatUser_id: "<%= chatUser._id %>",
+            msgType,
+            msgId,
+            delType,
+            is_img,
+            imgURL,
+          };
+          let msg;
+          let IS_Img = false;
+
+          for (Emsg of data.currUser.sendMsgs) {
+            if (Emsg._id.toString() === msgId.toString()) {
+              msg = Emsg;
+            }
+          }
+          if (!msg) {
+            for (Emsg of data.currUser.sendImgs) {
+              if (Emsg._id.toString() === msgId.toString()) {
+                msg = Emsg;
+                IS_Img = true;
+              }
+            }
+          }
+
+          if (!msg) {
+            for (Emsg of data.currUser.recMsgs) {
+              if (Emsg._id.toString() === msgId.toString()) {
+                msg = Emsg;
+              }
+            }
+          }
+          if (!msg) {
+            for (Emsg of data.currUser.recImgs) {
+              if (Emsg._id.toString() === msgId.toString()) {
+                msg = Emsg;
+                IS_Img = true;
+              }
+            }
+          }
+
+          let LrgCreatedAt;
+          let SmlCreatedAt;
+          let msg_id = msgId;
+          let isDeleted = true;
+          let isImage = IS_Img;
+          let time;
+          if (msg) {
+            time = msg.createdAt;
+
+            LrgCreatedAt = luxon.DateTime.fromJSDate(new Date(msg.createdAt), {
+              zone: "Asia/Kolkata",
+            }).toLocaleString({
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              hour12: true,
+            });
+
+            SmlCreatedAt = luxon.DateTime.fromJSDate(new Date(msg.createdAt), {
+              zone: "Asia/Kolkata",
+            }).toLocaleString({
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            });
+          }
+
+          if (!msg) {
+            $(`#${msg_id}`).remove();
+            let allMsgs = [];
+
+            let currentUser = data.currUser;
+            let chatUser = data.chatUser;
+            let prevLatestTime;
+            if (currentUser && currentUser.sendMsgs.length > 0) {
+              for (msg of currentUser.sendMsgs) {
+                if (msg.sendUser.toString() === chatUser._id.toString()) {
+                  allMsgs.push(msg);
+                }
+              }
+            }
+
+            if (currentUser && currentUser.recMsgs.length > 0) {
+              for (msg of currentUser.recMsgs) {
+                if (msg.recUser.toString() === chatUser._id.toString()) {
+                  allMsgs.push(msg);
+                }
+              }
+            }
+            //storing all sendImgs
+            if (currentUser && currentUser.sendImgs.length > 0) {
+              for (img of currentUser.sendImgs) {
+                if (img.sendUser.toString() === chatUser._id.toString()) {
+                  allMsgs.push(img);
+                }
+              }
+            }
+
+            //storing all recImgs
+            if (currentUser && currentUser.recImgs.length > 0) {
+              for (img of currentUser.recImgs) {
+                if (img.recUser.toString() === chatUser._id.toString()) {
+                  allMsgs.push(img);
+                }
+              }
+            }
+
+            if (allMsgs.length > 0) {
+              const latestMsg = allMsgs.reduce((prevMsg, currentMsg) =>
+                new Date(currentMsg.createdAt) > new Date(prevMsg.createdAt)
+                  ? currentMsg
+                  : prevMsg
+              );
+              prevLatestTime = latestMsg.createdAt;
+            } else {
+              // No messages for this user, remove latestMsg value
+              prevLatestTime = undefined;
+            }
+
+            if (prevLatestTime) {
+              prevLatestTime = luxon.DateTime.fromJSDate(
+                new Date(prevLatestTime),
+                {
+                  zone: "Asia/Kolkata",
+                }
+              ).toLocaleString({
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                hour12: true,
+              });
+              let innerText = `Last Msg: ${prevLatestTime}`;
+              $("#<%=chatUser._id%>-latestMsg").empty();
+              $("#<%=chatUser._id%>-latestMsg").append(innerText);
+            } else {
+              let innerText = `Last Msg: No messages`;
+              $("#<%=chatUser._id%>-latestMsg").empty();
+              $("#<%=chatUser._id%>-latestMsg").append(innerText);
+            }
+            document.getElementById("delCnfOverlay").style.display = "none";
+            //to reEnable the delOverlay btns
+            const elements = document.getElementsByClassName("delBtn");
+            for (let i = 0; i < elements.length; i++) {
+              elements[i].disabled = false; // Set disabled property to true
+              elements[i].style = "";
+            }
+          } else {
+            let html =
+              `<div class="recInnerMsg" style="background-color: rgb(215, 213, 213)">
+            <p style="margin-bottom: 0">
+              <i class="fa-regular fa-circle-xmark"></i> This Message Was
+              Deleted
+            </p>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-right: 0.2rem;
+              align-items: center;
+            "
+          >
+          <p
+            id="dateLarge"
+            class="date-format-large"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+            ` +
+              LrgCreatedAt +
+              `
+          </p>
+          <p
+            id="dateSmall"
+            class="date-format-small"
+            style="font-size: smaller; margin-left: 0.5rem; margin-bottom: 0"
+          >
+          ` +
+              SmlCreatedAt +
+              `
+          </p>
+            <!-- Ellipsis icon -->
+            <div class="Eicon" onclick="openDelBTN('${msg_id}-icon')" style="width: 10%; text-align: center">
+              <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+          <div  class="deleteBtn" id=${msg_id}-icon>
+
+            <button
+              onclick="openDelCnf(
+                '` +
+              currUser_id +
+              `','` +
+              chatUser_id +
+              `','` +
+              time +
+              `','` +
+              msgType +
+              `','` +
+              msg_id +
+              `','` +
+              isDeleted +
+              `','` +
+              isImage +
+              `','` +
+              imgURL +
+              `'
+              )"
+            >
+              Delete
+            </button>
+        </div>`;
+
+            $(`#${msg._id}`).empty();
+            $(`#${msg._id}`).append(html);
+            /* document.getElementById("<%=msg._id %>").empty();
+            document.getElementById("<%=msg._id %>").append(html); */
+
+            document.getElementById("delCnfOverlay").style.display = "none";
+            //to reEnable the delOverlay btns
+            const elements = document.getElementsByClassName("delBtn");
+            for (let i = 0; i < elements.length; i++) {
+              elements[i].disabled = false; // Set disabled property to true
+              elements[i].style = "";
+            }
+            /* socket.emit("sendDelete", sendObj); */
+            if (currUser_id !== chatUser_id && delType === "delTypeE") {
+              console.log("in sendDel");
+
+              socket.emit("sendDelete", sendObj);
+            }
+          }
+        },
+      });
     }
+
     function openDelCnf(
       currUser_id,
       chatUser_id,
@@ -1830,9 +2283,11 @@
 
       document.getElementById("delCnfOverlay").style.display = "flex";
     }
+
     function closeDelCnf() {
       document.getElementById("delCnfOverlay").style.display = "none";
     }
+
     document.addEventListener("DOMContentLoaded", function () {
       // Get the element by its ID
       var defaultSection = document.getElementById("defaultSection");
@@ -1841,21 +2296,6 @@
       if (defaultSection) {
         defaultSection.scrollIntoView();
       }
-
-      let Eicon = document.querySelectorAll(".Eicon");
-      let deleteBtn = document.querySelectorAll(".deleteBtn");
-
-      window.onload = function () {
-        for (var i = 0; i < Eicon.length; i++) {
-          // Use a closure to capture the current value of i
-          (function (index) {
-            Eicon[index].addEventListener("click", function (e) {
-              // Use index instead of i inside the closure
-              deleteBtn[index].classList.toggle("active");
-            });
-          })(i);
-        }
-      };
     }); // Get references to the input and preview elements
     const fileInput = document.getElementById("fileInput");
     const imgOfPreview = document.getElementById("imgOfPreview");

@@ -114,7 +114,7 @@ usp.on("connection", async (socket) => {
 
   socket.broadcast.emit("userOnline", { user_id: currUserID });
 
-  socket.on("msgSent", (data) => {
+  socket.on("msgSent", async (data) => {
     usp.emit("receiveMsg", data);
   });
 
@@ -123,6 +123,22 @@ usp.on("connection", async (socket) => {
     usp.emit("receiveImg", data);
   });
 
+  socket.on("sendDelete", async (data) => {
+    let currentUser = await User.findById(data.currUser_id);
+    let chatUser = await User.findById(data.chatUser_id);
+    let Data = {
+      currentUser,
+      chatUser,
+      currUser_id: data.currUser_id,
+      chatUser_id: data.chatUser_id,
+      msgType: data.msgType,
+      msgId: data.msgId,
+      delType: data.delType,
+      is_img: data.is_img,
+      imgURL: data.imgURL,
+    };
+    usp.emit("recDelete", Data);
+  });
   socket.on("disconnect", async () => {
     console.log("user-disconnected");
     await User.findByIdAndUpdate(currUserID, { is_online: false });

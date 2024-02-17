@@ -1,7 +1,3 @@
-/* if (process.env.NODE_ENV != "production") {
-  require("dotenv").config();
-} */
-
 const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message");
 const User = require("../models/user.js");
@@ -9,9 +5,6 @@ const luxon = require("luxon");
 const multer = require("multer");
 const { storage, cloudinary } = require("../cloudConfig.js");
 const upload = multer({ storage });
-
-/* const { MongoClient } = require("mongodb");
-const mongoURI = `${process.env.ATLASDB_URL}`; */
 
 module.exports.renderChatWindow = async (req, res) => {
   let { chatId } = req.params;
@@ -262,7 +255,12 @@ module.exports.saveMsg = async (req, res) => {
 
   /*   req.flash("success", `Message sent to ${chatUser.username}`); */
   /* res.redirect(`/chatWindow/${chatId}`) */
-  res.status(200).send({ success: true, msg: msg, createdAt: msgDate, _id });
+  res.status(200).send({
+    success: true,
+    msg: msg,
+    createdAt: msgDate,
+    _id,
+  });
 };
 
 module.exports.saveImg = async (req, res) => {
@@ -369,8 +367,11 @@ module.exports.delMsgs = async (req, res) => {
       recMsgToUpdate.isDeleted = true;
       await currUser.save();
       await chatUser.save();
-      req.flash("success", `Message deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /*   req.flash("success", `Message deleted Successfully`); */
+      /* res.redirect(`/chatWindow/${chatUser._id}`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     } else {
       // Find the index of the message in the array
       const sendIndexToDelete = currUser.sendMsgs.findIndex(
@@ -386,8 +387,10 @@ module.exports.delMsgs = async (req, res) => {
 
       await currUser.save();
       await chatUser.save();
-      req.flash("success", `Message deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Message deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     }
   } else if (
     chatUser._id.toString() === currUser._id.toString() &&
@@ -408,8 +411,10 @@ module.exports.delMsgs = async (req, res) => {
       recMsgToUpdate.isDeleted = true;
       await currUser.save();
       await chatUser.save();
-      req.flash("success", `Image deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Image deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     } else {
       // Find the index of the message in the array
       const sendIndexToDelete = currUser.sendImgs.findIndex(
@@ -430,8 +435,10 @@ module.exports.delMsgs = async (req, res) => {
         console.log(err, " ", res);
       });
 
-      req.flash("success", `Image deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Image deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     }
   } else if (
     delType === "delTypeM" &&
@@ -446,8 +453,10 @@ module.exports.delMsgs = async (req, res) => {
     if (msgToUpdate) {
       msgToUpdate.isDeleted = true;
       await currUser.save();
-      req.flash("success", `Image deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Image deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     } else {
       const msgToDelete = currUser.sendImgs.find(
         (msg) =>
@@ -474,8 +483,13 @@ module.exports.delMsgs = async (req, res) => {
             console.log(err, " ", res);
           });
         }
-        req.flash("success", `Image deleted Successfully`);
-        res.redirect(`/chatWindow/${chatUser._id}`);
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
       }
     }
   } else if (
@@ -502,8 +516,10 @@ module.exports.delMsgs = async (req, res) => {
 
       await currUser.save();
       await chatUser.save();
-      req.flash("success", `Image deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Image deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     }
   } else if (
     delType === "delTypeM" &&
@@ -518,8 +534,10 @@ module.exports.delMsgs = async (req, res) => {
     if (msgToUpdate) {
       msgToUpdate.isDeleted = true;
       await currUser.save();
-      req.flash("success", `Image deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Image deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     } else {
       const msgToDelete = currUser.recImgs.find(
         (msg) =>
@@ -545,8 +563,13 @@ module.exports.delMsgs = async (req, res) => {
             console.log(err, " ", res);
           });
         }
-        req.flash("success", `Image deleted Successfully`);
-        res.redirect(`/chatWindow/${chatUser._id}`);
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
       }
     }
   } else if (
@@ -562,8 +585,13 @@ module.exports.delMsgs = async (req, res) => {
     if (msgToUpdate) {
       msgToUpdate.isDeleted = true;
       await currUser.save();
-      req.flash("success", `Message deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Message deleted Successfully`); */
+      res.status(200).send({
+        success: true,
+        chatUser_id: chatUser._id,
+        currUser,
+        chatUser,
+      });
     } else {
       const msgToDelete = currUser.sendMsgs.find(
         (msg) =>
@@ -579,8 +607,13 @@ module.exports.delMsgs = async (req, res) => {
         currUser.sendMsgs.splice(indexToDelete, 1);
 
         await currUser.save();
-        req.flash("success", `Message deleted Successfully`);
-        res.redirect(`/chatWindow/${chatUser._id}`);
+        /* req.flash("success", `Message deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
       }
     }
   } else if (
@@ -606,8 +639,10 @@ module.exports.delMsgs = async (req, res) => {
       }
       await currUser.save();
       await chatUser.save();
-      req.flash("success", `Message deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Message deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     }
   } else if (
     delType === "delTypeM" &&
@@ -622,8 +657,10 @@ module.exports.delMsgs = async (req, res) => {
     if (msgToUpdate) {
       msgToUpdate.isDeleted = true;
       await currUser.save();
-      req.flash("success", `Message deleted Successfully`);
-      res.redirect(`/chatWindow/${chatUser._id}`);
+      /* req.flash("success", `Message deleted Successfully`); */
+      res
+        .status(200)
+        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
     } else {
       const msgToDelete = currUser.recMsgs.find(
         (msg) =>
@@ -639,8 +676,13 @@ module.exports.delMsgs = async (req, res) => {
         currUser.recMsgs.splice(indexToDelete, 1);
 
         await currUser.save();
-        req.flash("success", `Message deleted Successfully`);
-        res.redirect(`/chatWindow/${chatUser._id}`);
+        /* req.flash("success", `Message deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
       }
     }
   }
