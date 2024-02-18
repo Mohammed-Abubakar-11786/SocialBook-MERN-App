@@ -214,8 +214,8 @@
         <img src="<%= cmt.userImg %>" alt="" />
         <div class="inner-comment">
           <h6 style="margin-bottom: 0">
-            <%= cmt.username %> <% if(cmt.userId.toString() ===
-            currUser._id.toString()){ %> <sub>(You)</sub> <% } %>
+            <%= cmt.username %> <% if(currUser ){ if(cmt.userId.toString() ===
+            currUser._id.toString()){ %> <sub>(You)</sub> <% } }%>
           </h6>
 
           <p style="word-wrap: break-word"><%= cmt.comment %></p>
