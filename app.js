@@ -92,6 +92,7 @@ let io = require("socket.io")(http);
 let usp = io.of("/user_namespace");
 
 app.get("/", async (req, res) => {
+  let currUser = req.user;
   const allPosts = await Post.find({}).populate("owner");
   const allStories = await Story.find({}).populate("owner");
   const allUsers = await User.find({});
@@ -104,6 +105,7 @@ app.get("/", async (req, res) => {
     allUsers,
     luxon,
     allPosts: sortedPosts,
+    currUser,
   });
 });
 
@@ -139,6 +141,15 @@ usp.on("connection", async (socket) => {
     };
     usp.emit("recDelete", Data);
   });
+
+  socket.on("likeBtnClicked", (data) => {
+    usp.emit("incLikeCount", data);
+  });
+
+  socket.on("cmtAdded", (data) => {
+    socket.broadcast.emit("appendCmt", data);
+  });
+
   socket.on("disconnect", async () => {
     console.log("user-disconnected");
     await User.findByIdAndUpdate(currUserID, { is_online: false });

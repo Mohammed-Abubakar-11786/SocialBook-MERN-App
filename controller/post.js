@@ -39,10 +39,56 @@ module.exports.saveNewPost = async (req, res) => {
 };
 
 module.exports.incrementLike = async (req, res) => {
-  let { id } = req.params;
+  let { id, currUser } = req.params;
   let post = await Post.findById(id);
-  let count = post.like;
-  count = count + 1;
-  await Post.findByIdAndUpdate(id, { like: count });
-  res.redirect("/");
+  let alreadyLiked = false;
+  for (let user of post.likedUsers) {
+    if (user.toString() === currUser.toString()) {
+      alreadyLiked = true;
+    }
+  }
+
+  if (!alreadyLiked) {
+    let count = post.like;
+    count++;
+    post.like = count;
+    post.likedUsers.push(currUser);
+    await post.save();
+    res.status(200).send({
+      success: true,
+      liked: true,
+      count,
+    });
+  } else {
+    let count = post.like;
+    count--;
+    post.like = count;
+    post.likedUsers = post.likedUsers.filter(
+      (usr) => usr.toString() !== currUser.toString()
+    );
+    await post.save();
+    res.status(200).send({
+      success: true,
+      liked: false,
+      count,
+    });
+  }
+};
+
+module.exports.saveCmt = async (req, res) => {
+  let { post_id } = req.params;
+  let { cmt } = req.body;
+
+  let CurrUser = req.user;
+  let post = await Post.findById(post_id);
+  let obj = {
+    userId: CurrUser._id,
+    username: CurrUser.username,
+    userImg: CurrUser.image.url,
+    comment: cmt,
+  };
+  post.comments.push(obj);
+  await post.save();
+  let count = post.comments.length;
+  res.status(200).send({ success: true, obj, count });
 };
