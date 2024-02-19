@@ -4,17 +4,42 @@
     <div class="col-8 offset-2">
       <h3>Enter Here Some Extra Details to Create New Post</h3>
       <form
+        onsubmit="return validateFile()"
         method="post"
         action="/newPostAllDetails"
         novalidate
         class="needs-validation"
         enctype="multipart/form-data"
       >
-        <div class="mb-3">
+        <select
+          id="imgOrVedioSelect"
+          class="form-select mb-3 mt-3"
+          aria-label="Default select example"
+        >
+          <option selected>Select Image Or Vedio</option>
+          <option value="image">Image</option>
+          <option value="vedio">Vedio</option>
+        </select>
+
+        <div style="display: none" class="mb-3" id="imageSelected">
           <label for="image" class="form-label">Upload Post Image</label>
           <input type="file" class="form-control" name="post_image" />
           <div class="valid-feedback">Looks good!</div>
           <div class="invalid-feedback">Post Image is required</div>
+        </div>
+        <div style="display: none" class="mb-3" id="vedioSelected">
+          <label for="vedio" class="form-label">Upload Post Vedio</label>
+          <input
+            type="file"
+            class="form-control"
+            name="post_vedio"
+            id="videoFile"
+          />
+          <div class="valid-feedback" id="LooksGood">Looks good!</div>
+          <div class="invalid-feedback">Post Vedio is required</div>
+          <div class="invalid-feedback" style="display: none" id="vedioSize">
+            File size too large. Maximum allowed size is 10 MB.
+          </div>
         </div>
         <div class="mb-3">
           <label for="postDescription" class="form-label"
@@ -39,3 +64,32 @@
     </div>
   </div>
 </body>
+<script>
+  let imgOrVedioSelect = document.getElementById("imgOrVedioSelect");
+  imgOrVedioSelect.addEventListener("change", function () {
+    var selected = this.value;
+    if (selected === "image") {
+      document.getElementById("vedioSelected").style.display = "none";
+      document.getElementById("imageSelected").style.display = "block";
+    } else if (selected === "vedio") {
+      document.getElementById("imageSelected").style.display = "none";
+      document.getElementById("vedioSelected").style.display = "block";
+    }
+  });
+
+  function validateFile() {
+    var fileInput = document.getElementById("videoFile");
+    if (fileInput.files.length > 0) {
+      var fileSize = fileInput.files[0].size; // File size in bytes
+      var maxSize = 10485760; // Maximum allowed size in bytes (10 MB)
+      if (fileSize > maxSize) {
+        /* 
+        alert("File size too large. Maximum allowed size is 10 MB."); */
+        document.getElementById("vedioSize").style.display = "block";
+        document.getElementById("LooksGood").style.display = "none";
+        return false; // Prevent form submission
+      }
+    }
+    return true; // Proceed with form submission
+  }
+</script>

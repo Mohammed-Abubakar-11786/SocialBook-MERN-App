@@ -60,6 +60,12 @@
     padding: 0 0.5rem 0.5rem 0.5rem;
     margin-left: 2.5px;
   }
+  .postVideo {
+    width: 99%;
+    border-radius: 1rem;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    margin-left: 2.5px;
+  }
   .icons {
     display: flex;
     justify-content: flex-start;
@@ -180,7 +186,14 @@
       <p><%= post.description %></p>
     </div>
     <div class="postImg">
+      <% if (post.isVedio == true) { %>
+      <video controls class="postVideo" muted>
+        <source src="<%= post.vedio.url %>" type="<%= post.vedio.fileType %>" />
+        Your browser does not support the video tag.
+      </video>
+      <% }else{ %>
       <img src="<%= post.image.url %>" alt="" />
+      <% } %>
     </div>
     <div class="icons">
       <div class="container" onclick="incLike('<%= post._id %>')">
@@ -416,4 +429,28 @@
       0
     );
   }
+
+  // Get all video elements
+  const videos = document.querySelectorAll(".postVideo");
+
+  // Configure the intersection observer
+  const observer = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Play the video when it comes into view
+          entry.target.play();
+        } else {
+          // Pause the video when it goes out of view
+          entry.target.pause();
+        }
+      });
+    },
+    { threshold: 0.5 }
+  ); // Adjust the threshold as needed
+
+  // Observe each video element
+  videos.forEach((video) => {
+    observer.observe(video);
+  });
 </script>

@@ -7,6 +7,15 @@ const postSchema = new Schema({
     url: String,
     filename: String,
   },
+  isVedio: {
+    type: Boolean,
+    default: false,
+  },
+  vedio: {
+    url: String,
+    filename: String,
+    fileType: String,
+  },
   owner: {
     type: Schema.Types.ObjectId,
     ref: "User",

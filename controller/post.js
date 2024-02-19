@@ -12,30 +12,61 @@ module.exports.saveNewPost = async (req, res) => {
   const uploadOptions = { folder: "SocialBook/Posts" };
   let { post_description } = req.body;
 
-  const file = req.files.post_image;
-  cloudinary.uploader.upload(
-    file.tempFilePath,
-    uploadOptions,
-    async (err, result) => {
-      let url = result.url;
-      let filename = result.original_filename;
+  const image_file = req.files.post_image;
+  const vedio_file = req.files.post_vedio;
+  if (image_file) {
+    console.log("in img", image_file);
+    cloudinary.uploader.upload(
+      image_file.tempFilePath,
+      uploadOptions,
+      async (err, result) => {
+        let img_url = result.url;
+        let img_fileName = result.original_filename;
+        let post = new Post();
+        post.description = post_description;
+        post.owner = req.user._id;
+        post.image = {
+          url: img_url,
+          filename: img_fileName,
+        };
 
-      let post = new Post();
-      post.description = post_description;
-      post.owner = req.user._id;
-      post.image = {
-        url: url,
-        filename: filename,
-      };
+        // Set the 'createdAt' property to the current time
+        post.createdAt = luxon.DateTime.now();
 
-      // Set the 'createdAt' property to the current time
-      post.createdAt = luxon.DateTime.now();
+        await post.save();
+        req.flash("success", "New Post Created");
+        res.redirect("/");
+      }
+    );
+  } else {
+    console.log("in vedio", vedio_file);
+    cloudinary.uploader.upload(
+      vedio_file.tempFilePath,
+      {
+        resource_type: "video",
+      },
 
-      await post.save();
-      req.flash("success", "New Post Created");
-      res.redirect("/");
-    }
-  );
+      async (err, result) => {
+        let vedio_url = result.url;
+        let vedio_fileName = result.original_filename;
+        let post = new Post();
+        post.description = post_description;
+        post.owner = req.user._id;
+        post.vedio = {
+          url: vedio_url,
+          filename: vedio_fileName,
+          fileType: vedio_file.mimetype,
+        };
+        post.isVedio = true;
+        // Set the 'createdAt' property to the current time
+        post.createdAt = luxon.DateTime.now();
+
+        await post.save();
+        req.flash("success", "New Post Created");
+        res.redirect("/");
+      }
+    );
+  }
 };
 
 module.exports.incrementLike = async (req, res) => {
