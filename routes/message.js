@@ -8,6 +8,7 @@ const { isLoggedIn, isSame, isEmptyMsg } = require("../middleware.js");
 
 const msgController = require("../controller/message.js");
 
+router.route("/groupChat").get(isLoggedIn, msgController.renderGroupChatWindow);
 router.route("/chatWindow/:chatId").get(msgController.renderChatWindow);
 router.route("/chatWindow").get(msgController.renderChatWindow);
 router

@@ -21,6 +21,7 @@ const usersRouter = require("./routes/user.js");
 const postsRouter = require("./routes/post.js");
 const storyRouter = require("./routes/story.js");
 const msgRouter = require("./routes/message.js");
+const grpMsgsRouter = require("./routes/GroupMsg.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -90,6 +91,7 @@ app.use((req, res, next) => {
 const http = require("http").Server(app);
 let io = require("socket.io")(http);
 let usp = io.of("/user_namespace");
+let grp = io.of("/groupChatNameSpace");
 
 app.get("/", async (req, res) => {
   let currUser = req.user;
@@ -157,10 +159,31 @@ usp.on("connection", async (socket) => {
   });
 });
 
+grp.on("connection", async (socket) => {
+  console.log("Group-user-Connected");
+  let currUserID = socket.handshake.auth.token;
+  await User.findByIdAndUpdate(currUserID, { is_online_in_group: true });
+
+  let currUser = await User.findById(currUserID);
+
+  socket.emit("GroupUserOnline", { currUser });
+  socket.broadcast.emit("GroupUserOnline", { currUser });
+
+  socket.on("grpMsgSent", async (data) => {
+    socket.broadcast.emit("recGrpMsg", data);
+  });
+
+  socket.on("disconnect", async () => {
+    console.log("group-user-disconnected");
+    await User.findByIdAndUpdate(currUserID, { is_online_in_group: false });
+    grp.emit("GroupUserOffline", { currUser });
+  });
+});
 app.use("/", usersRouter);
 app.use("/", postsRouter);
 app.use("/", storyRouter);
 app.use("/", msgRouter);
+app.use("/", grpMsgsRouter);
 
 const PORT = process.env.PORT || 3030;
 

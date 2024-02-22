@@ -92,6 +92,9 @@
   #mobileChatBtn {
     display: none;
   }
+  #mobileGroupChatBtn {
+    display: none;
+  }
   .commentSection {
     padding: 1rem;
   }
@@ -156,6 +159,12 @@
   @media screen and (max-width: 412px) {
     /* Styles for screens with a maximum width of 767 pixels */
     #mobileChatBtn {
+      display: block;
+      position: absolute;
+      top: 80vh;
+      right: 0.5rem;
+    }
+    #mobileGroupChatBtn {
       display: block;
       position: absolute;
       top: 85vh;
@@ -264,6 +273,16 @@
   ><div class="chatBtn">
     <button class="btn btn-primary" style="margin-left: 2rem; margin-top: 1rem">
       Go to Chat window
+    </button>
+  </div>
+</a>
+<a
+  id="mobileGroupChatBtn"
+  style="text-decoration: none; color: black"
+  href="/groupChat"
+  ><div class="chatBtn">
+    <button class="btn btn-primary" style="margin-left: 2rem; margin-top: 1rem">
+      Open Group Chat
     </button>
   </div>
 </a>

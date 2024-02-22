@@ -19,6 +19,10 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  is_online_in_group: {
+    type: Boolean,
+    default: false,
+  },
   sendMsgs: [
     {
       _id: {
