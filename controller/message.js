@@ -216,13 +216,6 @@ module.exports.renderChatWindow = async (req, res) => {
   }
 };
 
-module.exports.renderGroupChatWindow = async (req, res) => {
-  let currUser = req.user;
-  const allUsers = await User.find({});
-
-  res.render("messages/groupChatWindow.ejs", { currUser, allUsers });
-};
-
 module.exports.saveMsg = async (req, res) => {
   let { chatId } = req.params;
   let { msg } = req.body;

@@ -20,7 +20,15 @@ const grpMsgs = new Schema({
       },
       sendUserImg: String,
       sendUserName: String,
-      createdAt: Date,
+      createdAt: String,
+      isDelForSelf: {
+        type: Boolean,
+        default: false,
+      },
+      isDelForSelfUser: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
   ],
 });

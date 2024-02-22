@@ -174,6 +174,10 @@ grp.on("connection", async (socket) => {
     socket.broadcast.emit("recGrpMsg", data);
   });
 
+  socket.on("msgDeleted", (data) => {
+    socket.broadcast.emit("recDeletedMsg", data);
+  });
+
   socket.on("disconnect", async () => {
     console.log("group-user-disconnected");
     let disCntTime = Date.now();
