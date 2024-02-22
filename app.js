@@ -161,13 +161,14 @@ usp.on("connection", async (socket) => {
 
 grp.on("connection", async (socket) => {
   console.log("Group-user-Connected");
+  let cntTime = Date.now();
   let currUserID = socket.handshake.auth.token;
   await User.findByIdAndUpdate(currUserID, { is_online_in_group: true });
 
   let currUser = await User.findById(currUserID);
 
-  socket.emit("GroupUserOnline", { currUser });
-  socket.broadcast.emit("GroupUserOnline", { currUser });
+  grp.emit("GroupUserOnline", { currUser, cntTime }); /* 
+  socket.broadcast.emit("GroupUserOffline", { currUser }); */
 
   socket.on("grpMsgSent", async (data) => {
     socket.broadcast.emit("recGrpMsg", data);
@@ -175,8 +176,9 @@ grp.on("connection", async (socket) => {
 
   socket.on("disconnect", async () => {
     console.log("group-user-disconnected");
+    let disCntTime = Date.now();
     await User.findByIdAndUpdate(currUserID, { is_online_in_group: false });
-    grp.emit("GroupUserOffline", { currUser });
+    grp.emit("GroupUserOffline", { currUser, disCntTime });
   });
 });
 app.use("/", usersRouter);

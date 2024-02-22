@@ -148,7 +148,7 @@
       .ChatSpace {
         width: 98% !important;
         margin: auto;
-        height: 100%;
+        height: 85%;
       }
     }
     .form-control {
@@ -214,6 +214,17 @@
       text-align: center;
     }
     .newUserJoined p {
+      margin-bottom: 0;
+    }
+    .userLeft {
+      width: 100%;
+      background-color: rgb(255, 180, 195);
+      border-radius: 1rem;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    .userLeft p {
       margin-bottom: 0;
     }
   </style>
@@ -317,6 +328,13 @@
   });
 
   socket.on("GroupUserOnline", (data) => {
+    let time = luxon.DateTime.fromJSDate(new Date(data.cntTime), {
+      zone: "Asia/Kolkata",
+    }).toLocaleString({
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
     let LiveUser = data.currUser;
     let curr_id = "<%= currUser._id %>";
     let innerUsers = document.getElementById("innerUsers");
@@ -343,7 +361,7 @@
       curr_id && LiveUser._id.toString() === curr_id.toString()
         ? "(You) "
         : `${LiveUser.username}`
-    }Joined the Chat!</p></div>
+    }Joined the Chat! @ ${time}</p></div>
 `;
 
     $(".innerChatSpace").append(html1);
@@ -353,13 +371,16 @@
 
   socket.on("GroupUserOffline", (data) => {
     console.log("user log");
+    let time = luxon.DateTime.fromJSDate(new Date(data.disCntTime), {
+      zone: "Asia/Kolkata",
+    }).toLocaleString({
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
     let LiveUser = data.currUser;
     $(`#${LiveUser._id}-LiveUser`).remove();
-    let html1 = `<div class="newUserJoined"><p>${
-      curr_id && LiveUser._id.toString() === curr_id.toString()
-        ? "(You) "
-        : `${LiveUser.username}`
-    } Left the Chat!</p></div>
+    let html1 = `<div class="userLeft"><p>${LiveUser.username} Left the Chat! @ ${time}</p></div>
 `;
 
     $(".innerChatSpace").append(html1);
@@ -382,7 +403,6 @@
         }).toLocaleString({
           hour: "numeric",
           minute: "numeric",
-          second: "numeric",
           hour12: true,
         });
         let html = `<div class="sentMsg">
@@ -411,7 +431,6 @@
     }).toLocaleString({
       hour: "numeric",
       minute: "numeric",
-      second: "numeric",
       hour12: true,
     });
     let html = `<div class="recMsg">
