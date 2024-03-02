@@ -507,14 +507,15 @@
     e.preventDefault();
     let msg = document.getElementById("msgInp").value;
 
-    $.ajax({
-      url: "/saveGrpMsg/<%=currUser._id %>",
-      type: "post",
-      data: { msg: msg },
-      success: (data) => {
-        let time = data.obj.createdAt;
-        let msgID = data.obj._id;
-        let html = `<div class="sentMsg" data-message-id="${msgID}-sendMsg" id="${msgID}" data-msg_id="${msgID}">
+    if (msg) {
+      $.ajax({
+        url: "/saveGrpMsg/<%=currUser._id %>",
+        type: "post",
+        data: { msg: msg },
+        success: (data) => {
+          let time = data.obj.createdAt;
+          let msgID = data.obj._id;
+          let html = `<div class="sentMsg" data-message-id="${msgID}-sendMsg" id="${msgID}" data-msg_id="${msgID}">
             <div class="sendUserImage">
               <img
                 src="${data.obj.sendUserImg}"
@@ -526,12 +527,13 @@
               <div class="time"><p>${time}</p></div>
             </div>
           </div>`;
-        $(".innerChatSpace").append(html);
-        document.getElementById("msgInp").value = "";
-        scrollUp("innerChatSpace");
-        socket.emit("grpMsgSent", data);
-      },
-    });
+          $(".innerChatSpace").append(html);
+          document.getElementById("msgInp").value = "";
+          scrollUp("innerChatSpace");
+          socket.emit("grpMsgSent", data);
+        },
+      });
+    }
   });
 
   socket.on("recGrpMsg", (data) => {
@@ -615,7 +617,6 @@
       url: `/delGrpMsg/${msg_id}`,
       type: "get",
       success: (data) => {
-        console.log("Success");
         document.getElementById("delCnfOverlay").style.display = "none";
         document.getElementById("delCnfOverlay1").style.display = "none";
         document.getElementById(`${msg_id}`).remove();
