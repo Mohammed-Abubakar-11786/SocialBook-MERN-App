@@ -6,9 +6,10 @@
   </style>
   <div class="row mt-5">
     <div class="col-10 col-lg-6 col-md-6 offset-lg-2 offset-1">
-      <h3>Upload Story Image,</h3>
+      <h3>Upload Story Image</h3>
       <p>Image Should be in portrait mode</p>
       <form
+        onsubmit="return validateForm()"
         method="post"
         action="/newStory"
         novalidate
@@ -24,8 +25,11 @@
             name="storyImage"
             accept="image/*"
           />
-          <div class="valid-feedback">Looks good!</div>
+          <div class="valid-feedback" id="imgLooksGood">Looks good!</div>
           <div class="invalid-feedback">Story Image is required</div>
+          <div class="invalid-feedback" id="imageNot">
+            Please Select Image File!
+          </div>
         </div>
 
         <button class="btn btn-success add-btn mt-3">Create Story</button>
@@ -34,3 +38,16 @@
     </div>
   </div>
 </body>
+
+<script>
+  function validateForm() {
+    var fileInput = document.querySelector('input[name="storyImage"]');
+    var file = fileInput.files[0];
+    if (!file || !file.type.startsWith("image/")) {
+      document.getElementById("imageNot").style.display = "block";
+      document.getElementById("imgLooksGood").style.display = "none";
+      return false;
+    }
+    return true; // Proceed with form submission
+  }
+</script>

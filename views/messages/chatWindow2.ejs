@@ -853,10 +853,15 @@
               type="file"
               id="fileInput"
               name="chatImg"
-              accept="image/*"
               style="display: none"
+              accept="image/*"
             />
-            <div id="imgOfPreview"></div>
+            <div id="imgOfPreview">
+              <div style="display: none" class="invalid-feedback" id="imageNot">
+                Please Select Image File!
+                <i class="fa-solid fa-xmark"></i>
+              </div>
+            </div>
           </div>
           <div id="previewBottom"></div>
         </form>
@@ -1008,7 +1013,12 @@
               style="display: none"
               accept="image/*"
             />
-            <div id="imgOfPreview"></div>
+            <div id="imgOfPreview">
+              <div style="display: none" class="invalid-feedback" id="imageNot">
+                Please Select Image File!
+                <i class="fa-solid fa-xmark"></i>
+              </div>
+            </div>
           </div>
           <div id="previewBottom"></div>
         </form>
@@ -1478,11 +1488,14 @@
     //when user sends the img
     imgSentForm.addEventListener("submit", (e) => {
       e.preventDefault();
+
+      let imgInput = document.getElementById("fileInput");
+      let imgFile = imgInput.files[0];
+
       document.getElementById("ImgSendBtn").disabled = true;
       document.getElementById("ImgSendInp").disabled = true;
       progressBar.style.display = "block";
-      let imgInput = document.getElementById("fileInput");
-      let imgFile = imgInput.files[0];
+
       if (imgFile) {
         let formData = new FormData();
         formData.append("chatImg", imgFile);
@@ -2333,9 +2346,13 @@
     function handleFileSelect() {
       // Get the selected file from the input
       const file = fileInput.files[0];
-
+      if (!file || !file.type.startsWith("image/")) {
+        document.getElementById("imageNot").style.display = "block";
+        return;
+      }
       // Check if a file is selected
       if (file) {
+        document.getElementById("imageNot").style.display = "none";
         // Create a FileReader object to read the file
         const reader = new FileReader();
 

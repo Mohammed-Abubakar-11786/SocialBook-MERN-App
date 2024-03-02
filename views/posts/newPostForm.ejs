@@ -18,7 +18,7 @@
         >
           <option selected>Select Image Or Vedio</option>
           <option value="image">Image</option>
-          <option value="vedio">Vedio</option>
+          <option value="vedio">Video</option>
         </select>
 
         <div style="display: none" class="mb-3" id="imageSelected">
@@ -29,8 +29,11 @@
             name="post_image"
             accept="image/*"
           />
-          <div class="valid-feedback">Looks good!</div>
+          <div class="valid-feedback" id="imgLooksGood">Looks good!</div>
           <div class="invalid-feedback">Post Image is required</div>
+          <div style="display: none" class="invalid-feedback" id="imageNot">
+            Please select an image file.
+          </div>
         </div>
         <div style="display: none" class="mb-3" id="vedioSelected">
           <label for="vedio" class="form-label">Upload Post Vedio</label>
@@ -41,10 +44,13 @@
             id="videoFile"
             accept="video/*"
           />
-          <div class="valid-feedback" id="LooksGood">Looks good!</div>
+          <div class="valid-feedback" id="vidLooksGood">Looks good!</div>
           <div class="invalid-feedback">Post Vedio is required</div>
           <div class="invalid-feedback" style="display: none" id="vedioSize">
             File size too large. Maximum allowed size is 10 MB.
+          </div>
+          <div style="display: none" class="invalid-feedback" id="videoNot">
+            Please select an Video file.
           </div>
         </div>
         <div class="mb-3">
@@ -92,9 +98,31 @@
         /* 
         alert("File size too large. Maximum allowed size is 10 MB."); */
         document.getElementById("vedioSize").style.display = "block";
-        document.getElementById("LooksGood").style.display = "none";
+        document.getElementById("vidLooksGood").style.display = "none";
         return false; // Prevent form submission
       }
+    }
+
+    var selectedOption = document.getElementById("imgOrVedioSelect").value;
+    if (selectedOption === "image") {
+      var fileInput = document.querySelector('input[name="post_image"]');
+      var file = fileInput.files[0];
+      if (!file || !file.type.startsWith("image/")) {
+        document.getElementById("imageNot").style.display = "block";
+        document.getElementById("imgLooksGood").style.display = "none";
+        return false;
+      }
+    } else if (selectedOption === "vedio") {
+      var fileInput = document.querySelector('input[name="post_vedio"]');
+      var file = fileInput.files[0];
+      if (!file || !file.type.startsWith("video/")) {
+        document.getElementById("videoNot").style.display = "block";
+        document.getElementById("vidLooksGood").style.display = "none";
+        return false;
+      }
+    } else {
+      alert("Please select Image or Video.");
+      return false;
     }
     return true; // Proceed with form submission
   }
