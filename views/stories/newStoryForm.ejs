@@ -1,7 +1,11 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
+  <style>
+    @media only screen and (max-width: 435px) {
+    }
+  </style>
   <div class="row mt-5">
-    <div class="col-8 offset-2">
+    <div class="col-10 col-lg-6 col-md-6 offset-lg-2 offset-1">
       <h3>Upload Story Image,</h3>
       <p>Image Should be in portrait mode</p>
       <form
@@ -10,10 +14,16 @@
         novalidate
         class="needs-validation mt-5"
         enctype="multipart/form-data"
+        style="width: 100%"
       >
         <div class="mb-3">
           <label for="image" class="form-label">Upload Story Image</label>
-          <input type="file" class="form-control" name="storyImage" />
+          <input
+            type="file"
+            class="form-control inpFile"
+            name="storyImage"
+            accept="image/*"
+          />
           <div class="valid-feedback">Looks good!</div>
           <div class="invalid-feedback">Story Image is required</div>
         </div>

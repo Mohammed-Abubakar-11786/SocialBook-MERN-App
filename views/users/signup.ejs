@@ -1,7 +1,7 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
   <div class="row mt-4">
-    <div class="col-6 offset-3">
+    <div class="col-10 col-lg-6 col-md-6 offset-lg-2 offset-1">
       <h3 class="mb-3">Welcome User SignUp on 🌐SocialBook Here</h3>
       <form
         id="signUPForm"
@@ -28,7 +28,13 @@
         <!-- user photo -->
         <div class="mb-3">
           <label for="image" class="form-label">Upload Your Image</label>
-          <input type="file" class="form-control" name="userImage" required />
+          <input
+            type="file"
+            class="form-control"
+            name="userImage"
+            accept="image/*"
+            required
+          />
           <div class="valid-feedback">Looks good!</div>
           <div class="invalid-feedback">Profile Photo required</div>
         </div>

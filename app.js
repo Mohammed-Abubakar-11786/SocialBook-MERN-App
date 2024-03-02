@@ -191,6 +191,9 @@ app.use("/", storyRouter);
 app.use("/", msgRouter);
 app.use("/", grpMsgsRouter);
 
+app.get("*", (req, res) => {
+  res.render("otherPages/pageNotFound.ejs");
+});
 const PORT = process.env.PORT || 3030;
 
 http.listen(PORT, () => {

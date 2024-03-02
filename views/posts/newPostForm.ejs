@@ -1,7 +1,7 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
   <div class="row mt-3">
-    <div class="col-8 offset-2">
+    <div class="col-10 col-lg-6 col-md-6 offset-lg-2 offset-1">
       <h3>Enter Here Some Extra Details to Create New Post</h3>
       <form
         onsubmit="return validateFile()"
@@ -23,7 +23,12 @@
 
         <div style="display: none" class="mb-3" id="imageSelected">
           <label for="image" class="form-label">Upload Post Image</label>
-          <input type="file" class="form-control" name="post_image" />
+          <input
+            type="file"
+            class="form-control"
+            name="post_image"
+            accept="image/*"
+          />
           <div class="valid-feedback">Looks good!</div>
           <div class="invalid-feedback">Post Image is required</div>
         </div>
@@ -34,6 +39,7 @@
             class="form-control"
             name="post_vedio"
             id="videoFile"
+            accept="video/*"
           />
           <div class="valid-feedback" id="LooksGood">Looks good!</div>
           <div class="invalid-feedback">Post Vedio is required</div>

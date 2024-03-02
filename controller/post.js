@@ -15,7 +15,6 @@ module.exports.saveNewPost = async (req, res) => {
   const image_file = req.files.post_image;
   const vedio_file = req.files.post_vedio;
   if (image_file) {
-    console.log("in img", image_file);
     cloudinary.uploader.upload(
       image_file.tempFilePath,
       uploadOptions,
