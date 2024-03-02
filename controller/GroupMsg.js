@@ -2,12 +2,14 @@ const { v4: uuidv4 } = require("uuid");
 const luxon = require("luxon");
 const GroupMsgs = require("../models/GroupMsg.js");
 const User = require("../models/user");
+/* const { delAllMsgs } = require("./message.js"); */
 
 module.exports.renderGroupChatWindow = async (req, res) => {
   let currUser = req.user;
   const allUsers = await User.find({});
 
   let GroupMsg = await GroupMsgs.findById("65d6361ce55a2dd32dd719cc");
+
   res.render("messages/groupChatWindow.ejs", { currUser, allUsers, GroupMsg });
 };
 
@@ -47,4 +49,12 @@ module.exports.delGrpMsgs = async (req, res) => {
   await GroupMsg.save();
 
   return res.status(200).send({ success: true });
+};
+
+module.exports.delAllMsgs = async (req, res) => {
+  let GroupMsg = await GroupMsgs.findById("65d6361ce55a2dd32dd719cc");
+  GroupMsg.Messages = [];
+  await GroupMsg.save();
+
+  res.status(200).send({ success: true });
 };

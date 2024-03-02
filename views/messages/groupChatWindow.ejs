@@ -51,9 +51,18 @@
       border-top-right-radius: inherit;
       display: flex;
       align-items: center;
-      padding-left: 1rem;
+      padding: 1rem 1rem;
       position: sticky;
       border-bottom: 1px solid black;
+      justify-content: space-between;
+    }
+    .chattingHead p {
+      margin-bottom: 0;
+    }
+    .chattingHead p:hover {
+      cursor: pointer;
+      color: #1876f2;
+      font-weight: bold;
     }
     .innerChatSpace,
     .innerUsers {
@@ -364,6 +373,7 @@
     <div class="ChatSpace shadow bg-body-tertiary rounded">
       <div class="chattingHead">
         <h3 style="margin-bottom: 0">Chats</h3>
+        <p onclick="delAllMsgs()">Clear Chats</p>
       </div>
       <div class="innerChatSpace" id="innerChatSpace">
         <% for (msg of GroupMsg.Messages) {%> <% if(msg.sendUser.toString() ===
@@ -613,4 +623,20 @@
   socket.on("recDeletedMsg", (data) => {
     document.getElementById(`${data.msg_id}`).remove();
   });
+
+  function delAllMsgs() {
+    $(".innerChatSpace").empty();
+  }
+
+  function delAllMsgsForEveryOne() {
+    $.ajax({
+      url: `/delAllGrpMsg`,
+      type: "get",
+      success: (data) => {
+        console.log("Success");
+        $(".innerChatSpace").empty();
+      },
+    });
+  }
+  /*   setInterval(delAllMsgsForEveryOne, 3600000); */
 </script>

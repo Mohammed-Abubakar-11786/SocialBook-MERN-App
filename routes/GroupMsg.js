@@ -11,4 +11,6 @@ router.route("/saveGrpMsg/:sendUser").post(grpMsgController.saveSentMsg);
 
 router.route("/delGrpMsg/:msg_id").get(grpMsgController.delGrpMsgs);
 
+router.route("/delAllGrpMsg").get(grpMsgController.delAllMsgs);
+
 module.exports = router;
