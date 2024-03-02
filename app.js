@@ -112,7 +112,7 @@ app.get("/", async (req, res) => {
 });
 
 usp.on("connection", async (socket) => {
-  console.log("user-Connected");
+  /* console.log("user-Connected"); */
   let currUserID = socket.handshake.auth.token;
   await User.findByIdAndUpdate(currUserID, { is_online: true });
 
@@ -153,14 +153,14 @@ usp.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log("user-disconnected");
+    /*  console.log("user-disconnected"); */
     await User.findByIdAndUpdate(currUserID, { is_online: false });
     socket.broadcast.emit("userOffline", { user_id: currUserID });
   });
 });
 
 grp.on("connection", async (socket) => {
-  console.log("Group-user-Connected");
+  /* console.log("Group-user-Connected"); */
   let cntTime = Date.now();
   let currUserID = socket.handshake.auth.token;
   await User.findByIdAndUpdate(currUserID, { is_online_in_group: true });
@@ -179,7 +179,7 @@ grp.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log("group-user-disconnected");
+    /* console.log("group-user-disconnected"); */
     let disCntTime = Date.now();
     await User.findByIdAndUpdate(currUserID, { is_online_in_group: false });
     grp.emit("GroupUserOffline", { currUser, disCntTime });

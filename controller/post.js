@@ -38,7 +38,6 @@ module.exports.saveNewPost = async (req, res) => {
       }
     );
   } else {
-    console.log("in vedio", vedio_file);
     cloudinary.uploader.upload(
       vedio_file.tempFilePath,
       {
