@@ -373,7 +373,11 @@
     <div class="ChatSpace shadow bg-body-tertiary rounded">
       <div class="chattingHead">
         <h3 style="margin-bottom: 0">Chats</h3>
+        <% if( currUser._id.toString() === "6565e8f590ad24ddda24d4d0"){ %>
+        <p onclick="delAllMsgsForEveryOne()">Clear Chats</p>
+        <% }else{ %>
         <p onclick="delAllMsgs()">Clear Chats</p>
+        <% } %>
       </div>
       <div class="innerChatSpace" id="innerChatSpace">
         <% for (msg of GroupMsg.Messages) {%> <% if(msg.sendUser.toString() ===
@@ -633,10 +637,10 @@
       url: `/delAllGrpMsg`,
       type: "get",
       success: (data) => {
-        console.log("Success");
         $(".innerChatSpace").empty();
       },
     });
   }
+
   /*   setInterval(delAllMsgsForEveryOne, 3600000); */
 </script>
