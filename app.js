@@ -148,6 +148,10 @@ usp.on("connection", async (socket) => {
     usp.emit("incLikeCount", data);
   });
 
+  socket.on("incShareCount", (data) => {
+    usp.emit("increseShareCount", data);
+  });
+
   socket.on("cmtAdded", (data) => {
     socket.broadcast.emit("appendCmt", data);
   });

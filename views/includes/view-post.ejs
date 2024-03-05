@@ -75,6 +75,13 @@
     margin-left: 1rem;
     margin-bottom: 0.3rem;
   }
+  .sendBtn {
+    margin-left: auto !important;
+  }
+  .sendBtn:hover {
+    cursor: pointer !important;
+    scale: 1.1 !important;
+  }
   .icons i {
     margin-top: 0.5rem;
     opacity: 0.7;
@@ -101,7 +108,8 @@
     padding: 1rem;
   }
 
-  .typeMsg {
+  .typeMsg,
+  .cmtForm {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -129,10 +137,11 @@
   }
   .comment {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     background-color: white;
     border-radius: 1rem;
+    margin-bottom: 0.3rem;
   }
   .comment img {
     width: 35px;
@@ -176,60 +185,75 @@
       width: 80%;
     }
   }
+  .form-check {
+    padding-left: 0.5rem !important;
+    display: flex;
+    align-items: center;
+  }
 </style>
 
 <% for(post of allPosts){ %>
 <div class="view">
-  <div>
-    <div class="userInfo">
-      <img src="<%= post.owner.image.url %>" alt="" />
-      <div class="info">
-        <h6><%= post.owner.username%></h6>
-        <p>
-          <%= luxon.DateTime.fromJSDate(post.createdAt, { zone: 'Asia/Kolkata'
-          }).toLocaleString({ weekday: 'short', month: 'short', day: 'numeric',
-          year: 'numeric', hour: 'numeric', minute: 'numeric', second:
-          'numeric', hour12: true }) %>
-        </p>
-      </div>
-      <div class="postDelBtn" onclick="delPost()">
-        <!-- <i class="fa-solid fa-ellipsis-vertical"></i> -->
-      </div>
+  <div class="userInfo">
+    <img src="<%= post.owner.image.url %>" alt="" />
+    <div class="info">
+      <h6><%= post.owner.username%></h6>
+      <p>
+        <%= luxon.DateTime.fromJSDate(post.createdAt, { zone: 'Asia/Kolkata'
+        }).toLocaleString({ weekday: 'short', month: 'short', day: 'numeric',
+        year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
+        hour12: true }) %>
+      </p>
     </div>
-    <div class="postDesc">
-      <p><%= post.description %></p>
+    <div class="postDelBtn" onclick="delPost()">
+      <!-- <i class="fa-solid fa-ellipsis-vertical"></i> -->
     </div>
-    <div class="postImg">
-      <% if (post.isVedio == true) { %>
-      <video controls class="postVideo" muted>
-        <source src="<%= post.vedio.url %>" type="<%= post.vedio.fileType %>" />
-        Your browser does not support the video tag.
-      </video>
-      <% }else{ %>
-      <img src="<%= post.image.url %>" alt="" />
-      <% } %>
+  </div>
+  <div class="postDesc">
+    <p><%= post.description %></p>
+  </div>
+  <div class="postImg">
+    <% if (post.isVedio == true) { %>
+    <video controls class="postVideo" muted>
+      <source src="<%= post.vedio.url %>" type="<%= post.vedio.fileType %>" />
+      Your browser does not support the video tag.
+    </video>
+    <% }else{ %>
+    <img src="<%= post.image.url %>" alt="" />
+    <% } %>
+  </div>
+  <div class="icons">
+    <div class="container" onclick="incLike('<%= post._id %>')">
+      <i
+        id="<%= post._id %>-likeBtn"
+        style="color: black"
+        class="fa-solid fa-thumbs-up like-icon"
+      ></i>
+      <span id="<%= post._id %>-likeCount"><%=post.like %></span>
     </div>
-    <div class="icons">
-      <div class="container" onclick="incLike('<%= post._id %>')">
-        <i
-          id="<%= post._id %>-likeBtn"
-          class="fa-solid fa-thumbs-up like-icon"
-        ></i>
-        <span id="<%= post._id %>-likeCount"><%=post.like %></span>
-      </div>
-      <div class="container" onclick="openComment('<%= post._id %>')">
-        <i class="fa-solid fa-comments"></i
-        ><span id="<%= post._id %>-commentCount"
-          ><%= post.comments.length %></span
-        >
-      </div>
-      <!-- onclick="openShare('<%= post._id %>')" -->
-      <div class="container">
-        <i class="fa-solid fa-share"></i><span id="shareCount">0</span>
-      </div>
+    <div class="container" onclick="openComment('<%= post._id %>')">
+      <i class="fa-solid fa-comments"></i
+      ><span id="<%= post._id %>-commentCount"
+        ><%= post.comments.length %></span
+      >
+    </div>
+    <!-- onclick="openShare('<%= post._id %>')" -->
+    <div class="container" onclick="openShare('<%= post._id %>')">
+      <i class="fa-solid fa-share"></i
+      ><span id="<%= post._id %>-shareCount"><%= post.shares.length %></span>
+    </div>
+    <div
+      class="container sendBtn"
+      style="display: none"
+      id="<%= post._id %>-sendbtn"
+      onclick="sendPost('<%= post._id %>')"
+    >
+      <i class="fa-regular fa-paper-plane"></i>
+      <span>Send</span>
     </div>
   </div>
 
+  <!-- comment section -->
   <div
     class="commentSection"
     style="display: none"
@@ -267,9 +291,46 @@
       </form>
     </div>
   </div>
-</div>
-<div id="<%= post._id %>-sharePost" class="sharePost"></div>
 
+  <div
+    class="shareSection"
+    style="display: none"
+    id="<%= post._id %>-shareSection"
+  >
+    <div class="commentWindow" id="<%= post._id %>-commentWindow">
+      <form id="postSendForm-<%= post._id %>" action="/sendPosts">
+        <button
+          type="submit"
+          style="display: none"
+          id="<%= post._id %>-sendbtn"
+        ></button>
+        <% for(usr of allUsers){ %>
+        <label
+          class="form-check-label comment"
+          for="<%= usr._id %>-<%= post._id %>"
+        >
+          <div class="form-check">
+            <input
+              class="form-check-input check-<%= post._id %>"
+              type="checkbox"
+              id="<%= usr._id %>-<%= post._id %>"
+              name="shared_users-<%= post._id %>"
+              value="<%= usr._id %>"
+              style="margin-right: 0.5rem; margin-left: 0rem"
+            />
+
+            <img src="<%= usr.image.url %>" alt="" />
+            <%= usr.username %> <% if(currUser && usr._id.toString() ===
+            currUser._id.toString()){ %>
+            <sub>(You)</sub>
+            <% } %>
+          </div>
+        </label>
+        <% } %>
+      </form>
+    </div>
+  </div>
+</div>
 <% } %>
 <a
   id="mobileChatBtn"
@@ -307,15 +368,10 @@
       url: `/incLike/${post_id}/<%= currUser._id %>`,
       type: "get",
       success: (data) => {
-        if (data.liked === "true") {
-          let count = data.count;
-          document.getElementById(`${post_id}-likeCount`).innerText = count;
-          socket.emit("likeBtnClicked", { post_id, count });
-        } else {
-          let count = data.count;
-          document.getElementById(`${post_id}-likeCount`).innerText = count;
-          socket.emit("likeBtnClicked", { post_id, count });
-        }
+        document.getElementById(`${post_id}-likeBtn`).style.color = data.color;
+        let count = data.count;
+        document.getElementById(`${post_id}-likeCount`).innerText = count;
+        socket.emit("likeBtnClicked", { post_id, count });
       },
     });
     `<% } else{%>`;
@@ -352,7 +408,9 @@
       ? (document.getElementById(`${post_id}-commentSection`).style.display =
           "block")
       : (document.getElementById(`${post_id}-commentSection`).style.display =
-          "none");
+          "none"),
+      (document.getElementById(`${post_id}-shareSection`).style.display =
+        "none");
 
     if (
       document.getElementById(`${post_id}-commentSection`).style.display ===
@@ -436,13 +494,25 @@
   });
   `<% } %>`;
 
+  socket.on("increseShareCount", (data) => {
+    document.getElementById(`${data.post_ID}-shareCount`).innerText =
+      data.count;
+  });
+
   function openShare(post_Id) {
     let post_id = post_Id;
-    document.getElementById(`${post_id}-sharePost`).style.display === "none"
-      ? (document.getElementById(`${post_id}-sharePost`).style.display =
-          "block")
-      : (document.getElementById(`${post_id}-sharePost`).style.display =
-          "none");
+    document.getElementById(`${post_id}-commentSection`).style.display = "none";
+    let ss = document.getElementById(`${post_id}-shareSection`);
+    let cs = document.getElementById(`${post_id}-commentSection`);
+    let sb = document.getElementById(`${post_id}-sendbtn`);
+    if (ss.style.display === "none") {
+      ss.style.display = "block";
+      sb.style.display = "block";
+    } else {
+      ss.style.display = "none";
+      sb.style.display = "none";
+      cs.style.display = "none";
+    }
   }
 
   function scrollUp(id) {
@@ -477,4 +547,61 @@
   videos.forEach((video) => {
     observer.observe(video);
   });
+
+  function sendPost(post_Id) {
+    let post_ID = post_Id;
+    let postForm = document.getElementById(`postSendForm-${post_ID}`);
+
+    // Create a new FormData object
+    let formData = new FormData(postForm);
+
+    // Add additional data if needed
+    // formData.append('additionalKey', 'additionalValue');
+
+    $.ajax({
+      url: `/sendPost/${post_ID}`,
+      type: "post",
+      data: formData, // Pass the FormData object as data
+      processData: false, // Prevent jQuery from automatically processing the data
+      contentType: false, // Prevent jQuery from setting contentType
+      success: function (data) {
+        if (data.isVideo) {
+          alert("You Cannot send Video's as of now");
+          document.getElementById(`${post_ID}-shareSection`).style.display =
+            "none";
+          document.getElementById(`${post_ID}-sendbtn`).style.display = "none";
+
+          let checkBoxes = document.getElementsByClassName(`check-${post_ID}`);
+          for (let c of checkBoxes) {
+            c.checked = false;
+          }
+        } else {
+          alert("Post Sent !!!");
+
+          document.getElementById(`${post_ID}-shareCount`).innerText =
+            data.shareCount;
+
+          socket.emit("incShareCount", { post_ID, count: data.shareCount });
+
+          for (usr of data.recUser) {
+            socket.emit("imgSent", {
+              sendUser: data.sendUser,
+              recUser: usr,
+              img: data.img,
+              createdAt: data.createdAt,
+              msg_id: data.msg_id,
+            });
+          }
+          document.getElementById(`${post_ID}-shareSection`).style.display =
+            "none";
+          document.getElementById(`${post_ID}-sendbtn`).style.display = "none";
+
+          let checkBoxes = document.getElementsByClassName(`check-${post_ID}`);
+          for (let c of checkBoxes) {
+            c.checked = false;
+          }
+        }
+      },
+    });
+  }
 </script>

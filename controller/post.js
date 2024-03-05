@@ -1,11 +1,77 @@
 const User = require("../models/user");
 const Post = require("../models/post");
 const luxon = require("luxon");
+const { v4: uuidv4 } = require("uuid");
 const { storage, cloudinary } = require("../cloudConfig.js");
 
 module.exports.renderNewPostForm = (req, res) => {
   let { description } = req.body;
   res.render("posts/newPostForm.ejs", { description });
+};
+
+module.exports.sendPost = async (req, res) => {
+  let { post_ID } = req.params;
+  let sh = "shared_users-" + post_ID;
+
+  let post = await Post.findById(post_ID);
+
+  if (!post.isVedio) {
+    let postImg = post.image.url;
+    let post_description = post.description;
+    let postImg_name = post.image.filename;
+    let currUser = req.user;
+
+    let createdAt = Date.now();
+    const _id = uuidv4();
+    let toSend = Array.isArray(req.body[sh]) ? req.body[sh] : [req.body[sh]];
+
+    for (let usr of toSend) {
+      let recuser = await User.findById(usr);
+
+      post.shares.push({ userId: recuser._id });
+
+      await post.save();
+
+      let obj1 = {
+        _id: _id,
+        img: postImg,
+        caption: post_description,
+        sendUser: recuser._id,
+        createdAt: createdAt,
+        imageName: postImg_name,
+      };
+
+      currUser.sendImgs.push(obj1);
+
+      let obj2 = {
+        _id: _id,
+        img: postImg,
+        caption: post_description,
+        recUser: currUser._id,
+        createdAt: createdAt,
+        imageName: postImg_name,
+      };
+      recuser.recImgs.push(obj2);
+
+      await recuser.save();
+      await currUser.save();
+    }
+    res.status(200).send({
+      success: true,
+      isVideo: false,
+      sendUser: currUser._id,
+      recUser: req.body[sh],
+      img: postImg,
+      createdAt: createdAt,
+      msg_id: _id,
+      shareCount: post.shares.length,
+    });
+  } else {
+    res.status(200).send({
+      success: true,
+      isVideo: true,
+    });
+  }
 };
 
 module.exports.saveNewPost = async (req, res) => {
@@ -87,6 +153,7 @@ module.exports.incrementLike = async (req, res) => {
       success: true,
       liked: true,
       count,
+      color: "blue",
     });
   } else {
     let count = post.like;
@@ -100,6 +167,7 @@ module.exports.incrementLike = async (req, res) => {
       success: true,
       liked: false,
       count,
+      color: "black",
     });
   }
 };

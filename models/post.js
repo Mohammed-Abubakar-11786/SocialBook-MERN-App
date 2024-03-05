@@ -38,6 +38,12 @@ const postSchema = new Schema({
       comment: String,
     },
   ],
+
+  shares: [
+    {
+      userId: { type: Schema.Types.ObjectId, ref: "User" },
+    },
+  ],
 });
 
 const Post = mongoose.model("Post", postSchema);
