@@ -1287,6 +1287,13 @@
               imgURL,
             });
 
+            var successMessage = document.getElementById("manualflashSuccess");
+            successMessage.append("Message Sent 😀");
+            showAndHide(successMessage);
+            /* var errMsg = document.getElementById("manualflashError");
+            errMsg.append("You Cannot send Video's as of now");
+            showAndHide(errMsg); */
+
             let innerText = `Last Msg: ${LrgCreatedAt}`;
             $("#<%=chatUser._id%>-latestMsg").empty();
             $("#<%=chatUser._id%>-latestMsg").append(innerText);
@@ -1634,18 +1641,27 @@
               msg_id,
             });
 
+            var successMessage = document.getElementById("manualflashSuccess");
+            successMessage.append("Image Sent 😀");
+            showAndHide(successMessage);
+
             let innerText = `Last Msg: ${LrgCreatedAt}`;
             $("#<%=chatUser._id%>-latestMsg").empty();
             $("#<%=chatUser._id%>-latestMsg").append(innerText);
           },
           error: (xhr, status, error) => {
+            var errMsg = document.getElementById("manualflashError");
+            errMsg.append("Error sending image:", error);
+            showAndHide(errMsg);
             console.error("Error sending image:", error);
             // Handle the error, show a message to the user, etc.
           },
         });
       } else {
         // Handle case where no image is selected
-        alert("No image selected");
+        var errMsg = document.getElementById("manualflashError");
+        errMsg.append("No image selected");
+        showAndHide(errMsg);
       }
     });
 
@@ -2231,8 +2247,6 @@
             }
             /* socket.emit("sendDelete", sendObj); */
             if (currUser_id !== chatUser_id && delType === "delTypeE") {
-              console.log("in sendDel");
-
               socket.emit("sendDelete", sendObj);
             }
           }
@@ -2376,6 +2390,18 @@
       } else {
         // If no file is selected, clear the preview
       }
+    }
+
+    function showAndHide(element) {
+      element.style.opacity = "1"; // Ensure initial opacity is set
+      element.style.display = "block";
+
+      setTimeout(function () {
+        element.style.opacity = "0";
+        setTimeout(function () {
+          element.style.display = "none";
+        }, 1000);
+      }, 3000);
     }
   </script>
 </body>

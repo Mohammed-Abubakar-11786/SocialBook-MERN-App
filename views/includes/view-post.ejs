@@ -494,10 +494,12 @@
   });
   `<% } %>`;
 
+  `<% if (currUser) { %>`;
   socket.on("increseShareCount", (data) => {
     document.getElementById(`${data.post_ID}-shareCount`).innerText =
       data.count;
   });
+  `<% } %>`;
 
   function openShare(post_Id) {
     let post_id = post_Id;
@@ -565,43 +567,71 @@
       processData: false, // Prevent jQuery from automatically processing the data
       contentType: false, // Prevent jQuery from setting contentType
       success: function (data) {
-        if (data.isVideo) {
-          alert("You Cannot send Video's as of now");
-          document.getElementById(`${post_ID}-shareSection`).style.display =
-            "none";
-          document.getElementById(`${post_ID}-sendbtn`).style.display = "none";
-
-          let checkBoxes = document.getElementsByClassName(`check-${post_ID}`);
-          for (let c of checkBoxes) {
-            c.checked = false;
-          }
+        if (data.redirectTo) {
+          window.location.href = data.redirectTo; // Redirect to the specified URL
         } else {
-          alert("Post Sent !!!");
+          if (data.isVideo) {
+            /* var successMessage = document.getElementById("manualflashSuccess");
+            successMessage.append("You Cannot send Video's as of now");
+            showAndHide(successMessage); */
+            var errMsg = document.getElementById("manualflashError");
+            errMsg.append("You Cannot send Video's as of now");
+            showAndHide(errMsg);
+            document.getElementById(`${post_ID}-shareSection`).style.display =
+              "none";
+            document.getElementById(`${post_ID}-sendbtn`).style.display =
+              "none";
 
-          document.getElementById(`${post_ID}-shareCount`).innerText =
-            data.shareCount;
+            let checkBoxes = document.getElementsByClassName(
+              `check-${post_ID}`
+            );
+            for (let c of checkBoxes) {
+              c.checked = false;
+            }
+          } else {
+            var successMessage = document.getElementById("manualflashSuccess");
+            successMessage.append("Post Successfully sent 😀");
+            showAndHide(successMessage);
+            document.getElementById(`${post_ID}-shareCount`).innerText =
+              data.shareCount;
 
-          socket.emit("incShareCount", { post_ID, count: data.shareCount });
+            socket.emit("incShareCount", { post_ID, count: data.shareCount });
 
-          for (usr of data.recUser) {
-            socket.emit("imgSent", {
-              sendUser: data.sendUser,
-              recUser: usr,
-              img: data.img,
-              createdAt: data.createdAt,
-              msg_id: data.msg_id,
-            });
-          }
-          document.getElementById(`${post_ID}-shareSection`).style.display =
-            "none";
-          document.getElementById(`${post_ID}-sendbtn`).style.display = "none";
+            for (usr of data.recUser) {
+              socket.emit("imgSent", {
+                sendUser: data.sendUser,
+                recUser: usr,
+                img: data.img,
+                createdAt: data.createdAt,
+                msg_id: data.msg_id,
+              });
+            }
+            document.getElementById(`${post_ID}-shareSection`).style.display =
+              "none";
+            document.getElementById(`${post_ID}-sendbtn`).style.display =
+              "none";
 
-          let checkBoxes = document.getElementsByClassName(`check-${post_ID}`);
-          for (let c of checkBoxes) {
-            c.checked = false;
+            let checkBoxes = document.getElementsByClassName(
+              `check-${post_ID}`
+            );
+            for (let c of checkBoxes) {
+              c.checked = false;
+            }
           }
         }
       },
     });
+  }
+
+  function showAndHide(element) {
+    element.style.opacity = "1"; // Ensure initial opacity is set
+    element.style.display = "block";
+
+    setTimeout(function () {
+      element.style.opacity = "0";
+      setTimeout(function () {
+        element.style.display = "none";
+      }, 1000);
+    }, 3000);
   }
 </script>

@@ -9,12 +9,13 @@
   <body>
     <style>
       .otpsent {
-        width: 70%;
+        min-width: fit-content;
         border: 1px solid black;
         text-align: center;
         font-size: larger;
         background-color: rgb(185, 243, 99);
         border-radius: 2rem;
+        padding: 1rem;
       }
       .mob {
         display: none;
@@ -72,7 +73,8 @@
           </div>
         </form>
 
-        <% if(isOTPsent){ %>
+        <% if(isOTPsent){%>
+
         <div class="otpsent Desk mt-3">
           <h4 style="margin-bottom: 0">
             OTP Successfully Sent to <%= targetUser.email %>
@@ -149,5 +151,25 @@
         invalidOTP.style.display = "block";
       }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      `<% if(isOTPsent){ %>`;
+      var sucMsg = document.getElementById("manualflashSuccess");
+      sucMsg.append("OTP Sent Successfully 😀");
+      showAndHide(sucMsg);
+      `<% } %>`;
+    });
+
+    function showAndHide(element) {
+      element.style.opacity = "1"; // Ensure initial opacity is set
+      element.style.display = "block";
+
+      setTimeout(function () {
+        element.style.opacity = "0";
+        setTimeout(function () {
+          element.style.display = "none";
+        }, 1000);
+      }, 3000);
+    }
   </script>
 </html>

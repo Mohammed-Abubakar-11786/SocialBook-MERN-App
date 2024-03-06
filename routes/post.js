@@ -10,7 +10,7 @@ const postController = require("../controller/post.js");
 
 //to create new post form
 router.post("/newpost", isLoggedIn, postController.renderNewPostForm);
-router.post("/sendPost/:post_ID", postController.sendPost);
+router.post("/sendPost/:post_ID", isLoggedInForAjax, postController.sendPost);
 
 router.get(
   "/incLike/:id/:currUser",
