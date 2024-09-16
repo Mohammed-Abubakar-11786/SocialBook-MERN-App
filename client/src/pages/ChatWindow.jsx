@@ -71,7 +71,7 @@ function ChatWindow() {
   useEffect(() => {
     if (currUser) {
       socketRef.current = io(
-        `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}/chat_namespace`,
+        `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}chat_namespace`,
         {
           auth: { token: `"${currUser._id}"` },
         }

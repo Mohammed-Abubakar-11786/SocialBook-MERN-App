@@ -14,7 +14,7 @@ const NewStoryForm = () => {
   const dispatch = useDispatch();
 
   const socket = io(
-    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}/user_namespace`
+    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}user_namespace`
   );
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];

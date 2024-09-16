@@ -41,7 +41,7 @@ const StorySection = () => {
 
   // let allStories = useSelector((state) => state.usersData.allStories);
   let socket = io(
-    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}/user_namespace`
+    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}user_namespace`
   );
 
   useEffect(() => {

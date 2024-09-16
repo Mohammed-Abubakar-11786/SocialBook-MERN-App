@@ -12,7 +12,7 @@ import { setUsersData } from "../../redux/userSlice";
 const ViewPost = () => {
   const dispatch = useDispatch();
   const socket = io(
-    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}/user_namespace`
+    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}user_namespace`
   );
   let usersData = useSelector((state) => state.usersData);
 

@@ -70,7 +70,7 @@ const GroupChat = () => {
   useEffect(() => {
     if (currUser) {
       socketRef.current = io(
-        `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}/groupChatNameSpace`,
+        `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}groupChatNameSpace`,
         {
           auth: { token: currUser._id },
         }
