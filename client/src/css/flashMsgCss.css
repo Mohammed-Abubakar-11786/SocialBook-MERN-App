@@ -1,0 +1,12 @@
+.animation-dec-width {
+  animation: dec-width 2s forwards;
+}
+
+@keyframes dec-width {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

@@ -1,0 +1,647 @@
+<% layout("/layouts/boilerplate") %>
+<body>
+  <style>
+    .head {
+      width: 90%;
+      border-radius: 1.5rem !important;
+      border: 1px solid black;
+      background-color: rgb(199, 244, 244) !important;
+      font-weight: bolder;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      margin-top: 1rem;
+    }
+    .outerContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 90%;
+      height: 65vh;
+      margin: auto;
+      margin-top: 1rem;
+    }
+    .onlineUsers {
+      width: 30% !important;
+      height: 100%;
+      border: 1px solid black;
+      border-radius: 1.5rem !important;
+      background-color: rgb(255, 255, 255) !important;
+      margin-right: 1.5rem;
+    }
+    .ChatSpace {
+      width: 70%;
+      height: 100%;
+      border: 1px solid black;
+      border-radius: 1.5rem !important;
+      background-color: rgb(255, 255, 255) !important;
+
+      /* display: flex;
+      justify-content: center;
+      align-items: center; */
+    }
+    .chattingHead,
+    .UserHead {
+      width: 100%;
+      height: 3.5rem;
+      background-color: rgb(189, 249, 249);
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+      display: flex;
+      align-items: center;
+      padding: 1rem 1rem;
+      position: sticky;
+      border-bottom: 1px solid black;
+      justify-content: space-between;
+    }
+    .chattingHead p {
+      margin-bottom: 0;
+    }
+    .chattingHead p:hover {
+      cursor: pointer;
+      color: #1876f2;
+      font-weight: bold;
+    }
+    .innerChatSpace,
+    .innerUsers {
+      width: 100%;
+      height: calc(100% - 6.3rem);
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
+      overflow-y: auto;
+      padding-bottom: 0.5rem;
+    }
+    .profile-container {
+      position: relative;
+      display: inline-block;
+    }
+    .profile-image {
+      width: 65px; /* Adjust the size as needed */
+      height: 65px; /* Adjust the size as needed */
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffffff; /* Border color for the image */
+      margin-right: 0.6rem;
+    }
+
+    .user-profile-image {
+      width: 50px; /* Adjust the size as needed */
+      height: 50px; /* Adjust the size as needed */
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffffff; /* Border color for the image */
+      margin-right: 0.6rem;
+    }
+
+    .online-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 15px;
+      height: 15px;
+      background-color: #2ecc71; /* Green color for online indicator */
+      border-radius: 50%;
+      border: 2px solid #fff; /* Border color for the indicator */
+    }
+    .info h6 {
+      margin-bottom: 1px;
+    }
+
+    .info p {
+      opacity: 0.7;
+      margin-bottom: 0;
+    }
+    .userInfo {
+      align-items: center;
+    }
+
+    .userInfo {
+      width: 100%;
+      height: 4rem;
+      display: flex;
+      font-size: small;
+      padding: 0.4rem 0.7rem;
+      background-color: white;
+      border-bottom: 1px solid black;
+    }
+
+    .userInfo:hover {
+      background-color: rgb(205, 255, 255);
+      cursor: pointer;
+    }
+
+    .userInfo i {
+      position: relative;
+      left: 25rem;
+      align-self: center;
+      font-size: medium;
+    }
+
+    @media only screen and (max-width: 412px) {
+      .head {
+        display: none;
+      }
+      .outerContainer {
+        display: block;
+        width: 100%;
+        height: 80%;
+        margin-top: 5px;
+      }
+      .onlineUsers {
+        width: 98% !important;
+        margin: auto;
+        height: 40%;
+        margin-bottom: 5px;
+      }
+      .ChatSpace {
+        width: 98% !important;
+        margin: auto;
+        height: 90%;
+      }
+      .innerUsers {
+        height: calc(100% - 4rem);
+        padding-bottom: 0;
+      }
+    }
+    .form-control {
+      width: calc(100% - 24px) !important;
+    }
+    .outerTypeMsg {
+      background-color: aqua;
+      border-radius: inherit;
+      border: 1px solid black;
+      padding: 0.2rem;
+      padding-right: 0.7rem;
+    }
+    .typeMsg {
+      display: flex;
+    }
+    .sentMsg,
+    .recMsg {
+      min-height: 10%;
+      border: 1px solid black;
+      border-radius: 2rem;
+      padding: 0.8rem;
+      max-width: 80%;
+      margin-top: 0.5rem;
+      padding-bottom: 0.1rem;
+
+      padding-left: 0.3rem;
+      padding-top: 0.1rem;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+    }
+    .sendUserImage {
+      margin-right: 0.5rem;
+    }
+    .sendUserImage img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .time {
+      display: flex;
+      justify-content: flex-end;
+      font-size: small;
+    }
+    .time p {
+      margin-bottom: 0;
+      margin-top: 0.5rem;
+    }
+    .sentMsg {
+      margin-left: auto;
+      background-color: antiquewhite;
+    }
+    .recMsg {
+      margin-right: auto;
+      background-color: #fff;
+    }
+    .newUserJoined {
+      width: 100%;
+      background-color: #83f1b1;
+      border-radius: 1rem;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    .newUserJoined p {
+      margin-bottom: 0;
+    }
+    .userLeft {
+      width: 100%;
+      background-color: rgb(255, 180, 195);
+      border-radius: 1rem;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    .userLeft p {
+      margin-bottom: 0;
+    }
+  </style>
+
+  <style>
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .del-cnf {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 1001; /* Place the form above the overlay */
+      height: fit-content;
+    }
+
+    /* Style your form elements as needed */
+    .del-cnf label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    /* .del-cnf input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 1rem;
+  } */
+
+    .del-cnf .nbtn {
+      background-color: #fefefe;
+      color: rgb(0, 0, 0);
+      border: 2px solid black !important;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      border-radius: 1rem;
+    }
+    .del-cnf .nbtn:hover {
+      background-color: red;
+      color: white;
+    }
+    .windowCloseBtn {
+      background-color: #1876f2;
+      color: rgb(255, 255, 255);
+      border: 2px solid black !important;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      border-radius: 1rem;
+    }
+    .windowCloseBtn:hover {
+      background-color: greenyellow;
+      color: black;
+    }
+  </style>
+
+  <div class="overlay" id="delCnfOverlay">
+    <div class="del-cnf">
+      <h2>Delete Confirmation !!!</h2>
+
+      <h2 style="display: none" id="msg_id"></h2>
+      <!-- Include your actual signup form here -->
+      <form id="cnfForm" style="width: 100%" action=""></form>
+      <%let currUser_id = currUser._id; %>
+      <button onclick="submitDelBtn()" class="nbtn delBtn">Delete</button>
+      <button class="windowCloseBtn delBtn" onclick="closeDelCnf()">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <div class="overlay" id="delCnfOverlay1">
+    <div class="del-cnf">
+      <h2>You can Only Delete Your Msgs !!!</h2>
+
+      <h2 style="display: none" id="msg_id"></h2>
+
+      <h3 style="color: red" id="time"></h3>
+      <!-- Include your actual signup form here -->
+      <form id="cnfForm" style="width: 100%" action=""></form>
+      <button class="windowCloseBtn delBtn" onclick="closeDelCnf()">
+        Close
+      </button>
+    </div>
+  </div>
+  <div class="head shadow p-3 bg-body-tertiary rounded">
+    <h1 style="margin-bottom: 0">
+      Welcome <%= currUser.username %> to Group Chat
+    </h1>
+  </div>
+
+  <div class="outerContainer">
+    <div class="onlineUsers shadow bg-body-tertiary rounded">
+      <div class="UserHead">
+        <h3 style="margin-bottom: 0">All Online Users</h3>
+      </div>
+      <div class="innerUsers" id="innerUsers">
+        <% for (user of allUsers) { %> <% if(user.is_online_in_group === true){
+        %>
+        <div class="userInfo" id="<%= user._id %>-LiveUser">
+          <div class="profile-container">
+            <img
+              class="user-profile-image"
+              src="<%= user.image.url %>"
+              alt="User Profile"
+            />
+            <div class="online-indicator" id="<%= user._id %>-usersArray"></div>
+          </div>
+          <div class="info">
+            <h6>
+              <%= user.username %><%= currUser && user._id.toString() ===
+              currUser._id.toString() ? " (You)" : "" %>
+            </h6>
+            <!-- time -->
+          </div>
+        </div>
+        <% }%> <% } %>
+      </div>
+    </div>
+    <div class="ChatSpace shadow bg-body-tertiary rounded">
+      <div class="chattingHead">
+        <h3 style="margin-bottom: 0">Chats</h3>
+        <% if( currUser._id.toString() === "6565e8f590ad24ddda24d4d0"){ %>
+        <p onclick="delAllMsgsForEveryOne()">Clear Chats</p>
+        <% }else{ %>
+        <p onclick="delAllMsgs()">Clear Chats</p>
+        <% } %>
+      </div>
+      <div class="innerChatSpace" id="innerChatSpace">
+        <% for (msg of GroupMsg.Messages) {%> <% if(msg.sendUser.toString() ===
+        currUser._id.toString()){ %>
+        <div
+          class="sentMsg"
+          data-message-id="<%=msg._id%>-sendMsg"
+          data-msg_id="<%=msg._id%>"
+          id="<%=msg._id%>"
+        >
+          <div class="sendUserImage">
+            <img src="<%= msg.sendUserImg %>" alt="image" />
+          </div>
+          <div>
+            <div>
+              <p style="margin-bottom: 0"><%= msg.msg %></p>
+            </div>
+            <div class="time"><p><%= msg.createdAt %></p></div>
+          </div>
+        </div>
+        <% } else{%>
+        <div
+          class="recMsg"
+          data-message-id="<%=msg._id%>-recMsg"
+          data-msg_id="<%=msg._id%>"
+          id="<%=msg._id%>"
+        >
+          <div class="sendUserImage">
+            <img src="<%= msg.sendUserImg %>" alt="image" />
+          </div>
+          <div>
+            <div>
+              <p style="margin-bottom: 0"><%= msg.msg %></p>
+            </div>
+            <div class="time"><p><%= msg.createdAt %></p></div>
+          </div>
+        </div>
+        <%} %> <% }%>
+      </div>
+      <div class="outerTypeMsg">
+        <form style="width: 100%; height: 100%" id="sentForm">
+          <div class="typeMsg">
+            <input
+              style="margin-right: 0.5rem; border-radius: 1rem"
+              type="text"
+              placeholder="Enter Message"
+              class="form-control"
+              id="msgInp"
+            /><button class="btn btn-success">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  const socket = io("/groupChatNameSpace", {
+    auth: {
+      token: "<%= currUser._id %>",
+    },
+  });
+
+  socket.on("GroupUserOnline", (data) => {
+    let time = luxon.DateTime.fromJSDate(new Date(data.cntTime), {
+      zone: "Asia/Kolkata",
+    }).toLocaleString({
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    let LiveUser = data.currUser;
+    let curr_id = "<%= currUser._id %>";
+    let innerUsers = document.getElementById("innerUsers");
+    let html = `<div class="userInfo" id="${LiveUser._id}-LiveUser">
+            <div class="profile-container">
+              <img
+                class="user-profile-image"
+                src="${LiveUser.image.url}"
+                alt="User Profile"
+              />
+              <div class="online-indicator" id="${
+                LiveUser._id
+              }-usersArray"></div>
+            </div>
+            <div class="info">
+              <h6>
+                ${LiveUser.username} ${
+      curr_id && LiveUser._id.toString() === curr_id.toString() ? " (You)" : ""
+    }
+              </h6>
+              <!-- time -->
+            </div>
+          </div>`;
+    $("#innerUsers").append(html);
+    let html1 = `<div class="newUserJoined"><p>${
+      curr_id && LiveUser._id.toString() === curr_id.toString()
+        ? "(You) "
+        : `${LiveUser.username}`
+    }Joined the Chat! @ ${time}</p></div>
+  `;
+
+    $(".innerChatSpace").append(html1);
+
+    scrollUp("innerChatSpace");
+  });
+
+  socket.on("GroupUserOffline", (data) => {
+    let time = luxon.DateTime.fromJSDate(new Date(data.disCntTime), {
+      zone: "Asia/Kolkata",
+    }).toLocaleString({
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    let LiveUser = data.currUser;
+    $(`#${LiveUser._id}-LiveUser`).remove();
+    let html1 = `<div class="userLeft"><p>${LiveUser.username} Left the Chat! @ ${time}</p></div>
+  `;
+
+    $(".innerChatSpace").append(html1);
+
+    scrollUp("innerChatSpace");
+  });
+
+  document.getElementById("sentForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    let msg = document.getElementById("msgInp").value;
+
+    if (msg) {
+      $.ajax({
+        url: "/saveGrpMsg/<%=currUser._id %>",
+        type: "post",
+        data: { msg: msg },
+        success: (data) => {
+          let time = data.obj.createdAt;
+          let msgID = data.obj._id;
+          let html = `<div class="sentMsg" data-message-id="${msgID}-sendMsg" id="${msgID}" data-msg_id="${msgID}">
+            <div class="sendUserImage">
+              <img
+                src="${data.obj.sendUserImg}"
+                alt="image"
+              />
+            </div>
+            <div>
+              <div><p style="margin-bottom: 0">${data.obj.msg}</p></div>
+              <div class="time"><p>${time}</p></div>
+            </div>
+          </div>`;
+          $(".innerChatSpace").append(html);
+          document.getElementById("msgInp").value = "";
+          scrollUp("innerChatSpace");
+          socket.emit("grpMsgSent", data);
+        },
+      });
+    }
+  });
+
+  socket.on("recGrpMsg", (data) => {
+    let time = data.obj.createdAt;
+    let msgID = data.obj._id;
+    let html = `<div class="recMsg" data-message-id="${msgID}-recMsg" id="${msgID}" data-msg_id="${msgID}">
+            <div class="sendUserImage">
+              <img
+                src="${data.obj.sendUserImg}"
+                alt="image"
+              />
+            </div>
+            <div>
+              <div><p style="margin-bottom: 0">${data.obj.msg}</p></div>
+              <div class="time"><p>${time}</p></div>
+            </div>
+          </div>`;
+    $(".innerChatSpace").append(html);
+    /* // Play notification sound
+    const audio = new Audio("iphone_sound.mp3");
+    audio.play(); */
+
+    scrollUp("innerChatSpace");
+  });
+
+  function scrollUp(id) {
+    $(`#${id}`).animate(
+      {
+        scrollTop: $(`#${id}`).offset().top + $(`#${id}`)[0].scrollHeight,
+      },
+      200
+    );
+  }
+  // Define the long press event handler function
+  function handleLongPress(msgType, msg_id) {
+    document.getElementById("msg_id").innerText = `${msg_id}`;
+    if (msgType === "sendMsg") {
+      document.getElementById("delCnfOverlay").style.display = "flex";
+    } else {
+      document.getElementById("delCnfOverlay1").style.display = "flex";
+    }
+  }
+
+  function closeDelCnf() {
+    document.getElementById("delCnfOverlay").style.display = "none";
+
+    document.getElementById("delCnfOverlay1").style.display = "none";
+  }
+  // Attach event listener for long press to the parent container
+  $(".innerChatSpace").on(
+    "mousedown dblclick",
+    ".sentMsg, .recMsg",
+    function () {
+      let msgType = $(this).data("messageId");
+      let a = msgType.split("-");
+      msgType = a[a.length - 1];
+      let msg_id = $(this).data("msg_id");
+      let pressTimer = setTimeout(function () {
+        handleLongPress(msgType, msg_id);
+      }, 1000); // Adjust the time duration as needed
+
+      // Store the timer ID as a data attribute on the element
+      $(this).data("pressTimer", pressTimer);
+    }
+  );
+
+  // Cancel long press timer on mouseup
+  $(".innerChatSpace").on("mouseup", ".sentMsg, .recMsg", function () {
+    clearTimeout($(this).data("pressTimer"));
+  });
+
+  // Prevent context menu from appearing on long press
+  $(".innerChatSpace").on("contextmenu", ".sentMsg, .recMsg", function (e) {
+    e.preventDefault();
+  });
+
+  function submitDelBtn() {
+    let msg_id = document.getElementById("msg_id").innerText;
+
+    $.ajax({
+      url: `/delGrpMsg/${msg_id}`,
+      type: "get",
+      success: (data) => {
+        document.getElementById("delCnfOverlay").style.display = "none";
+        document.getElementById("delCnfOverlay1").style.display = "none";
+        document.getElementById(`${msg_id}`).remove();
+        socket.emit("msgDeleted", { msg_id });
+      },
+    });
+  }
+
+  socket.on("recDeletedMsg", (data) => {
+    document.getElementById(`${data.msg_id}`).remove();
+  });
+
+  function delAllMsgs() {
+    $(".innerChatSpace").empty();
+  }
+
+  function delAllMsgsForEveryOne() {
+    $.ajax({
+      url: `/delAllGrpMsg`,
+      type: "get",
+      success: (data) => {
+        $(".innerChatSpace").empty();
+      },
+    });
+  }
+
+  /*   setInterval(delAllMsgsForEveryOne, 3600000); */
+</script>

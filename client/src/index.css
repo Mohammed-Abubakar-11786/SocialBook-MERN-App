@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar-hide utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+.invalid-feedback {
+  display: block;
+}
+.valid-feedback {
+  display: block;
+}
+
+#innerChatSpace {
+  height: 72%;
+  overflow-y: scroll;
+  scroll-behavior: smooth; /* Ensure smooth scrolling in CSS */
+}
