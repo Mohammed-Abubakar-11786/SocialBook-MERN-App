@@ -4,6 +4,7 @@ const { storage, cloudinary } = require("../cloudConfig.js");
 const { render } = require("ejs");
 const passport = require("passport");
 const Conversation = require("../models/conversation.js");
+const { log } = require("console");
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -358,6 +359,7 @@ function showAndHide(element) {
 module.exports.getSortedUsers = async (req, res) => {
   try {
     let { currUserID } = req.params;
+
     let users = await User.find();
 
     // Fetch all conversations involving the current user
@@ -371,7 +373,8 @@ module.exports.getSortedUsers = async (req, res) => {
         conv.sendUser._id.toString() === currUserID
           ? conv.recUser
           : conv.sendUser;
-      acc[otherUser._id] = {
+
+      acc[otherUser?._id] = {
         user: otherUser,
         conv,
       };
