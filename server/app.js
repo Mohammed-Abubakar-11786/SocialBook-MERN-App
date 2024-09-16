@@ -106,7 +106,6 @@ const SOCKET_PORT = process.env.SOCKET_PORT || 3031;
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    path: "/socket",
     origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
     methods: ["GET", "POST"],
     credentials: true,
@@ -277,6 +276,9 @@ app.get("/", async (req, res) => {
 //   }
 // });
 
+app.get("/abu", (req, res) => {
+  res.send("Abubakar");
+});
 app.use("/", usersRouter);
 app.use("/", postsRouter);
 app.use("/", storyRouter);
