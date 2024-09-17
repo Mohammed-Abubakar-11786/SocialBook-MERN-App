@@ -36,21 +36,6 @@ app.use(
   })
 );
 
-// Add this middleware to handle preflight requests
-app.options("*", (req, res) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://social-book-mern-app-client.vercel.app"
-  );
-  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "my-custom-header,Authorization,Content-Type"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
-});
-
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
@@ -122,7 +107,7 @@ const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
     origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
-    allowedHeaders: ["my-custom-header"],
+    methods: ["GET", "POST"],
     credentials: true,
   },
 });
