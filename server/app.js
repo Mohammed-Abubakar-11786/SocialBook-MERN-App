@@ -36,6 +36,21 @@ app.use(
   })
 );
 
+// Add this middleware to handle preflight requests
+app.options("*", (req, res) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://social-book-mern-app-client.vercel.app"
+  );
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "my-custom-header,Authorization,Content-Type"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+});
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
@@ -106,8 +121,7 @@ const SOCKET_PORT = process.env.SOCKET_PORT || 3031;
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    origin: "https://social-book-mern-app-client.vercel.app", // Your frontend URL
-    methods: ["GET", "POST", "OPTIONS"],
+    origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
     allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
