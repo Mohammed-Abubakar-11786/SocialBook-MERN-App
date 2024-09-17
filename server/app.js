@@ -106,7 +106,8 @@ const SOCKET_PORT = process.env.SOCKET_PORT || 3031;
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
+    origin: "https://social-book-mern-app-client.vercel.app", // Your frontend URL
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
