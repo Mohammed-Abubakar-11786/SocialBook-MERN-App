@@ -107,7 +107,7 @@ const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
     origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
-    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });

@@ -11,9 +11,11 @@ import { setUsersData } from "../../redux/userSlice";
 
 const ViewPost = () => {
   const dispatch = useDispatch();
-  const socket = io(
-    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}user_namespace`
-  );
+  const socket = io(`${import.meta.env.VITE_API_SOCKET_BACKEND_URL}`, {
+    extraHeaders: {
+      "my-custom-header": "user_namespace",
+    },
+  });
   let usersData = useSelector((state) => state.usersData);
 
   // console.log(usersData);

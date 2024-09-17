@@ -7,9 +7,11 @@ import { io } from "socket.io-client";
 import { setUsersData } from "../redux/userSlice";
 
 const NewPostForm = () => {
-  const socket = io(
-    `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}user_namespace`
-  );
+  const socket = io(`${import.meta.env.VITE_API_SOCKET_BACKEND_URL}`, {
+    extraHeaders: {
+      "my-custom-header": "user_namespace",
+    },
+  });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();

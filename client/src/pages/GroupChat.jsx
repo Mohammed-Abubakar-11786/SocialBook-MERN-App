@@ -69,12 +69,12 @@ const GroupChat = () => {
 
   useEffect(() => {
     if (currUser) {
-      socketRef.current = io(
-        `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}groupChatNameSpace`,
-        {
-          auth: { token: currUser._id },
-        }
-      );
+      socketRef.current = io(`${import.meta.env.VITE_API_SOCKET_BACKEND_URL}`, {
+        auth: { token: currUser._id },
+        extraHeaders: {
+          "my-custom-header": "groupChatNameSpace",
+        },
+      });
       socketRef.current.connect();
 
       // socketRef.current.on("connect", () => {
