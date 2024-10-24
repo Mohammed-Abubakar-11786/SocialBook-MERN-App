@@ -261,10 +261,10 @@ const GroupChat = () => {
   };
 
   useEffect(() => {
-    if (messages.length > messagesLengthRef.current) {
+    if (messages?.length > messagesLengthRef.current) {
       scrollUp();
     }
-    messagesLengthRef.current = messages.length;
+    messagesLengthRef.current = messages?.length;
   }, [messages]);
 
   const scrollUp = () => {
