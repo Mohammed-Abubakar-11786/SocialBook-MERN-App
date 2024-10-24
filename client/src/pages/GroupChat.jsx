@@ -142,7 +142,11 @@ const GroupChat = () => {
       });
 
       socketRef.current.on("recGrpMsg", (data) => {
-        setMessages((prevMessages) => [...prevMessages, data]);
+        setMessages((prevMessages) => {
+          return Array.isArray(prevMessages)
+            ? [...prevMessages, data]
+            : [data.grpmsg];
+        });
       });
 
       socketRef.current.on("recDeletedMsg", (data) => {
