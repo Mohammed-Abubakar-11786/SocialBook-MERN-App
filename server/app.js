@@ -68,7 +68,8 @@ const store = MongoStore.create({
   crypto: {
     secret: process.env.SECRET,
   },
-  touchAfter: 24 * 3600,
+  touchAfter: 24 * 3600, // Avoids updating the session too frequently
+  ttl: 7 * 24 * 60 * 60, // Session TTL: 7 days
 });
 
 store.on("error", () => {
@@ -84,7 +85,8 @@ let sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Set to true in production
+    secure:
+      process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true",
     sameSite: "strict", // Ensures cookies are sent in first-party contexts
   },
 };
