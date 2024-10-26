@@ -57,6 +57,10 @@ function Home() {
   let getCurrUser = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}currUser`;
     let res = await axios(url, { withCredentials: true });
+    console.log(res.data.success);
+
+    console.log(res);
+
     if (res.data.success) {
       dispatch(setCurrUser(res.data.data));
     } else {
