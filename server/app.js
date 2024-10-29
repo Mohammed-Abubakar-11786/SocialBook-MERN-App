@@ -85,8 +85,8 @@ let sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    // secure: process.env.NODE_ENV === "production", // Set to true in production
-    // sameSite: "strict", // Ensures cookies are sent in first-party contexts
+    secure: process.env.NODE_ENV === "production", // Set to true in production
+    sameSite: "lax", // Ensures cookies are sent in first-party contexts
   },
 };
 app.use(session(sessionOptions));
