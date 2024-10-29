@@ -29,6 +29,7 @@ const adminRouter = require("./routes/admin.js");
 // const { Server } = require("http");
 const { Server } = require("socket.io");
 const { log, error } = require("console");
+app.use(cookieParser());
 
 app.use(
   cors({
@@ -37,7 +38,6 @@ app.use(
   })
 );
 
-app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
