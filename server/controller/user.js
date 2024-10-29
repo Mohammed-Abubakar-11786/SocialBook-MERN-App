@@ -11,39 +11,39 @@ module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
 };
 
-module.exports.getCurrUser = (req, res) => {
-  if (req.isAuthenticated()) {
+module.exports.getCurrUser = async (req, res) => {
+  //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
+  try {
+    const token = req.cookies.token || "";
+
+    const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
+
     return res.status(200).json({
-      data: req.user,
+      message: "user details",
+      data: user,
       success: true,
     });
-  } else {
-    // return res.status(200).json({
-    //   data: "No user Currently",
-    //   error: true,
-    // });
-    try {
-      let getDetailsFromToken = async () => {
-        const token = req.cookies?.token || "";
 
-        const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
-
-        return res.status(200).json({
-          message: "user details",
-          data: user,
-          success: true,
-        });
-      };
-
-      getDetailsFromToken();
-    } catch (error) {
-      return res.status(200).json({
-        message: error.message || error,
-        error: true,
-        success: false,
-      });
-    }
+    // if (req.isAuthenticated()) {
+    //   return res.status(200).json({
+    //     data: req.user,
+    //     success: true,
+    //   });
+    // }
+  } catch (error) {
+    return res.status(200).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
   }
+  // else {
+  //   // return res.status(200).json({
+  //   //   data: "No user Currently",
+  //   //   error: true,
+  //   // });
+
+  // }
 };
 
 module.exports.toggleAccType = async (req, res) => {
@@ -140,7 +140,7 @@ module.exports.handleLogin = async (req, res, next) => {
           });
         }
 
-        req.logIn(user, function (err) {
+        req.logIn(user, async function (err) {
           if (err) {
             return res.status(200).json({
               message: "LogedIn Faild",
@@ -154,16 +154,14 @@ module.exports.handleLogin = async (req, res, next) => {
             email: req.user.email,
           };
 
-          let genrateToken = async () => {
-            return await jwt.sign(tokenData, process.env.JWT_SECREAT_KEY, {
-              expiresIn: "1d",
-            });
-          };
-          const token = genrateToken();
+          const token = await jwt.sign(tokenData, process.env.JWT_SECREAT_KEY, {
+            expiresIn: "1d",
+          });
 
           const cookieOptions = {
-            http: true,
+            httpOnly: true,
             secure: true,
+            sameSite: "lax",
           };
 
           return res
