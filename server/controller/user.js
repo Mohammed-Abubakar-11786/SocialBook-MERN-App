@@ -4,7 +4,8 @@ const { storage, cloudinary } = require("../cloudConfig.js");
 const { render } = require("ejs");
 const passport = require("passport");
 const Conversation = require("../models/conversation.js");
-const { log } = require("console");
+const jwt = require("jsonwebtoken");
+const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken.js");
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -17,10 +18,31 @@ module.exports.getCurrUser = (req, res) => {
       success: true,
     });
   } else {
-    return res.status(200).json({
-      data: "No user Currently",
-      error: true,
-    });
+    // return res.status(200).json({
+    //   data: "No user Currently",
+    //   error: true,
+    // });
+    try {
+      let getDetailsFromToken = async () => {
+        const token = req.cookies?.token || "";
+
+        const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
+
+        return res.status(200).json({
+          message: "user details",
+          data: user,
+          success: true,
+        });
+      };
+
+      getDetailsFromToken();
+    } catch (error) {
+      return res.status(200).json({
+        message: error.message || error,
+        error: true,
+        success: false,
+      });
+    }
   }
 };
 
@@ -127,12 +149,33 @@ module.exports.handleLogin = async (req, res, next) => {
             });
           }
 
-          return res.status(200).json({
-            message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
-            success: true,
-            data: req.user,
-            error: false,
-          });
+          const tokenData = {
+            id: req.user._id,
+            email: req.user.email,
+          };
+
+          let genrateToken = async () => {
+            return await jwt.sign(tokenData, process.env.JWT_SECREAT_KEY, {
+              expiresIn: "1d",
+            });
+          };
+          const token = genrateToken();
+
+          const cookieOptions = {
+            http: true,
+            secure: true,
+          };
+
+          return res
+            .cookie("token", token, cookieOptions)
+            .status(200)
+            .json({
+              message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
+              token: token,
+              success: true,
+              data: req.user,
+              error: false,
+            });
         });
       })(req, res, next);
     } else {
@@ -174,7 +217,14 @@ module.exports.logoutUser = (req, res, next) => {
       //   "success",
       //   `You Logged Out!! Bye 👋👋 ${username} 😊 See You Soon`
       // );
-      return res.status(200).json({
+
+      const cookieOptions = {
+        http: true,
+        secure: true,
+      };
+
+      return res.cookie("token", "", cookieOptions).status(200).json({
+        message: "session out",
         success: true,
       });
     });

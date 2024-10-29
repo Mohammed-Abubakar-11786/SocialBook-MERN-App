@@ -58,7 +58,7 @@ function Home() {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}currUser`;
     let res = await axios(url, { withCredentials: true });
 
-    if (res.data.success) {
+    if (res.data.success && !res.data.data.logout) {
       dispatch(setCurrUser(res.data.data));
     } else {
       dispatch(logoutUser());
