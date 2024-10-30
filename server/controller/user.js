@@ -160,8 +160,9 @@ module.exports.handleLogin = async (req, res, next) => {
           });
 
           const cookieOptions = {
-            http: true,
-            secure: true,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // true in production
+            sameSite: "strict",
           };
 
           return res
