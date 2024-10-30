@@ -87,7 +87,8 @@ let sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true, // Set to true in production
+    secure: true, // Set to true in production,
+    sameSite: "strict",
   },
 };
 app.use(session(sessionOptions));
