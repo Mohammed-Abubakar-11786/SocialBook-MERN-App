@@ -14,7 +14,7 @@ module.exports.renderSignupPage = (req, res) => {
 module.exports.getCurrUser = async (req, res) => {
   //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
   try {
-    const token = req.cookies?.token || "";
+    const { token } = req.cookies;
     console.log("token : " + token);
 
     const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
