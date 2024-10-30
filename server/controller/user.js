@@ -16,6 +16,7 @@ module.exports.getCurrUser = async (req, res) => {
   try {
     const token = req.cookies?.token || "";
     console.log("token : " + token);
+    console.log(req);
 
     const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
 
