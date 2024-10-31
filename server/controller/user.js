@@ -6,6 +6,7 @@ const passport = require("passport");
 const Conversation = require("../models/conversation.js");
 const jwt = require("jsonwebtoken");
 const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken.js");
+const e = require("connect-flash");
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -34,22 +35,35 @@ module.exports.getCurrUser = async (req, res) => {
     //   });
 
     // console.log(req.isAuthenticated());
+    console.log(req.session.passport.user);
 
-    if (req.isAuthenticated()) {
-      console.log(req.user);
-      console.log("Token : " + req.cookies.token);
-
+    let user = await User.findOne({ username: req.session.passport.user });
+    if (user) {
       return res.status(200).json({
-        data: req.user,
+        data: user,
         success: true,
       });
     } else {
-      console.log("Token : " + req.cookies.token);
-
       return res.status(200).json({
         success: false,
       });
     }
+
+    // if (req.isAuthenticated()) {
+    //   console.log(req.user);
+    //   console.log("Token : " + req.cookies.token);
+
+    //   return res.status(200).json({
+    //     data: req.user,
+    //     success: true,
+    //   });
+    // } else {
+    //   console.log("Token : " + req.cookies.token);
+
+    //   return res.status(200).json({
+    //     success: false,
+    //   });
+    // }
   } catch (error) {
     return res.status(200).json({
       message: error.message || error,
