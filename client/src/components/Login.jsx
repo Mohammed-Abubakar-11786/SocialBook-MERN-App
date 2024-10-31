@@ -37,6 +37,7 @@ const Login = () => {
   }, [location, navigate]);
 
   const [isOpen, setIsOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -88,6 +89,7 @@ const Login = () => {
     FormDataToSend.append("password", formData.password);
     const url = `${import.meta.env.VITE_API_BACKEND_URL}login`;
     try {
+      setIsLoading(true);
       let res = await axios.post(
         url,
         FormDataToSend,
@@ -98,6 +100,7 @@ const Login = () => {
           },
         }
       );
+      setIsLoading(false);
       if (res.data.success) {
         setFormData({
           username: "",
@@ -197,11 +200,22 @@ const Login = () => {
                 id="loginBtn"
                 type="submit"
                 onClick={changeBtnColr}
+                disabled={isLoading}
                 className={`w-full py-2 text-white rounded-lg transition duration-200 ${
                   submitted ? "bg-orange-600" : "bg-blue-500 hover:bg-blue-600"
                 } font-bold`}
               >
-                Log In
+                {isLoading ? (
+                  <lord-icon
+                    src="https://cdn.lordicon.com/jpgpblwn.json"
+                    trigger="loop"
+                    state="loop-expand"
+                    colors="primary:#ffffff"
+                    className="w-[250px] h-[250px]"
+                  ></lord-icon>
+                ) : (
+                  <p> Log In</p>
+                )}
               </button>
             </form>
             <button
