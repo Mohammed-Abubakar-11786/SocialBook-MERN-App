@@ -35,6 +35,8 @@ module.exports.getCurrUser = async (req, res) => {
     //   });
 
     // console.log(req.isAuthenticated());
+    console.log(req);
+
     console.log(req.session.passport.user);
 
     let user = await User.findOne({ username: req.session.passport.user });
@@ -68,7 +70,7 @@ module.exports.getCurrUser = async (req, res) => {
     return res.status(200).json({
       message: error.message || error,
       error: true,
-      extra: req.session,
+      extra: req,
       success: false,
     });
   }
