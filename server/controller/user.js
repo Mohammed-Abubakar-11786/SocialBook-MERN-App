@@ -143,7 +143,7 @@ module.exports.handleLogin = async (req, res) => {
     let user = await User.findByUsername(username);
 
     if (user) {
-      passport.authenticate("local", async (err, user) => {
+      passport.authenticate("local", async (err, user, info) => {
         if (err) {
           return res.status(200).json({
             message: "LogedIn Faild",

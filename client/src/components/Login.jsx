@@ -130,10 +130,14 @@ const Login = () => {
   };
 
   const changeBtnColr = () => {
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 200);
+    if (formData.username && formData.password) {
+      console.log("Btn clicked");
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 200);
+    }
   };
 
   return (
