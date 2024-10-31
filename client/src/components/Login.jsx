@@ -37,6 +37,7 @@ const Login = () => {
   }, [location, navigate]);
 
   const [isOpen, setIsOpen] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -75,6 +76,10 @@ const Login = () => {
   };
 
   let onSubmit = async (e) => {
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+    }, 200);
     e.preventDefault();
     e.stopPropagation();
 
@@ -122,6 +127,13 @@ const Login = () => {
       // setErrorMsg(e.message || "Something Went Wrong. Try Again Later");
       setErrorMsg("Something Went Wrong. Try Again Later");
     }
+  };
+
+  const changeBtnColr = () => {
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+    }, 200);
   };
 
   return (
@@ -178,8 +190,12 @@ const Login = () => {
               />
 
               <button
+                id="loginBtn"
                 type="submit"
-                className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
+                onClick={changeBtnColr}
+                className={`w-full py-2 text-white rounded-lg transition duration-200 ${
+                  submitted ? "bg-orange-600" : "bg-blue-500 hover:bg-blue-600"
+                } font-bold`}
               >
                 Log In
               </button>
