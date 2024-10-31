@@ -16,7 +16,8 @@ module.exports.getCurrUser = async (req, res) => {
   try {
     const token = req.cookies?.token || "";
     console.log("token : " + token);
-    console.log(req);
+    console.log("Username " + req.user?.username);
+    console.log("Authenticated " + req.isAuthenticated());
 
     const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
 
@@ -25,18 +26,24 @@ module.exports.getCurrUser = async (req, res) => {
       data: user,
       success: true,
     });
+    console.log(req.isAuthenticated());
 
-    // if (req.isAuthenticated()) {
-    //   return res.status(200).json({
-    //     data: req.user,
-    //     success: true,
-    //   });
-    // } else {
-    //   return res.status(200).json({
-    //     data: null,
-    //     success: false,
-    //   });
-    // }
+    if (req.isAuthenticated()) {
+      console.log(req.user);
+      console.log("Token : " + req.cookies.token);
+
+      return res.status(200).json({
+        data: req.user,
+        success: true,
+      });
+    } else {
+      console.log("Token : " + req.cookies.token);
+
+      return res.status(200).json({
+        data: null,
+        success: false,
+      });
+    }
   } catch (error) {
     return res.status(200).json({
       message: error.message || error,
@@ -124,13 +131,13 @@ module.exports.signup = async (req, res) => {
   );
 };
 
-module.exports.handleLogin = async (req, res, next) => {
+module.exports.handleLogin = async (req, res) => {
   try {
     let { username } = req.body;
     let user = await User.findByUsername(username);
 
     if (user) {
-      passport.authenticate("local", (err, user, info) => {
+      passport.authenticate("local", async (err, user) => {
         if (err) {
           return res.status(200).json({
             message: "LogedIn Faild",
@@ -156,33 +163,47 @@ module.exports.handleLogin = async (req, res, next) => {
             });
           }
 
-          const tokenData = {
-            id: req.user._id,
-            email: req.user.email,
-          };
+          req.session.save(async (err) => {
+            // Manually save session
+            if (err)
+              return res.status(200).json({
+                message: "LogedIn Faild",
+                data: err,
+                error: true,
+              });
 
-          const token = await jwt.sign(tokenData, process.env.JWT_SECREAT_KEY, {
-            expiresIn: "1d",
+            const tokenData = {
+              id: req.user._id,
+              email: req.user.email,
+            };
+
+            const token = await jwt.sign(
+              tokenData,
+              process.env.JWT_SECREAT_KEY,
+              {
+                expiresIn: "1d",
+              }
+            );
+
+            const cookieOptions = {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production", // true in production
+              sameSite: "strict",
+            };
+
+            return res
+              .cookie("token", token, cookieOptions)
+              .status(200)
+              .json({
+                message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
+                token: token,
+                success: true,
+                data: req.user,
+                error: false,
+              });
           });
-
-          const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // true in production
-            sameSite: "strict",
-          };
-
-          return res
-            .cookie("token", token, cookieOptions)
-            .status(200)
-            .json({
-              message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
-              token: token,
-              success: true,
-              data: req.user,
-              error: false,
-            });
         });
-      })(req, res, next);
+      })(req, res);
     } else {
       return res.status(200).send({
         data: {
