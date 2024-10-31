@@ -14,18 +14,25 @@ module.exports.renderSignupPage = (req, res) => {
 module.exports.getCurrUser = async (req, res) => {
   //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
   try {
-    const token = req.cookies?.token || "";
+    const token = req.cookies.token || "";
     console.log("token : " + token);
-    console.log("Username " + req.user?.username);
-    console.log("Authenticated " + req.isAuthenticated());
+    // console.log("Username " + req.user?.username);
+    // console.log("Authenticated " + req.isAuthenticated());
 
-    const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
+    if (token) {
+      const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
+      return res.status(200).json({
+        message: "user details",
+        data: user,
+        success: true,
+      });
+    } else
+      return res.status(200).json({
+        message: "user details",
+        data: null,
+        success: false,
+      });
 
-    return res.status(200).json({
-      message: "user details",
-      data: user,
-      success: true,
-    });
     console.log(req.isAuthenticated());
 
     if (req.isAuthenticated()) {
@@ -189,6 +196,8 @@ module.exports.handleLogin = async (req, res) => {
               httpOnly: true,
               secure: process.env.NODE_ENV === "production", // true in production
               sameSite: "strict",
+              expires: Date.now() + 3 * 60 * 60 * 1000,
+              maxAge: 3 * 60 * 60 * 1000,
             };
 
             return res

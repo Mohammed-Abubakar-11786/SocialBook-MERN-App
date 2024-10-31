@@ -84,11 +84,11 @@ let sessionOptions = {
   resave: false,
   saveUninitialized: true,
   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    expires: Date.now() + 60 * 1000,
+    maxAge: 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "None", // Required for cross-site cookies
+    sameSite: "strict", // Required for cross-site cookies
     domain: ".onrender.com", // Allows access on both subdomains
   },
 };
