@@ -56,7 +56,7 @@ function Home() {
 
   let getCurrUser = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}currUser`;
-    let res = await axios.get(url, { withCredentials: true });
+    let res = await axios(url, { withCredentials: true });
     console.log(res);
 
     if (res.data.success) {
