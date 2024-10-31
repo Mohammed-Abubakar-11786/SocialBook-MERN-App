@@ -92,11 +92,11 @@ let sessionOptions = {
     // domain: ".onrender.com", // Allows access on both subdomains
   },
 };
+app.use(session(sessionOptions));
 app.use(flash());
+app.use(passport.session());
 
 app.use(passport.initialize());
-app.use(session(sessionOptions));
-app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
