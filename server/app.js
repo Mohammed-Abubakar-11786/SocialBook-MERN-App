@@ -88,8 +88,8 @@ let sessionOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     // secure: true,
-    sameSite: "strict", // Required for cross-site cookies
-    // domain: ".onrender.com", // Allows access on both subdomains
+    // sameSite: "strict", // Required for cross-site cookies
+    domain: ".onrender.com", // Allows access on both subdomains
   },
 };
 app.use(session(sessionOptions));
