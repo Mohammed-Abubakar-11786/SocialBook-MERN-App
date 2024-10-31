@@ -89,7 +89,7 @@ let sessionOptions = {
     httpOnly: true,
     // secure: process.env.NODE_ENV == "production",
     sameSite: "strict", // Required for cross-site cookies
-    domain: ".onrender.com", // Allows access on both subdomains
+    // domain: ".onrender.com", // Allows access on both subdomains
   },
 };
 app.use(session(sessionOptions));
