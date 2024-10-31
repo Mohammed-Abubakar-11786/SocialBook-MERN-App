@@ -205,13 +205,13 @@ const Login = () => {
                   submitted ? "bg-orange-600" : "bg-blue-500 hover:bg-blue-600"
                 } font-bold`}
               >
-                {isLoading ? (
+                {!isLoading ? (
                   <lord-icon
                     src="https://cdn.lordicon.com/jpgpblwn.json"
                     trigger="loop"
                     state="loop-expand"
                     colors="primary:#ffffff"
-                    className="w-[250px] h-[250px]"
+                    className="w-[100px] h-[100px]"
                   ></lord-icon>
                 ) : (
                   <p> Log In</p>
