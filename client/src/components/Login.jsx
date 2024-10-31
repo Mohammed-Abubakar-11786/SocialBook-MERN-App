@@ -205,7 +205,7 @@ const Login = () => {
                   submitted ? "bg-orange-600" : "bg-blue-500 hover:bg-blue-600"
                 } font-bold`}
               >
-                {!isLoading ? (
+                {isLoading ? (
                   <lord-icon
                     src="https://cdn.lordicon.com/jpgpblwn.json"
                     trigger="loop"
