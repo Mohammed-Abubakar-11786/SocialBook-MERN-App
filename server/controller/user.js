@@ -47,7 +47,11 @@ module.exports.getCurrUser = async (req, res) => {
     if (!sessionId) {
       return res
         .status(200)
-        .json({ success: false, message: "Session ID not found" });
+        .json({
+          success: false,
+          message: "Session ID not found",
+          log: req.isAuthenticated(),
+        });
     }
 
     // Access session store to get session data
