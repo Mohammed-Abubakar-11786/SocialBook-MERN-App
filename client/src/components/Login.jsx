@@ -129,6 +129,7 @@ const Login = () => {
       setSuccMsg("");
       // setErrorMsg(e.message || "Something Went Wrong. Try Again Later");
       setErrorMsg("Something Went Wrong. Try Again Later");
+      setIsLoading(false);
     }
   };
 
