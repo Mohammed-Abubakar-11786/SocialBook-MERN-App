@@ -12,6 +12,7 @@ module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
 };
 
+// From the below route I was sending a very large response of the req object itself Show in production I was facing an issue of no headers found because there was an internal server error which was getting reflected as no header found under course policy only at production
 module.exports.getCurrUser = async (req, res) => {
   //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
   try {
@@ -37,8 +38,8 @@ module.exports.getCurrUser = async (req, res) => {
     // console.log(req.isAuthenticated());
     // console.log(req);
 
-    console.log(req.session?.passport?.user);
-    console.log(req);
+    // console.log(req.session?.passport?.user);
+    // console.log(req.session);
 
     let user = await User.findOne({ username: req.session?.passport?.user });
     if (user) {
@@ -49,6 +50,7 @@ module.exports.getCurrUser = async (req, res) => {
     } else {
       return res.status(200).json({
         success: false,
+        extra: req.session,
       });
     }
 
