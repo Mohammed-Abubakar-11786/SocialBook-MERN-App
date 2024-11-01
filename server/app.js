@@ -29,13 +29,13 @@ const adminRouter = require("./routes/admin.js");
 // const { Server } = require("http");
 const { Server } = require("socket.io");
 // const { log, error } = require("console");
-app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
     credentials: true,
   })
 );
+app.use(cookieParser());
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -70,8 +70,8 @@ const store = MongoStore.create({
   crypto: {
     secret: process.env.SECRET,
   },
-  touchAfter: 24 * 3600,
-  ttl: 7 * 24 * 60 * 60, // Session TTL: 7 days
+  touchAfter: 7 * 24 * 60 * 60 * 1000,
+  ttl: 7 * 24 * 60 * 60 * 1000, // Session TTL: 7 days
 });
 
 store.on("error", () => {
@@ -84,8 +84,8 @@ let sessionOptions = {
   resave: false,
   saveUninitialized: true,
   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    expires: Date.now() + 1 * 60 * 60 * 1000, //only one hour
+    maxAge: 1 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV == "production",
     sameSite: "strict", // Required for cross-site cookies
@@ -111,7 +111,7 @@ app.use((req, res, next) => {
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    origin: "*", // Use environment variable or fallback to localhost
+    origin: process.env.FRONTEND_URL, // Use environment variable or fallback to localhost
     credentials: true,
   },
 });

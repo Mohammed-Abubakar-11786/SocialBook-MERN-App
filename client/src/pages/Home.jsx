@@ -49,7 +49,7 @@ function Home() {
 
   let getHomeDetails = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
-    let res = await axios(url, { withCredentials: true });
+    let res = await axios({ url });
     // console.log(res);
     dispatch(setUsersData(res.data));
   };

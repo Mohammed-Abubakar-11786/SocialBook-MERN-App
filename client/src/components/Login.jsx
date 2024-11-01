@@ -135,8 +135,6 @@ const Login = () => {
 
   const changeBtnColr = () => {
     if (formData.username && formData.password) {
-      console.log("Btn clicked");
-
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);

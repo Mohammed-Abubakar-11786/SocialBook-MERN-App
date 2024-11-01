@@ -37,9 +37,9 @@ module.exports.getCurrUser = async (req, res) => {
     // console.log(req.isAuthenticated());
     // console.log(req);
 
-    console.log(req.session.passport.user);
+    console.log(req.session?.passport?.user);
 
-    let user = await User.findOne({ username: req.session.passport.user });
+    let user = await User.findOne({ username: req.session?.passport?.user });
     if (user) {
       return res.status(200).json({
         data: user,
