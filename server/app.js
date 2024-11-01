@@ -28,7 +28,7 @@ const adminRouter = require("./routes/admin.js");
 
 // const { Server } = require("http");
 const { Server } = require("socket.io");
-const { log, error } = require("console");
+// const { log, error } = require("console");
 app.use(cookieParser());
 app.use(
   cors({
@@ -108,11 +108,10 @@ app.use((req, res, next) => {
   next();
 });
 
-const SOCKET_PORT = process.env.SOCKET_PORT || 3031;
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
+    origin: process.env.FRONTEND_URL || "*", // Use environment variable or fallback to localhost
     credentials: true,
   },
 });
