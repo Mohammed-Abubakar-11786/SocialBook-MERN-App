@@ -29,7 +29,7 @@ const adminRouter = require("./routes/admin.js");
 // const { Server } = require("http");
 const { Server } = require("socket.io");
 const { log, error } = require("console");
-
+app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -39,7 +39,7 @@ app.use(
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(cookieParser());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
 app.engine("ejs", ejsMate);
@@ -113,7 +113,6 @@ const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
     origin: process.env.CLIENT_ORIGIN || "*", // Use environment variable or fallback to localhost
-    methods: ["GET", "POST"],
     credentials: true,
   },
 });
