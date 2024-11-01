@@ -66,6 +66,7 @@ app.use(
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
+  collectionName: "sessions",
   crypto: {
     secret: process.env.SECRET,
   },
@@ -77,6 +78,8 @@ store.on("error", () => {
   console.log("Error in MONGO SESSION STORE", err);
 });
 
+// export { store };
+
 let sessionOptions = {
   store,
   secret: process.env.SECRET,
@@ -87,7 +90,7 @@ let sessionOptions = {
     maxAge: 1 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV == "production",
-    sameSite: "none", // Required for cross-site cookies
+    sameSite: "strict", // Required for cross-site cookies
     // domain: ".onrender.com", // Allows access on both subdomains
   },
 };

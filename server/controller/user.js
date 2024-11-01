@@ -7,6 +7,7 @@ const Conversation = require("../models/conversation.js");
 const jwt = require("jsonwebtoken");
 const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken.js");
 const e = require("connect-flash");
+const sessionStore = require("connect-mongo"); // or your session store
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -41,19 +42,47 @@ module.exports.getCurrUser = async (req, res) => {
     // console.log(req.session?.passport?.user);
     // console.log(req.session);
 
-    let user = await User.findOne({ username: req.session?.passport?.user });
-    if (user) {
-      return res.status(200).json({
-        data: user,
-        success: true,
-      });
-    } else {
-      return res.status(200).json({
-        success: false,
-        extra: req.session,
-      });
+    const sessionId = req.cookies["connect.sid"];
+
+    if (!sessionId) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Session ID not found" });
     }
 
+    // Access session store to get session data
+    store.get(sessionId, (err, session) => {
+      if (err || !session) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Session not found" });
+      }
+
+      // Retrieve user data from session
+      const user = session.passport?.user;
+      if (!user) {
+        return res
+          .status(401)
+          .json({ success: false, message: "User not found in session" });
+      }
+
+      return res.status(200).json({ success: true, user });
+    });
+
+    // -----------------
+    // let user = await User.findOne({ username: req.session?.passport?.user });
+    // if (user) {
+    //   return res.status(200).json({
+    //     data: user,
+    //     success: true,
+    //   });
+    // } else {
+    //   return res.status(200).json({
+    //     success: false,
+    //     extra: req.session,
+    //   });
+    // }
+    //  -------------
     // if (req.isAuthenticated()) {
     //   console.log(req.user);
     //   console.log("Token : " + req.cookies.token);
@@ -74,6 +103,7 @@ module.exports.getCurrUser = async (req, res) => {
       message: error.message || error,
       error: true,
       success: false,
+      log: req.isAuthenticated(),
     });
   }
   // else {
