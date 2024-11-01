@@ -35,7 +35,7 @@ module.exports.getCurrUser = async (req, res) => {
     //   });
 
     // console.log(req.isAuthenticated());
-    console.log(req);
+    // console.log(req);
 
     console.log(req.session.passport.user);
 

@@ -111,7 +111,7 @@ app.use((req, res, next) => {
 const http = require("http").Server(app);
 const io = new Server(http, {
   cors: {
-    origin: process.env.FRONTEND_URL || "*", // Use environment variable or fallback to localhost
+    origin: "*", // Use environment variable or fallback to localhost
     credentials: true,
   },
 });
