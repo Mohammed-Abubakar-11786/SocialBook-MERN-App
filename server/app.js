@@ -87,7 +87,7 @@ let sessionOptions = {
     maxAge: 1 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV == "production",
-    sameSite: "strict", // Required for cross-site cookies
+    sameSite: "none", // Required for cross-site cookies
     // domain: ".onrender.com", // Allows access on both subdomains
   },
 };
