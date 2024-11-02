@@ -13,10 +13,19 @@ module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
 };
 
-// From the below route I was sending a very large response of the req object itself Show in production I was facing an issue of no headers found because there was an internal server error which was getting reflected as no header found under course policy only at production
+//* From the below route I was sending a very large response of the req object itself Show in production I was facing an issue of no headers found because there was an internal server error which was getting reflected as no header found under course policy only at production
 module.exports.getCurrUser = async (req, res) => {
   //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
   try {
+    if (req.user)
+      return res.status(200).json({
+        data: req.user,
+        success: true,
+      });
+    else
+      return res.status(200).json({
+        success: false,
+      });
     // const token = req.cookies.token || "";
     // console.log("token : " + token);
     // // console.log("Username " + req.user?.username);
@@ -41,37 +50,34 @@ module.exports.getCurrUser = async (req, res) => {
 
     // console.log(req.session?.passport?.user);
     // console.log(req.session);
+    //------------
+    // const sessionId = req.cookies["connect.sid"];
 
-    const sessionId = req.cookies["connect.sid"];
+    // if (!sessionId) {
+    //   return res.status(200).json({
+    //     success: false,
+    //     message: "Session ID not found",
+    //   });
+    // }
 
-    if (!sessionId) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          message: "Session ID not found",
-          log: req.isAuthenticated(),
-        });
-    }
+    // // Access session store to get session data
+    // store.get(sessionId, (err, session) => {
+    //   if (err || !session) {
+    //     return res
+    //       .status(401)
+    //       .json({ success: false, message: "Session not found" });
+    //   }
 
-    // Access session store to get session data
-    store.get(sessionId, (err, session) => {
-      if (err || !session) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Session not found" });
-      }
+    //   // Retrieve user data from session
+    //   const user = session.passport?.user;
+    //   if (!user) {
+    //     return res
+    //       .status(401)
+    //       .json({ success: false, message: "User not found in session" });
+    //   }
 
-      // Retrieve user data from session
-      const user = session.passport?.user;
-      if (!user) {
-        return res
-          .status(401)
-          .json({ success: false, message: "User not found in session" });
-      }
-
-      return res.status(200).json({ success: true, user });
-    });
+    //   return res.status(200).json({ success: true, user });
+    // });
 
     // -----------------
     // let user = await User.findOne({ username: req.session?.passport?.user });
@@ -88,15 +94,15 @@ module.exports.getCurrUser = async (req, res) => {
     // }
     //  -------------
     // if (req.isAuthenticated()) {
-    //   console.log(req.user);
-    //   console.log("Token : " + req.cookies.token);
+    //   // console.log(req.user);
+    //   // console.log("Token : " + req.cookies.token);
 
     //   return res.status(200).json({
     //     data: req.user,
     //     success: true,
     //   });
     // } else {
-    //   console.log("Token : " + req.cookies.token);
+    //   // console.log("Token : " + req.cookies.token);
 
     //   return res.status(200).json({
     //     success: false,
@@ -107,16 +113,8 @@ module.exports.getCurrUser = async (req, res) => {
       message: error.message || error,
       error: true,
       success: false,
-      log: req.isAuthenticated(),
     });
   }
-  // else {
-  //   // return res.status(200).json({
-  //   //   data: "No user Currently",
-  //   //   error: true,
-  //   // });
-
-  // }
 };
 
 module.exports.toggleAccType = async (req, res) => {
@@ -222,46 +220,21 @@ module.exports.handleLogin = async (req, res) => {
             });
           }
 
-          req.session.save(async (err) => {
-            // Manually save session
-            if (err)
-              return res.status(200).json({
-                message: "LogedIn Faild",
-                data: err,
-                error: true,
-              });
+          const tokenData = {
+            id: req.user._id,
+            email: req.user.email,
+          };
 
-            const tokenData = {
-              id: req.user._id,
-              email: req.user.email,
-            };
+          const token = jwt.sign(tokenData, process.env.JWT_SECREAT_KEY, {
+            expiresIn: "1h",
+          });
 
-            const token = await jwt.sign(
-              tokenData,
-              process.env.JWT_SECREAT_KEY,
-              {
-                expiresIn: "1d",
-              }
-            );
-
-            const cookieOptions = {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production", // true in production
-              sameSite: "strict",
-              expires: Date.now() + 3 * 60 * 60 * 1000,
-              maxAge: 3 * 60 * 60 * 1000,
-            };
-
-            return res
-              .cookie("token", token, cookieOptions)
-              .status(200)
-              .json({
-                message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
-                token: token,
-                success: true,
-                data: req.user,
-                error: false,
-              });
+          return res.status(200).json({
+            message: `Welcome 🫡 ${req.user.username} You Are Logged In 😀`,
+            token: "Bearer " + token,
+            success: true,
+            data: req.user,
+            error: false,
           });
         });
       })(req, res);
@@ -300,17 +273,8 @@ module.exports.logoutUser = (req, res, next) => {
           error: true,
         });
       }
-      // req.flash(
-      //   "success",
-      //   `You Logged Out!! Bye 👋👋 ${username} 😊 See You Soon`
-      // );
 
-      const cookieOptions = {
-        http: true,
-        secure: true,
-      };
-
-      return res.cookie("token", "", cookieOptions).status(200).json({
+      return res.status(200).json({
         message: "session out",
         success: true,
       });

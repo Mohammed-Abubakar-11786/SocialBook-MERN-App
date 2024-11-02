@@ -55,9 +55,15 @@ function Home() {
   };
 
   let getCurrUser = async () => {
+    let token = localStorage.getItem("token");
+
     const url = `${import.meta.env.VITE_API_BACKEND_URL}currUser`;
-    let res = await axios(url, { withCredentials: true });
-    console.log(res);
+    let res = await axios(url, {
+      withCredentials: true,
+      headers: {
+        Authorization: token,
+      },
+    });
 
     if (res.data.success) {
       dispatch(setCurrUser(res.data.data));

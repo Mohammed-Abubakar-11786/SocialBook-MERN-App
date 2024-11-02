@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
+const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
 const userController = require("../controller/user.js");
@@ -16,7 +17,11 @@ router.route("/addUser").post(
 
 router.route("/toggleAccType/:userID").get(userController.toggleAccType);
 
-router.get("/currUser", userController.getCurrUser);
+router.get(
+  "/currUser",
+  passport.authenticate("jwt", { session: false }),
+  userController.getCurrUser
+);
 
 router.post("/login", userController.handleLogin);
 

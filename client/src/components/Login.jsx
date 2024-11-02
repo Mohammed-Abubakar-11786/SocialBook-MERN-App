@@ -106,6 +106,8 @@ const Login = () => {
           username: "",
           password: "",
         });
+
+        localStorage.setItem("token", res.data.token);
         setErrorMsg("");
         setSuccMsg(res.data.message + " 🎉🎉🎉");
         flashSuccess(res.data.message + " 🎉🎉🎉");

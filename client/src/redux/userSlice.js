@@ -39,6 +39,7 @@ export const userSlice = createSlice({
       state.currUser = action.payload;
     },
     logoutUser: (state) => {
+      localStorage.setItem("token", "");
       state.onlineUsers = state.onlineUsers?.filter(
         (user) => user._id !== state.currUser._id
       );

@@ -96,12 +96,14 @@ let sessionOptions = {
 };
 app.use(session(sessionOptions));
 app.use(flash());
-app.use(passport.session());
+// app.use(passport.session());
 
 app.use(passport.initialize());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+require("./config/passport.js");
 
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
