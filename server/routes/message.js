@@ -8,32 +8,34 @@ const { isLoggedIn, isSame, isEmptyMsg } = require("../middleware.js");
 
 const msgController = require("../controller/message.js");
 
-router.route("/chatWindow/:chatId").get(msgController.renderChatWindow);
-router.route("/chatWindow").get(isLoggedIn, msgController.renderChatWindow);
-router
+router.route("/chatWindow/:chatId").get(msgController.renderChatWindow); // not being used
+router.route("/chatWindow").get(isLoggedIn, msgController.renderChatWindow); // not being used
+router // not being used
   .route("/saveMsg/:chatId")
   .post(isLoggedIn, isEmptyMsg, msgController.saveMsg);
-router
+router // not being used
   .route("/saveImg/:chatId")
   .post(isLoggedIn, /* upload.single("chatImg"), */ msgController.saveImg);
 
-router
+router //yet to implement
   .route(
     "/deleteMsg/:currUser_id/:chatUser_id/:msgType/:msgId/:delType/:is_img/:img_Name"
   )
-  .get(msgController.delMsgs);
+  .get(isLoggedIn, msgController.delMsgs);
 
-router
+router //yet to implement
   .route("/deleteAllMsgs/:currUserId/:chatUserId")
-  .get(msgController.delAllMsgs);
+  .get(isLoggedIn, msgController.delAllMsgs);
 
 router
   .route("/getConversation/:currUserID/:chatUserID")
-  .get(msgController.getConversation);
+  .get(isLoggedIn, msgController.getConversation);
 
 router
   .route("/updateUserLastseen/:userID")
-  .get(msgController.updateUserLastseen);
+  .get(isLoggedIn, msgController.updateUserLastseen);
 
-router.route("/sendMsg/:currUserID/:chatUserID").post(msgController.sendMsg);
+router
+  .route("/sendMsg/:currUserID/:chatUserID")
+  .post(isLoggedIn, msgController.sendMsg);
 module.exports = router;

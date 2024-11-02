@@ -273,7 +273,7 @@ module.exports.saveCmt = async (req, res) => {
     res.status(200).send({ success: true, obj, count });
   } catch (e) {
     return res
-      .status(500)
-      .send({ success: false, message: "Internel Server Error" });
+      .status(200)
+      .send({ error: true, message: "Internel Server Error", error: e });
   }
 };

@@ -6,6 +6,7 @@ const upload = multer({ storage });
 const passport = require("passport");
 
 const userController = require("../controller/user.js");
+const { isLoggedIn } = require("../middleware.js");
 
 router.route("/addUser").post(
   /* isLoggedIn, */
@@ -16,19 +17,20 @@ router.route("/addUser").post(
 
 router.route("/toggleAccType/:userID").get(userController.toggleAccType);
 
-router.get(
-  "/currUser",
-  passport.authenticate("jwt", { session: false }),
-  userController.getCurrUser
-);
+router.get("/currUser", isLoggedIn, userController.getCurrUser);
 
 router.post("/login", userController.handleLogin);
 
 //to logout
 router.get("/logout", userController.logoutUser);
 
-router.get("/getSortedUsers/:currUserID", userController.getSortedUsers);
+router.get(
+  "/getSortedUsers/:currUserID",
+  isLoggedIn,
+  userController.getSortedUsers
+);
 
+//all below routes are yet to be build
 router.get("/forgetPass", userController.renderForgetPassForm);
 router.post("/forgetPass", userController.renderForgetPassForm);
 

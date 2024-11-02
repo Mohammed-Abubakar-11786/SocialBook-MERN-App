@@ -2,11 +2,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios, { all } from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
+import { logoutUser } from "../redux/userSlice";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const GroupChat = () => {
   const socketRef = useRef();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const allUsers = useSelector((state) => state.usersData.allUsers);
   let currUser = useSelector((state) => state.currUser);
@@ -52,8 +56,19 @@ const GroupChat = () => {
 
   const getGroupChats = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}getGroupChats`;
-    let res = await axios(url, { withCredentials: true });
-    setMessages(res.data.data);
+    let res = await axios(url, {
+      withCredentials: true,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
+    if (res.data.notLogin) {
+      dispatch(logoutUser());
+      flashError("Login first");
+      Navigate("/login");
+    } else if (res.data.success) {
+      setMessages(res.data.data);
+    }
 
     scrollUp();
   };
@@ -190,19 +205,36 @@ const GroupChat = () => {
       const url = `${import.meta.env.VITE_API_BACKEND_URL}saveGrpMsg/${
         currUser._id
       }`;
-      const res = await axios.post(url, {
-        msg: message,
-      });
+      const res = await axios.post(
+        url,
+        {
+          msg: message,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
 
-      socketRef.current.emit("grpMsgSent", res.data.grpmsg);
+      if (res.data.notLogin) {
+        dispatch(logoutUser());
+        navigate("/login", {
+          state: { forceLogin: true, msg: "Login First To Chat" },
+        });
+      } else if (res.data.success) {
+        socketRef.current.emit("grpMsgSent", res.data.grpmsg);
 
-      setMessages((prevMessages) => {
-        return Array.isArray(prevMessages)
-          ? [...prevMessages, res.data.grpmsg]
-          : [res.data.grpmsg];
-      });
+        setMessages((prevMessages) => {
+          return Array.isArray(prevMessages)
+            ? [...prevMessages, res.data.grpmsg]
+            : [res.data.grpmsg];
+        });
 
-      setMessage("");
+        setMessage("");
+      } else if (res.data.error) {
+        flashError(res.data.msg);
+      }
     }
   };
 
@@ -212,7 +244,11 @@ const GroupChat = () => {
     let url = `${
       import.meta.env.VITE_API_BACKEND_URL
     }delGrpMsg/${deleteMessageId}`;
-    let res = await axios.get(url);
+    let res = await axios.get(url, {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
     if (res.data.success) {
       setLoading(false);
       setMessages((prevMessages) =>
@@ -222,18 +258,39 @@ const GroupChat = () => {
       flashSuccess("Message Deleted Successfully!");
       setShowDeleteOverlay(false);
       setShowDeleteOverlay1(false);
+    } else if (res.data.notLogin) {
+      dispatch(logoutUser());
+      navigate("/login", {
+        state: { forceLogin: true, msg: "Login First To Delete a Message" },
+      });
+    } else if (res.data.error) {
+      flashError("Internal Server Error ☹️");
     }
   };
 
   const handleDeleteAllMessages = async () => {
     if (currUser._id === "6696b0ce0ff46750a97b2ccd") {
       let url = `${import.meta.env.VITE_API_BACKEND_URL}delAllGrpMsg`;
-      let res = await axios.get(url);
+      let res = await axios.get(url, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
       if (res.data.success) {
         setMessages([]);
         // document.getElementById("innerChatSpace").innerHTML = ``; //this line is creating that error
         socketRef.current.emit("allMsgsDeleted");
         flashSuccess("All Messages Deleted");
+      } else if (res.data.notLogin) {
+        dispatch(logoutUser());
+        navigate("/login", {
+          state: {
+            forceLogin: true,
+            msg: "Login First to Delete the Messages",
+          },
+        });
+      } else if (res.data.error) {
+        flashError("Internal Server Error ☹️");
       }
     } else {
       flashError("Only Admins can do clear chat");

@@ -1,9 +1,14 @@
-module.exports.isLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    req.session.redirectUrl = req.originalUrl;
-    return res.status(200).send({ success: false, notLogin: true });
-  }
-  next();
+const passport = require("passport");
+
+module.exports.isLoggedIn = async (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(200).send({ success: false, notLogin: true });
+    }
+    // If authenticated, attach the user to the request object
+    req.user = user;
+    next(); // Continue to the controllers next
+  })(req, res, next);
 };
 
 module.exports.isLoggedInForAjax = (req, res, next) => {

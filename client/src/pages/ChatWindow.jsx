@@ -7,7 +7,7 @@ import ChattingArea from "../components/ChattingArea";
 import Loading from "../components/Loading";
 import axios from "axios";
 import { flashError } from "../helpers/flashMsgProvider";
-import { setUsersData } from "../redux/userSlice";
+import { logoutUser, setUsersData } from "../redux/userSlice";
 import { io } from "socket.io-client";
 
 function ChatWindow() {
@@ -49,8 +49,14 @@ function ChatWindow() {
     let url = `${import.meta.env.VITE_API_BACKEND_URL}getConversation/${
       currUser._id
     }/${userID}`;
-    let res = await axios.get(url, { withCredentials: true });
+    let res = await axios.get(url, {
+      withCredentials: true,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
     // console.log("res receieved");
+    setLoading(false);
     if (res.data.success) {
       setChatContent({
         currUser: currUser,
@@ -60,11 +66,13 @@ function ChatWindow() {
         conv: res.data.conv,
         // convID: conv.convID,
       });
-      setLoading(false);
+    } else if (res.data.notLogin) {
+      dispatch(logoutUser());
+      navigate("/login", {
+        state: { forceLogin: true, msg: "Login First" },
+      });
     } else if (res.data.error) {
-      flashError("Internal Server Error");
-      console.log(res.data.msg);
-      setLoading(false);
+      flashError("Internal Server Error ☹️");
     }
   };
 
@@ -129,12 +137,24 @@ function ChatWindow() {
     let url = `${
       import.meta.env.VITE_API_BACKEND_URL
     }updateUserLastseen/${userID}`;
-    let res = await axios.get(url, { withCredentials: true });
+
+    let res = await axios.get(url, {
+      withCredentials: true,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
+
     // console.log("res receieved");
     if (res.data.success) {
       setLastSeenUpdated(true);
       // console.log(res);
-    } else {
+    } else if (res.data.notLogin) {
+      dispatch(logoutUser());
+      navigate("/login", {
+        state: { forceLogin: true, msg: "Login First" },
+      });
+    } else if (res.data.error) {
       flashError("Some Error in updating last seen");
     }
   };
@@ -145,10 +165,20 @@ function ChatWindow() {
         currUser._id
       }`;
 
-      let res = await axios.get(url, { withCredentials: true });
+      let res = await axios.get(url, {
+        withCredentials: true,
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
 
       if (res.data.success) setSortedUsers(res.data.sortedUsers);
-      else if (res.error) flashError(res.msg);
+      else if (res.data.notLogin) {
+        dispatch(logoutUser());
+        navigate("/login", {
+          state: { forceLogin: true, msg: "Login First" },
+        });
+      } else if (res.error) flashError("Internal Server Error ☹️"); //res.msg
     }
 
     getAndSortOtherUsers();

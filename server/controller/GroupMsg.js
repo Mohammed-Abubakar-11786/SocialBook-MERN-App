@@ -42,10 +42,14 @@ module.exports.saveSentMsg = async (req, res) => {
 };
 
 module.exports.delGrpMsgs = async (req, res) => {
-  let { msg_id } = req.params;
-  await GroupMsgs.findByIdAndDelete(msg_id);
+  try {
+    let { msg_id } = req.params;
+    await GroupMsgs.findByIdAndDelete(msg_id);
 
-  return res.status(200).send({ success: true });
+    return res.status(200).send({ success: true });
+  } catch (error) {
+    return res.status(200).send({ error: true });
+  }
 };
 
 module.exports.delAllMsgs = async (req, res) => {

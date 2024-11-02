@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { flashError } from "../helpers/flashMsgProvider";
 import { useDispatch } from "react-redux";
-import { setUsersData } from "../redux/userSlice";
+import { logoutUser, setUsersData } from "../redux/userSlice";
 import { io } from "socket.io-client";
 
 const NewStoryForm = () => {
@@ -35,11 +35,20 @@ const NewStoryForm = () => {
       let formData = new FormData();
       formData.append("storyImage", file);
       setLoading(true);
-      let res = await axios.post(url, formData, { withCredentials: true });
+      let res = await axios.post(url, formData, {
+        withCredentials: true,
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
 
       setLoading(false);
-      if (res.data.notLogin) flashError("Login First");
-      else if (res.data.success) {
+      if (res.data.notLogin) {
+        dispatch(logoutUser());
+        navigate("/login", {
+          state: { forceLogin: true, msg: "Login First" },
+        });
+      } else if (res.data.success) {
         socket.emit("newStory", res.data.data);
 
         navigate("/", {
@@ -49,8 +58,7 @@ const NewStoryForm = () => {
             data: res.data.data,
           },
         });
-      } else if (res.data.error)
-        flashError(`Internal Server error : ${res.data.msg}`);
+      } else if (res.data.error) flashError(`Internal Server error ☹️`); //: ${res.data.msg} for err msg
     }
   };
 

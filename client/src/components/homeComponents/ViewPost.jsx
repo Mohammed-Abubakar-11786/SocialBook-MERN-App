@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Post from "../Post";
-import { setUsersData } from "../../redux/userSlice";
+import { logoutUser, setUsersData } from "../../redux/userSlice";
 
 const ViewPost = () => {
   const dispatch = useDispatch();
@@ -216,83 +216,101 @@ const ViewPost = () => {
           const url = `${
             import.meta.env.VITE_API_BACKEND_URL
           }saveCmt/${post_Id}/${currUser._id}`;
-          let res = await axios.post(url, { cmt }, { withCredentials: true });
-
-          let usrImg = res.data.obj.userImg;
-          let usrName = res.data.obj.username;
-          let usrCmt = res.data.obj.comment;
-          let cmtCount = res.data.count;
-
-          commentInput.value = "";
-
-          // Create the comment div
-          const commentDiv = document.createElement("div");
-          commentDiv.classList.add(
-            "comment",
-            "bg-white",
-            "rounded-xl",
-            "p-2",
-            "flex",
-            "space-x-2",
-            "mb-[0.5rem]"
+          let res = await axios.post(
+            url,
+            { cmt },
+            {
+              withCredentials: true,
+              headers: {
+                Authorization: localStorage.getItem("token"),
+              },
+            }
           );
 
-          // Create the image element
-          const img = document.createElement("img");
-          img.src = usrImg;
-          img.alt = "";
-          img.classList.add("w-[8%]", "h-[45px]", "rounded-full");
+          if (res.data.success) {
+            let usrImg = res.data.obj.userImg;
+            let usrName = res.data.obj.username;
+            let usrCmt = res.data.obj.comment;
+            let cmtCount = res.data.count;
 
-          // Create the inner comment div
-          const innerCommentDiv = document.createElement("div");
-          innerCommentDiv.classList.add(
-            "inner-comment",
-            "flex",
-            "flex-col",
-            "justify-center",
-            "space-y-1"
-          );
+            commentInput.value = "";
 
-          // Create the username heading
-          const usernameHeading = document.createElement("h6");
-          usernameHeading.classList.add("mb-0", "text-[14px]", "font-bold");
-          usernameHeading.textContent = usrName;
+            // Create the comment div
+            const commentDiv = document.createElement("div");
+            commentDiv.classList.add(
+              "comment",
+              "bg-white",
+              "rounded-xl",
+              "p-2",
+              "flex",
+              "space-x-2",
+              "mb-[0.5rem]"
+            );
 
-          // Create the comment paragraph
-          const commentParagraph = document.createElement("p");
-          commentParagraph.classList.add("text-sm");
-          commentParagraph.textContent = usrCmt;
+            // Create the image element
+            const img = document.createElement("img");
+            img.src = usrImg;
+            img.alt = "";
+            img.classList.add("w-[8%]", "h-[45px]", "rounded-full");
 
-          // Append the username and comment to the inner comment div
-          innerCommentDiv.appendChild(usernameHeading);
-          innerCommentDiv.appendChild(commentParagraph);
+            // Create the inner comment div
+            const innerCommentDiv = document.createElement("div");
+            innerCommentDiv.classList.add(
+              "inner-comment",
+              "flex",
+              "flex-col",
+              "justify-center",
+              "space-y-1"
+            );
 
-          // Append the image and inner comment div to the main comment div
-          commentDiv.appendChild(img);
-          commentDiv.appendChild(innerCommentDiv);
+            // Create the username heading
+            const usernameHeading = document.createElement("h6");
+            usernameHeading.classList.add("mb-0", "text-[14px]", "font-bold");
+            usernameHeading.textContent = usrName;
 
-          // Append the main comment div to the comment window
-          document
-            .getElementById(`${post_Id}-commentWindow`)
-            .appendChild(commentDiv);
+            // Create the comment paragraph
+            const commentParagraph = document.createElement("p");
+            commentParagraph.classList.add("text-sm");
+            commentParagraph.textContent = usrCmt;
 
-          // Update the comment count
-          document.getElementById(`${post_Id}-commentCount`).innerText =
-            res.data.count;
+            // Append the username and comment to the inner comment div
+            innerCommentDiv.appendChild(usernameHeading);
+            innerCommentDiv.appendChild(commentParagraph);
 
-          // Scroll up the comment window
-          postComments[post_Id] = "";
-          setPostComment({ ...postComments, [post_Id]: "" });
-          scrollUp(`${post_Id}-commentWindow`);
+            // Append the image and inner comment div to the main comment div
+            commentDiv.appendChild(img);
+            commentDiv.appendChild(innerCommentDiv);
 
-          let data1 = {
-            post_Id,
-            usrImg,
-            usrName,
-            usrCmt,
-            cmtCount,
-          };
-          socket.emit("cmtAdded", data1);
+            // Append the main comment div to the comment window
+            document
+              .getElementById(`${post_Id}-commentWindow`)
+              .appendChild(commentDiv);
+
+            // Update the comment count
+            document.getElementById(`${post_Id}-commentCount`).innerText =
+              res.data.count;
+
+            // Scroll up the comment window
+            postComments[post_Id] = "";
+            setPostComment({ ...postComments, [post_Id]: "" });
+            scrollUp(`${post_Id}-commentWindow`);
+
+            let data1 = {
+              post_Id,
+              usrImg,
+              usrName,
+              usrCmt,
+              cmtCount,
+            };
+            socket.emit("cmtAdded", data1);
+          } else if (res.data.notLogin) {
+            flashError("Login First To Comment");
+            navigate("/login");
+          } else if (res.data.error) {
+            flashError("Internal Server Error");
+          } else if (!res.data.success) {
+            flashError(res.data.message);
+          }
         } else {
           flashError("Enter a comment to send");
         }
@@ -328,6 +346,7 @@ const ViewPost = () => {
       let res = await axios.post(url, formData, {
         withCredentials: true,
         headers: {
+          Authorization: localStorage.getItem("token"),
           "Content-Type": "multipart/form-data",
         },
       });
@@ -367,9 +386,13 @@ const ViewPost = () => {
         }
       } else if (res.data.error) {
         flashError("Internal Server Error");
+      } else if (res.data.notLogin) {
+        flashError("login First to Share a Post");
+        navigate("/login");
+        dispatch(logoutUser());
       }
     } else {
-      flashError("login First");
+      flashError("login First to Share a Post");
       navigate("/login");
     }
   };

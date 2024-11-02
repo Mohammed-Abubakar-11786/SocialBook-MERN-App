@@ -329,286 +329,77 @@ module.exports.saveImg = async (req, res) => {
 };
 
 module.exports.delMsgs = async (req, res) => {
-  let { currUser_id, chatUser_id, msgType, msgId, delType, is_img, img_Name } =
-    req.params;
-  /* console.log(
-    currUser_id,
-    " ",
-    chatUser_id,
-    " ",
-    msgType,
-    " ",
-    msgId,
-    " ",
-    delType,
-    " ",
-    img_Name
-  ); */
+  try {
+    let {
+      currUser_id,
+      chatUser_id,
+      msgType,
+      msgId,
+      delType,
+      is_img,
+      img_Name,
+    } = req.params;
+    /* console.log(
+  currUser_id,
+  " ",
+  chatUser_id,
+  " ",
+  msgType,
+  " ",
+  msgId,
+  " ",
+  delType,
+  " ",
+  img_Name
+); */
 
-  const folderPath = "SocialBook/Chats/";
-  const imgName = `${folderPath}${img_Name}`;
+    const folderPath = "SocialBook/Chats/";
+    const imgName = `${folderPath}${img_Name}`;
 
-  const chatUser = await User.findById(chatUser_id);
-  const currUser = await User.findById(currUser_id);
-  if (
-    chatUser._id.toString() === currUser._id.toString() &&
-    (delType === "delTypeM" || delType === "delTypeE") &&
-    is_img === "false"
-  ) {
-    const sendMsgToUpdate = currUser.sendMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-    const recMsgToUpdate = chatUser.recMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (sendMsgToUpdate && recMsgToUpdate) {
-      sendMsgToUpdate.isDeleted = true;
-      recMsgToUpdate.isDeleted = true;
-      await currUser.save();
-      await chatUser.save();
-      /*   req.flash("success", `Message deleted Successfully`); */
-      /* res.redirect(`/chatWindow/${chatUser._id}`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    } else {
-      // Find the index of the message in the array
-      const sendIndexToDelete = currUser.sendMsgs.findIndex(
-        (msg) => msg._id.toString() === msgId.toString()
-      );
-
-      const recIndexToDelete = chatUser.recMsgs.findIndex(
-        (msg) => msg._id.toString() === msgId.toString()
-      );
-      // Remove the message from the array
-      currUser.recMsgs.splice(recIndexToDelete, 1);
-      currUser.sendMsgs.splice(sendIndexToDelete, 1);
-
-      await currUser.save();
-      await chatUser.save();
-      /* req.flash("success", `Message deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    }
-  } else if (
-    chatUser._id.toString() === currUser._id.toString() &&
-    (delType === "delTypeM" || delType === "delTypeE") &&
-    is_img === "true"
-  ) {
-    const sendMsgToUpdate = currUser.sendImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-    const recMsgToUpdate = chatUser.recImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (sendMsgToUpdate && recMsgToUpdate) {
-      sendMsgToUpdate.isDeleted = true;
-      recMsgToUpdate.isDeleted = true;
-      await currUser.save();
-      await chatUser.save();
-      /* req.flash("success", `Image deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    } else {
-      // Find the index of the message in the array
-      const sendIndexToDelete = currUser.sendImgs.findIndex(
-        (msg) => msg._id.toString() === msgId.toString()
-      );
-
-      const recIndexToDelete = chatUser.recImgs.findIndex(
-        (msg) => msg._id.toString() === msgId.toString()
-      );
-      // Remove the message from the array
-      currUser.recImgs.splice(recIndexToDelete, 1);
-      currUser.sendImgs.splice(sendIndexToDelete, 1);
-
-      await currUser.save();
-      await chatUser.save();
-
-      cloudinary.uploader.destroy(imgName, (err, res) => {
-        console.log(err, " ", res);
-      });
-
-      /* req.flash("success", `Image deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    }
-  } else if (
-    delType === "delTypeM" &&
-    msgType === "sendMsg" &&
-    is_img === "true"
-  ) {
-    const msgToUpdate = currUser.sendImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (msgToUpdate) {
-      msgToUpdate.isDeleted = true;
-      await currUser.save();
-      /* req.flash("success", `Image deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    } else {
-      const msgToDelete = currUser.sendImgs.find(
+    const chatUser = await User.findById(chatUser_id);
+    const currUser = await User.findById(currUser_id);
+    if (
+      chatUser._id.toString() === currUser._id.toString() &&
+      (delType === "delTypeM" || delType === "delTypeE") &&
+      is_img === "false"
+    ) {
+      const sendMsgToUpdate = currUser.sendMsgs.find(
         (msg) =>
-          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
       );
-      if (msgToDelete) {
-        // Find the index of the message in the array
-        const indexToDelete = currUser.sendImgs.findIndex(
-          (msg) => msg._id.toString() === msgId.toString()
-        );
+      const recMsgToUpdate = chatUser.recMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
 
-        // Remove the message from the array
-        currUser.sendImgs.splice(indexToDelete, 1);
-
-        await currUser.save();
-
-        const recMsgToDelete = chatUser.recImgs.find(
-          (msg) =>
-            msg._id.toString() === msgId.toString() && msg.isDeleted === false
-        );
-        if (!recMsgToDelete) {
-          console.log("deleted");
-          cloudinary.uploader.destroy(imgName, (err, res) => {
-            console.log(err, " ", res);
-          });
-        }
-        /* req.flash("success", `Image deleted Successfully`); */
-        res.status(200).send({
-          success: true,
-          chatUser_id: chatUser._id,
-          currUser,
-          chatUser,
-        });
-      }
-    }
-  } else if (
-    delType === "delTypeE" &&
-    msgType === "sendMsg" &&
-    is_img === "true"
-  ) {
-    const sendMsgToUpdate = currUser.sendImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-    const recMsgToUpdate = chatUser.recImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (sendMsgToUpdate || recMsgToUpdate) {
-      if (sendMsgToUpdate) {
+      if (sendMsgToUpdate && recMsgToUpdate) {
         sendMsgToUpdate.isDeleted = true;
-      }
-      if (recMsgToUpdate) {
         recMsgToUpdate.isDeleted = true;
-      }
-
-      await currUser.save();
-      await chatUser.save();
-      /* req.flash("success", `Image deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    }
-  } else if (
-    delType === "delTypeM" &&
-    msgType === "recMsg" &&
-    is_img === "true"
-  ) {
-    const msgToUpdate = currUser.recImgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (msgToUpdate) {
-      msgToUpdate.isDeleted = true;
-      await currUser.save();
-      /* req.flash("success", `Image deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    } else {
-      const msgToDelete = currUser.recImgs.find(
-        (msg) =>
-          msg._id.toString() === msgId.toString() && msg.isDeleted === true
-      );
-      if (msgToDelete) {
-        // Find the index of the message in the array
-        const indexToDelete = currUser.recImgs.findIndex(
-          (msg) => msg._id.toString() === msgId.toString()
-        );
-
-        // Remove the message from the array
-        currUser.recImgs.splice(indexToDelete, 1);
-
         await currUser.save();
-
-        const sendMsgToDelete = chatUser.sendImgs.find(
-          (msg) =>
-            msg._id.toString() === msgId.toString() && msg.isDeleted === false
-        );
-        if (!sendMsgToDelete) {
-          cloudinary.uploader.destroy(imgName, (err, res) => {
-            console.log(err, " ", res);
-          });
-        }
-        /* req.flash("success", `Image deleted Successfully`); */
+        await chatUser.save();
+        /*   req.flash("success", `Message deleted Successfully`); */
+        /* res.redirect(`/chatWindow/${chatUser._id}`); */
         res.status(200).send({
           success: true,
           chatUser_id: chatUser._id,
           currUser,
           chatUser,
         });
-      }
-    }
-  } else if (
-    delType === "delTypeM" &&
-    msgType === "sendMsg" &&
-    is_img === "false"
-  ) {
-    const msgToUpdate = currUser.sendMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (msgToUpdate) {
-      msgToUpdate.isDeleted = true;
-      await currUser.save();
-      /* req.flash("success", `Message deleted Successfully`); */
-      res.status(200).send({
-        success: true,
-        chatUser_id: chatUser._id,
-        currUser,
-        chatUser,
-      });
-    } else {
-      const msgToDelete = currUser.sendMsgs.find(
-        (msg) =>
-          msg._id.toString() === msgId.toString() && msg.isDeleted === true
-      );
-      if (msgToDelete) {
+      } else {
         // Find the index of the message in the array
-        const indexToDelete = currUser.sendMsgs.findIndex(
+        const sendIndexToDelete = currUser.sendMsgs.findIndex(
           (msg) => msg._id.toString() === msgId.toString()
         );
 
+        const recIndexToDelete = chatUser.recMsgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
         // Remove the message from the array
-        currUser.sendMsgs.splice(indexToDelete, 1);
+        currUser.recMsgs.splice(recIndexToDelete, 1);
+        currUser.sendMsgs.splice(sendIndexToDelete, 1);
 
         await currUser.save();
+        await chatUser.save();
         /* req.flash("success", `Message deleted Successfully`); */
         res.status(200).send({
           success: true,
@@ -617,66 +408,213 @@ module.exports.delMsgs = async (req, res) => {
           chatUser,
         });
       }
-    }
-  } else if (
-    delType === "delTypeE" &&
-    msgType === "sendMsg" &&
-    is_img === "false"
-  ) {
-    const sendMsgToUpdate = currUser.sendMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-    const recMsgToUpdate = chatUser.recMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (sendMsgToUpdate || recMsgToUpdate) {
-      if (sendMsgToUpdate) {
-        sendMsgToUpdate.isDeleted = true;
-      }
-      if (recMsgToUpdate) {
-        recMsgToUpdate.isDeleted = true;
-      }
-      await currUser.save();
-      await chatUser.save();
-      /* req.flash("success", `Message deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    }
-  } else if (
-    delType === "delTypeM" &&
-    msgType === "recMsg" &&
-    is_img === "false"
-  ) {
-    const msgToUpdate = currUser.recMsgs.find(
-      (msg) =>
-        msg._id.toString() === msgId.toString() && msg.isDeleted === false
-    );
-
-    if (msgToUpdate) {
-      msgToUpdate.isDeleted = true;
-      await currUser.save();
-      /* req.flash("success", `Message deleted Successfully`); */
-      res
-        .status(200)
-        .send({ success: true, chatUser_id: chatUser._id, currUser, chatUser });
-    } else {
-      const msgToDelete = currUser.recMsgs.find(
+    } else if (
+      chatUser._id.toString() === currUser._id.toString() &&
+      (delType === "delTypeM" || delType === "delTypeE") &&
+      is_img === "true"
+    ) {
+      const sendMsgToUpdate = currUser.sendImgs.find(
         (msg) =>
-          msg._id.toString() === msgId.toString() && msg.isDeleted === true
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
       );
-      if (msgToDelete) {
+      const recMsgToUpdate = chatUser.recImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (sendMsgToUpdate && recMsgToUpdate) {
+        sendMsgToUpdate.isDeleted = true;
+        recMsgToUpdate.isDeleted = true;
+        await currUser.save();
+        await chatUser.save();
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      } else {
         // Find the index of the message in the array
-        const indexToDelete = currUser.recMsgs.findIndex(
+        const sendIndexToDelete = currUser.sendImgs.findIndex(
           (msg) => msg._id.toString() === msgId.toString()
         );
 
+        const recIndexToDelete = chatUser.recImgs.findIndex(
+          (msg) => msg._id.toString() === msgId.toString()
+        );
         // Remove the message from the array
-        currUser.recMsgs.splice(indexToDelete, 1);
+        currUser.recImgs.splice(recIndexToDelete, 1);
+        currUser.sendImgs.splice(sendIndexToDelete, 1);
 
+        await currUser.save();
+        await chatUser.save();
+
+        cloudinary.uploader.destroy(imgName, (err, res) => {
+          console.log(err, " ", res);
+        });
+
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      }
+    } else if (
+      delType === "delTypeM" &&
+      msgType === "sendMsg" &&
+      is_img === "true"
+    ) {
+      const msgToUpdate = currUser.sendImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (msgToUpdate) {
+        msgToUpdate.isDeleted = true;
+        await currUser.save();
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      } else {
+        const msgToDelete = currUser.sendImgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === true
+        );
+        if (msgToDelete) {
+          // Find the index of the message in the array
+          const indexToDelete = currUser.sendImgs.findIndex(
+            (msg) => msg._id.toString() === msgId.toString()
+          );
+
+          // Remove the message from the array
+          currUser.sendImgs.splice(indexToDelete, 1);
+
+          await currUser.save();
+
+          const recMsgToDelete = chatUser.recImgs.find(
+            (msg) =>
+              msg._id.toString() === msgId.toString() && msg.isDeleted === false
+          );
+          if (!recMsgToDelete) {
+            console.log("deleted");
+            cloudinary.uploader.destroy(imgName, (err, res) => {
+              console.log(err, " ", res);
+            });
+          }
+          /* req.flash("success", `Image deleted Successfully`); */
+          res.status(200).send({
+            success: true,
+            chatUser_id: chatUser._id,
+            currUser,
+            chatUser,
+          });
+        }
+      }
+    } else if (
+      delType === "delTypeE" &&
+      msgType === "sendMsg" &&
+      is_img === "true"
+    ) {
+      const sendMsgToUpdate = currUser.sendImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+      const recMsgToUpdate = chatUser.recImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (sendMsgToUpdate || recMsgToUpdate) {
+        if (sendMsgToUpdate) {
+          sendMsgToUpdate.isDeleted = true;
+        }
+        if (recMsgToUpdate) {
+          recMsgToUpdate.isDeleted = true;
+        }
+
+        await currUser.save();
+        await chatUser.save();
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      }
+    } else if (
+      delType === "delTypeM" &&
+      msgType === "recMsg" &&
+      is_img === "true"
+    ) {
+      const msgToUpdate = currUser.recImgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (msgToUpdate) {
+        msgToUpdate.isDeleted = true;
+        await currUser.save();
+        /* req.flash("success", `Image deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      } else {
+        const msgToDelete = currUser.recImgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === true
+        );
+        if (msgToDelete) {
+          // Find the index of the message in the array
+          const indexToDelete = currUser.recImgs.findIndex(
+            (msg) => msg._id.toString() === msgId.toString()
+          );
+
+          // Remove the message from the array
+          currUser.recImgs.splice(indexToDelete, 1);
+
+          await currUser.save();
+
+          const sendMsgToDelete = chatUser.sendImgs.find(
+            (msg) =>
+              msg._id.toString() === msgId.toString() && msg.isDeleted === false
+          );
+          if (!sendMsgToDelete) {
+            cloudinary.uploader.destroy(imgName, (err, res) => {
+              console.log(err, " ", res);
+            });
+          }
+          /* req.flash("success", `Image deleted Successfully`); */
+          res.status(200).send({
+            success: true,
+            chatUser_id: chatUser._id,
+            currUser,
+            chatUser,
+          });
+        }
+      }
+    } else if (
+      delType === "delTypeM" &&
+      msgType === "sendMsg" &&
+      is_img === "false"
+    ) {
+      const msgToUpdate = currUser.sendMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (msgToUpdate) {
+        msgToUpdate.isDeleted = true;
         await currUser.save();
         /* req.flash("success", `Message deleted Successfully`); */
         res.status(200).send({
@@ -685,8 +623,111 @@ module.exports.delMsgs = async (req, res) => {
           currUser,
           chatUser,
         });
+      } else {
+        const msgToDelete = currUser.sendMsgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === true
+        );
+        if (msgToDelete) {
+          // Find the index of the message in the array
+          const indexToDelete = currUser.sendMsgs.findIndex(
+            (msg) => msg._id.toString() === msgId.toString()
+          );
+
+          // Remove the message from the array
+          currUser.sendMsgs.splice(indexToDelete, 1);
+
+          await currUser.save();
+          /* req.flash("success", `Message deleted Successfully`); */
+          res.status(200).send({
+            success: true,
+            chatUser_id: chatUser._id,
+            currUser,
+            chatUser,
+          });
+        }
+      }
+    } else if (
+      delType === "delTypeE" &&
+      msgType === "sendMsg" &&
+      is_img === "false"
+    ) {
+      const sendMsgToUpdate = currUser.sendMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+      const recMsgToUpdate = chatUser.recMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (sendMsgToUpdate || recMsgToUpdate) {
+        if (sendMsgToUpdate) {
+          sendMsgToUpdate.isDeleted = true;
+        }
+        if (recMsgToUpdate) {
+          recMsgToUpdate.isDeleted = true;
+        }
+        await currUser.save();
+        await chatUser.save();
+        /* req.flash("success", `Message deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      }
+    } else if (
+      delType === "delTypeM" &&
+      msgType === "recMsg" &&
+      is_img === "false"
+    ) {
+      const msgToUpdate = currUser.recMsgs.find(
+        (msg) =>
+          msg._id.toString() === msgId.toString() && msg.isDeleted === false
+      );
+
+      if (msgToUpdate) {
+        msgToUpdate.isDeleted = true;
+        await currUser.save();
+        /* req.flash("success", `Message deleted Successfully`); */
+        res.status(200).send({
+          success: true,
+          chatUser_id: chatUser._id,
+          currUser,
+          chatUser,
+        });
+      } else {
+        const msgToDelete = currUser.recMsgs.find(
+          (msg) =>
+            msg._id.toString() === msgId.toString() && msg.isDeleted === true
+        );
+        if (msgToDelete) {
+          // Find the index of the message in the array
+          const indexToDelete = currUser.recMsgs.findIndex(
+            (msg) => msg._id.toString() === msgId.toString()
+          );
+
+          // Remove the message from the array
+          currUser.recMsgs.splice(indexToDelete, 1);
+
+          await currUser.save();
+          /* req.flash("success", `Message deleted Successfully`); */
+          res.status(200).send({
+            success: true,
+            chatUser_id: chatUser._id,
+            currUser,
+            chatUser,
+          });
+        }
       }
     }
+  } catch (error) {
+    res.status(200).send({
+      error: true,
+      message: error.message || "Internal server Error",
+    });
   }
 };
 
@@ -785,11 +826,9 @@ module.exports.delAllMsgs = async (req, res) => {
     }
 
     await currUser.save();
-    console.log("All Messages deleted successfully");
     res.status(200).send({ success: true });
   } catch (error) {
-    console.error("Error deleting messages:", error);
-    res.status(400).send({ success: false });
+    res.status(400).send({ success: false, error: true });
   }
 };
 

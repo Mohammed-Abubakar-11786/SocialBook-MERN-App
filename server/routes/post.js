@@ -9,19 +9,21 @@ const { isLoggedIn, isLoggedInForAjax } = require("../middleware.js");
 const postController = require("../controller/post.js");
 
 //to create new post form
-router.post("/newpost", isLoggedIn, postController.renderNewPostForm);
-router.post("/sendPost/:post_ID", postController.sendPost);
+router.post("/newpost", isLoggedIn, postController.renderNewPostForm); // not being used
+router.post("/sendPost/:post_ID", isLoggedIn, postController.sendPost); // not being used
 
 router.get("/incLike/:id/:currUser", postController.incrementLike);
+// Route to save a new post with passports unautherized error handleing...
 router.post(
   "/newPostAllDetails",
   isLoggedIn,
-  /* upload.single("post[image]"), */
+  /* upload.single("post[image]"), */ // Uncomment this line if needed for handling file uploads
   postController.saveNewPost
 );
+
 router.post(
   "/saveCmt/:post_id/:currUser_id",
-  // isLoggedInForAjax,
+  isLoggedIn,
   postController.saveCmt
 );
 module.exports = router;

@@ -20,7 +20,7 @@ const Login = () => {
 
   useEffect(() => {
     if (location.state?.forceLogin) {
-      flashError("Login First to Perform the Operation");
+      flashError(location.state?.msg || "Login First to Perform the Operation");
     }
     if (location.state?.printSuccess) {
       flashSuccess(location.state.msg);

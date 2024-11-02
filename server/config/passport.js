@@ -15,7 +15,7 @@ passport.use(
     if (user) {
       return done(null, user); // User found, authentication successful
     } else {
-      return done(null, false); // No user found, authentication failed
+      return res.status(200).send({ success: false, notLogin: true });
     }
   })
 );

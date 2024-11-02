@@ -9,6 +9,9 @@ import SendMsg from "./Messages/SendMsg";
 import RecMsg from "./Messages/RecMsg";
 import { flashError } from "../helpers/flashMsgProvider";
 import { io } from "socket.io-client";
+import { logoutUser } from "../redux/userSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 function ChattingArea({
   chatContent,
   closeChat,
@@ -19,6 +22,8 @@ function ChattingArea({
   formatDateToTime,
 }) {
   const socketRef = useRef();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // const chatContainerRef = useRef();
   const lastMessageRef = useRef();
 
@@ -118,7 +123,12 @@ function ChattingArea({
       let dataToSend = new FormData();
       dataToSend.append("msgToSend", msgToSend);
       // dataToSend.append("convID", convID);
-      let res = await axios.post(url, dataToSend, { withCredentials: true });
+      let res = await axios.post(url, dataToSend, {
+        withCredentials: true,
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
       if (res.data.success) {
         setTriggerMsgSent((p) => !p);
         socketRef.current.emit("sendMsg", {
@@ -127,9 +137,16 @@ function ChattingArea({
         });
         setAllmsgs([...allmsgs, res.data.msg]);
       } else if (res.data.error) {
-        flashError("Internal Server Error");
+        flashError("Internal Server Error ☹️");
+      } else if (res.data.notLogin) {
+        dispatch(logoutUser());
+        navigate("/login", {
+          state: {
+            forceLogin: true,
+            msg: "Login First to Send a Message",
+          },
+        });
       }
-
       setMsgToSend("");
     } else {
       flashError("Enter a message ");

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios, { all } from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
-import { setUsersData } from "../redux/userSlice";
+import { logoutUser, setUsersData } from "../redux/userSlice";
 
 const NewPostForm = () => {
   const socket = io(
@@ -119,16 +119,15 @@ const NewPostForm = () => {
       setLoading(true);
       // Assuming the form submission logic is an axios POST request
       const url = `${import.meta.env.VITE_API_BACKEND_URL}newPostAllDetails`;
-      let res = await axios.post(
-        url,
-        formData,
-        { withCredentials: true },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+
+      let res = await axios.post(url, formData, {
+        withCredentials: true,
+        headers: {
+          Authorization: localStorage.getItem("token"),
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (res.data.success) {
         socket.emit("sendPost", res.data.data);
         // let allPosts = [...usersData.allPosts, res.data.data];
@@ -148,6 +147,7 @@ const NewPostForm = () => {
         });
       } else if (res.data.notLogin) {
         setLoading(false);
+        dispatch(logoutUser());
         flashError("Login first");
         navigate("/login");
       } else if (res.data.error) {
