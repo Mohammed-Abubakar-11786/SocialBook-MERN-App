@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
-const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
 const userController = require("../controller/user.js");

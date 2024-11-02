@@ -15,7 +15,7 @@ module.exports.renderSignupPage = (req, res) => {
 
 //* From the below route I was sending a very large response of the req object itself Show in production I was facing an issue of no headers found because there was an internal server error which was getting reflected as no header found under course policy only at production
 module.exports.getCurrUser = async (req, res) => {
-  //we had not used cookie parser so, we were facing the issue of :: token not being fetch from cookies
+  //we user passport jwt to check for curr user here after login a token is genrated and sent to frontend where the token is stored in the localstorage and while sending the req to find currUser the token is sent in autherisetion header and the passport middelware validates the token and returns the users data if the token is valid and not expired
   try {
     if (req.user)
       return res.status(200).json({
@@ -26,88 +26,6 @@ module.exports.getCurrUser = async (req, res) => {
       return res.status(200).json({
         success: false,
       });
-    // const token = req.cookies.token || "";
-    // console.log("token : " + token);
-    // // console.log("Username " + req.user?.username);
-    // // console.log("Authenticated " + req.isAuthenticated());
-
-    // if (token) {
-    //   const user = await getUserDetailsFromToken(token); //if no user then in user object logout: true will be stored
-    //   return res.status(200).json({
-    //     message: "user details",
-    //     data: user,
-    //     success: true,
-    //   });
-    // } else
-    //   return res.status(200).json({
-    //     message: "user details",
-    //     data: null,
-    //     success: false,
-    //   });
-
-    // console.log(req.isAuthenticated());
-    // console.log(req);
-
-    // console.log(req.session?.passport?.user);
-    // console.log(req.session);
-    //------------
-    // const sessionId = req.cookies["connect.sid"];
-
-    // if (!sessionId) {
-    //   return res.status(200).json({
-    //     success: false,
-    //     message: "Session ID not found",
-    //   });
-    // }
-
-    // // Access session store to get session data
-    // store.get(sessionId, (err, session) => {
-    //   if (err || !session) {
-    //     return res
-    //       .status(401)
-    //       .json({ success: false, message: "Session not found" });
-    //   }
-
-    //   // Retrieve user data from session
-    //   const user = session.passport?.user;
-    //   if (!user) {
-    //     return res
-    //       .status(401)
-    //       .json({ success: false, message: "User not found in session" });
-    //   }
-
-    //   return res.status(200).json({ success: true, user });
-    // });
-
-    // -----------------
-    // let user = await User.findOne({ username: req.session?.passport?.user });
-    // if (user) {
-    //   return res.status(200).json({
-    //     data: user,
-    //     success: true,
-    //   });
-    // } else {
-    //   return res.status(200).json({
-    //     success: false,
-    //     extra: req.session,
-    //   });
-    // }
-    //  -------------
-    // if (req.isAuthenticated()) {
-    //   // console.log(req.user);
-    //   // console.log("Token : " + req.cookies.token);
-
-    //   return res.status(200).json({
-    //     data: req.user,
-    //     success: true,
-    //   });
-    // } else {
-    //   // console.log("Token : " + req.cookies.token);
-
-    //   return res.status(200).json({
-    //     success: false,
-    //   });
-    // }
   } catch (error) {
     return res.status(200).json({
       message: error.message || error,

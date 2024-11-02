@@ -27,7 +27,6 @@ const grpMsgsRouter = require("./routes/GroupMsg.js");
 const adminRouter = require("./routes/admin.js");
 
 const { Server } = require("socket.io");
-//  Always define the middleware for course before any middleware else no header found error could be shown in production
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
