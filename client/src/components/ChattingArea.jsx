@@ -27,6 +27,7 @@ function ChattingArea({
   // const chatContainerRef = useRef();
   const lastMessageRef = useRef();
 
+  let [loading, setLoadind] = useState(false);
   let [allmsgs, setAllmsgs] = useState();
   let [currentEvent, setCurrentevent] = useState(
     chatContent?.chatUser.is_online ? "Online" : "Offline"
@@ -123,12 +124,17 @@ function ChattingArea({
       let dataToSend = new FormData();
       dataToSend.append("msgToSend", msgToSend);
       // dataToSend.append("convID", convID);
+
+      setLoadind(true);
+
       let res = await axios.post(url, dataToSend, {
         withCredentials: true,
         headers: {
           Authorization: localStorage.getItem("token"),
         },
       });
+
+      setLoadind(false);
       if (res.data.success) {
         setTriggerMsgSent((p) => !p);
         socketRef.current.emit("sendMsg", {
@@ -227,9 +233,10 @@ function ChattingArea({
               );
             })}
           </div>
-          <div className="bottom flex w-full h-[8%] space-x-1 rounded-b-xl shadow-xl bg-gray-100">
+          <div className="bottom flex w-full h-[8%] rounded-b-xl shadow-xl bg-gray-100">
             <input
               type="text"
+              disabled={loading}
               value={msgToSend}
               onKeyDown={() => {
                 if (currUser._id !== chatUser._id)
@@ -258,13 +265,17 @@ function ChattingArea({
               name=""
               id=""
               placeholder="Enter a message >>>"
-              className="p-2 rounded-xl border-[1.6px] focus:outline-blue-600 focus:outline-1 w-[80%] 
+              className="p-2 rounded-md rounded-r-none border-r-0 border-blue-600 border-[1.6px] focus:outline-blue-600 focus:outline-1 w-[80%] 
             sm:w-[82%] min-[425px]:!w-[88%] md:!w-[92%]  h-full"
             />
             {/* <button className="border-[1.6px] border-blue-600  h-full rounded-xl">send</button> */}
             <div
-              onClick={() => sendMsg()}
-              className="flex-grow border-2 bg-white border-blue-600 flex justify-center items-center rounded-xl hover:!bg-blue-600 hover:border-white hover:shadow-xl hover:text-white cursor-pointer "
+              onClick={() => (!loading ? sendMsg() : null)}
+              className={`flex-grow border-2 rounded-r-md rounded-l-none ${
+                loading
+                  ? `hover:!bg-white hover:!border-blue-600 hover:text-black hover:shadow-none`
+                  : `hover:!bg-blue-600 hover:border-white hover:shadow-xl hover:text-white`
+              } bg-white border-blue-600 flex justify-center items-center rounded-xl cursor-pointer `}
             >
               <i className="fa-regular fa-paper-plane text-2xl mx-auto"></i>
             </div>

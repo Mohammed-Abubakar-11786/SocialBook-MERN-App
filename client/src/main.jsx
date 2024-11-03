@@ -22,6 +22,7 @@ import AdminPage from "./pages/AdminPage.jsx";
 import AllUsers from "./components/adminComponenets/AllUsers.jsx";
 import AllPosts from "./components/adminComponenets/AllPosts.jsx";
 import AllStories from "./components/adminComponenets/AllStories.jsx";
+import PageNotFound from "./pages/PageNotFound.jsx";
 // import router from "./routes/index.js";
 const router = createBrowserRouter([
   {
@@ -152,6 +153,17 @@ const router = createBrowserRouter([
                 <GroupChat />
               </HomeLayout>
             </AuthLayout>
+          </>
+        ),
+      },
+      {
+        path: "*",
+        element: (
+          <>
+            <HomeLayout>
+              {" "}
+              <PageNotFound />
+            </HomeLayout>
           </>
         ),
       },

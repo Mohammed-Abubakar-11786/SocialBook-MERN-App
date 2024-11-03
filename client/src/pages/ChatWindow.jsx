@@ -162,7 +162,7 @@ function ChatWindow() {
   useEffect(() => {
     async function getAndSortOtherUsers() {
       let url = `${import.meta.env.VITE_API_BACKEND_URL}getSortedUsers/${
-        currUser._id
+        currUser?._id
       }`;
 
       let res = await axios.get(url, {
@@ -171,6 +171,7 @@ function ChatWindow() {
           Authorization: localStorage.getItem("token"),
         },
       });
+      // console.log(res);
 
       if (res.data.success) setSortedUsers(res.data.sortedUsers);
       else if (res.data.notLogin) {
@@ -178,11 +179,14 @@ function ChatWindow() {
         navigate("/login", {
           state: { forceLogin: true, msg: "Login First" },
         });
-      } else if (res.error) flashError("Internal Server Error ☹️"); //res.msg
+      } else if (res.data.error) {
+        flashError("Internal Server Error ☹️");
+        navigate("/");
+      } //res.msg
     }
 
     getAndSortOtherUsers();
-  }, [currUser?._id, triggerMsgSent, users]);
+  }, [currUser?._id, triggerMsgSent, users, dispatch, navigate]);
 
   let update = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
@@ -353,7 +357,7 @@ function ChatWindow() {
                 >
                   <p className="text-lg font-semibold">
                     {user.user.username}{" "}
-                    {user.user._id === currUser._id ? "(You)" : ""}
+                    {user.user._id === currUser?._id ? "(You)" : ""}
                   </p>
                   <div className="flex justify-between pr-4 w-full">
                     <p

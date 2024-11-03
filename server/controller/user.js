@@ -389,9 +389,12 @@ module.exports.getSortedUsers = async (req, res) => {
     // Map conversations to users
     let userConversations = conversations.reduce((acc, conv) => {
       let otherUser =
-        conv.sendUser._id.toString() === currUserID
+        conv.sendUser?._id.toString() === currUserID
           ? conv.recUser
           : conv.sendUser;
+
+      // console.log("otherUser._id " + otherUser._id);
+      // console.log("otherUser.username " + otherUser.username);
 
       acc[otherUser?._id] = {
         user: otherUser,
@@ -402,7 +405,7 @@ module.exports.getSortedUsers = async (req, res) => {
 
     // Sort users based on the last updated conversation
     let sortedUsers = users.map((user) => {
-      let convData = userConversations[user._id];
+      let convData = userConversations[user?._id];
       return {
         user,
         conv: convData ? convData.conv : null,

@@ -78,6 +78,7 @@ const GroupChat = () => {
   // };
 
   const [message, setMessage] = useState("");
+  let [beingSent, setBeingSent] = useState(false);
   const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
   const [showDeleteOverlay1, setShowDeleteOverlay1] = useState(false);
   const [deleteMessageId, setDeleteMessageId] = useState("");
@@ -205,6 +206,8 @@ const GroupChat = () => {
       const url = `${import.meta.env.VITE_API_BACKEND_URL}saveGrpMsg/${
         currUser._id
       }`;
+
+      setBeingSent(true);
       const res = await axios.post(
         url,
         {
@@ -217,6 +220,7 @@ const GroupChat = () => {
         }
       );
 
+      setBeingSent(false);
       if (res.data.notLogin) {
         dispatch(logoutUser());
         navigate("/login", {
@@ -235,11 +239,13 @@ const GroupChat = () => {
       } else if (res.data.error) {
         flashError(res.data.msg);
       }
+    } else {
+      flashError("Enter a Message");
     }
   };
 
   const handleDeleteMessage = async () => {
-    console.log("in del");
+    // console.log("in del");
     setLoading(true);
     let url = `${
       import.meta.env.VITE_API_BACKEND_URL
@@ -533,12 +539,16 @@ const GroupChat = () => {
             <form onSubmit={handleSendMessage} className="typeMsg flex">
               <input
                 type="text"
+                disabled={beingSent}
                 placeholder="Enter Message"
                 className="form-control flex-1 mr-2 border rounded-lg p-2"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
-              <button className="btn btn-success bg-green-500 text-white rounded-lg p-2">
+              <button
+                disabled={beingSent}
+                className="btn btn-success bg-green-500 text-white rounded-lg p-2"
+              >
                 Send
               </button>
             </form>
