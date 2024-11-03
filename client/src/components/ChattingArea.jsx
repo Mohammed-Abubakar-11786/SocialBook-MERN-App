@@ -20,6 +20,7 @@ function ChattingArea({
   setTriggerMsgRec,
   setLastSeenUpdated,
   formatDateToTime,
+  closeChatWindow,
 }) {
   const socketRef = useRef();
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ function ChattingArea({
         if (data.toUser === chatContent?.currUser._id) {
           setAllmsgs((p) => [...p, data.msg]);
           setTriggerMsgRec(true);
+          setIsTyping(false);
         }
       });
 
@@ -85,6 +87,10 @@ function ChattingArea({
           setCurrentevent("Offline");
         }
       });
+
+      // socketRef.current.on("disconnect", () => {
+      //   socketRef.current.emit("userOffline", { user_id: currUser._id });
+      // });
 
       return () => {
         socketRef.current.disconnect();
@@ -188,28 +194,40 @@ function ChattingArea({
                   alt=""
                   onClick={() => enlarge(chatUser.image.url)}
                 />{" "}
-                {chatUser.is_online && (
-                  <div className="absolute top-3 left-1.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                )}
+                <div
+                  className={`absolute top-3 left-1.5 w-3 h-3 ${
+                    currentEvent !== "Offline" ? "bg-green-500" : "bg-slate-400"
+                  }  border-2 border-white rounded-full`}
+                ></div>
               </div>
 
-              <div className="cursor-pointer flex flex-col justify-center -space-y-1">
-                <p className="font-bold text-lg">{chatUser.username}</p>
+              <div className="cursor-pointer flex flex-col justify-center -space-y-1 h-10">
+                <p className="font-bold text-[17px]">{chatUser.username}</p>
 
                 {currentEvent === "Offline" ? (
-                  <p>
-                    Offline - last seen {formatDateToTime(lastSeen)}
-                    {/* {chatContent?.conv &&
+                  <>
+                    <p className="text-sm">
+                      Offline - {formatDateToTime(lastSeen)}
+                      {/* {chatContent?.conv &&
                       formatDateToTime(chatContent?.conv.updatedAt)} */}
-                  </p>
+                    </p>
+                  </>
                 ) : (
                   <p className="text-blue-700 font-bold" id="online">
                     {isTyping ? "typing..." : "Online"}
                   </p>
                 )}
-
-                <p className=""></p>
               </div>
+            </div>
+            <div
+              onClick={() => closeChatWindow()}
+              className="hover:text-red-500 hover:scale-105 font-bold cursor-pointer min-md:hidden flex justify-center w-fit items-center "
+            >
+              <img
+                src="https://png.pngtree.com/png-clipart/20230804/original/pngtree-red-cross-icon-close-button-x-vector-picture-image_9578889.png"
+                alt=""
+                className="w-[70px]"
+              />
             </div>
           </div>
           <div className="msgsArea scrollbar-hide w-full h-full overflow-auto pb-5 bg-gray-100 ">

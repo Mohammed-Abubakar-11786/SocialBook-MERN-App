@@ -90,6 +90,18 @@ function ChatWindow() {
         socketRef.current.emit("userOnline", { user_id: currUser._id });
       });
 
+      socketRef.current.on("setUserOnline", (data) => {
+        let chatUser = document.getElementById(`forOnline-${data.user_id}`);
+        chatUser?.classList.remove("bg-slate-400");
+        chatUser?.classList.add("bg-green-500");
+      });
+
+      socketRef.current.on("setUserOfline", (data) => {
+        let chatUser = document.getElementById(`forOnline-${data.user_id}`);
+        chatUser?.classList.add("bg-slate-400");
+        chatUser?.classList.remove("bg-green-500");
+      });
+
       socketRef.current.on("setTyping", (data) => {
         sortedUsers.forEach((usr) => {
           if (data.chatUser === currUser._id && data.currUser === usr.user._id)
@@ -110,6 +122,10 @@ function ChatWindow() {
         });
       });
 
+      // socketRef.current.on("disconnect", () => {
+      //   socketRef.current.emit("userOffline", { user_id: currUser._id });
+      // });
+
       const handleDisconnect = () => {
         if (socketRef.current) {
           updateUserLastseen(currUser._id);
@@ -124,7 +140,7 @@ function ChatWindow() {
       // };
 
       window.addEventListener("beforeunload", handleDisconnect);
-      // window.addEventListener("visibilitychange", handlevisibilitychange);
+      // // window.addEventListener("visibilitychange", handlevisibilitychange);
       return () => {
         handleDisconnect();
         window.removeEventListener("beforeunload", handleDisconnect);
@@ -186,7 +202,7 @@ function ChatWindow() {
     }
 
     getAndSortOtherUsers();
-  }, [currUser?._id, triggerMsgSent, users, dispatch, navigate]);
+  }, [currUser?._id, triggerMsgSent, users]);
 
   let update = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
@@ -275,7 +291,6 @@ function ChatWindow() {
   }
   function openChatArea(userID) {
     openChat();
-
     navigate(`/chatTo/${userID}`);
   }
 
@@ -301,6 +316,11 @@ function ChatWindow() {
       };
       return new Intl.DateTimeFormat("en-US", options).format(date);
     }
+  }
+
+  function closeChatWindow() {
+    socketRef.current.emit("userOffline", { user_id: currUser._id });
+    navigate("/");
   }
 
   return (
@@ -347,9 +367,12 @@ function ChatWindow() {
                     alt=""
                     onClick={() => enlarge(user.user.image.url)}
                   />
-                  {isOnline && (
-                    <div className="absolute top-0 left-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
+                  <div
+                    id={`forOnline-${user.user._id}`}
+                    className={`absolute top-0 left-0 w-3 h-3 ${
+                      isOnline ? "bg-green-500" : "bg-slate-400"
+                    } bg-green-500 border-2 border-white rounded-full`}
+                  ></div>
                 </div>
                 <div
                   className="userDetails -space-y-1 h-full w-full flex flex-col justify-center items-start"
@@ -366,12 +389,27 @@ function ChatWindow() {
                     >
                       {user.conv?.messages[user.conv?.messages.length - 1].msg}
                     </p>
-                    <p className="text-sm text-gray-700">
-                      {user.conv?.updatedAt &&
-                        formatDateToTime(user.conv?.updatedAt)}
-                    </p>
+                    {user.user._id !== currUser?._id ? (
+                      <p className="text-sm text-gray-700">
+                        {user.conv?.updatedAt &&
+                          formatDateToTime(user.conv?.updatedAt)}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
+
+                {user.user._id === currUser?._id ? (
+                  <div
+                    onClick={() => closeChatWindow()}
+                    className="hover:text-red-500 mr-3 hover:scale-105 font-bold cursor-pointer  flex justify-center w-fit items-center "
+                  >
+                    <img
+                      src="https://png.pngtree.com/png-clipart/20230804/original/pngtree-red-cross-icon-close-button-x-vector-picture-image_9578889.png"
+                      alt=""
+                      className="w-[95px]"
+                    />
+                  </div>
+                ) : null}
               </div>
             );
           })}
@@ -393,6 +431,7 @@ function ChatWindow() {
               setTriggerMsgRec={setTriggerMsgRec}
               setLastSeenUpdated={setLastSeenUpdated}
               formatDateToTime={formatDateToTime}
+              closeChatWindow={closeChatWindow}
             />
           )}
         </div>
