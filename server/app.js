@@ -208,13 +208,19 @@ usp.on("connection", async (socket) => {
 
 grp.on("connection", async (socket) => {
   /* console.log("Group-user-Connected"); */
-  let cntTime = Date.now();
-  let currUserID = socket.handshake.auth.token;
-  await User.findByIdAndUpdate(currUserID, { is_online_in_group: true });
 
-  let currUser = await User.findById(currUserID);
+  let currUserID, currUser;
+  socket.on("userOnline", async (data) => {
+    let cntTime = Date.now();
+    currUserID = socket.handshake.auth.token;
 
-  grp.emit("GroupUserOnline", { currUser, cntTime }); /* 
+    await User.findByIdAndUpdate(currUserID, { is_online_in_group: true });
+
+    currUser = await User.findById(currUserID);
+
+    grp.emit("GroupUserOnline", { currUser, cntTime });
+  });
+  /* 
     socket.broadcast.emit("GroupUserOffline", { currUser }); */
 
   socket.on("grpMsgSent", async (data) => {

@@ -26,9 +26,12 @@ const GroupChat = () => {
   const messagesEndRef = useRef(null);
   const messagesLengthRef = useRef(0); // Ref to track messages length
 
-  useEffect(() => {
-    getGroupChats();
-  }, []);
+  // useEffect(() => {
+  //   let initialize = async () => {
+  //     await getGroupChats();
+  //   };
+  //   initialize();
+  // }, []);
 
   function formatDateToTime(dateString) {
     const date = new Date(dateString);
@@ -72,7 +75,6 @@ const GroupChat = () => {
 
     scrollUp();
   };
-
   // const getOnlineUsers = async () => {
   //   setOnlineUsers(allUsers?.filter((user) => user?.is_online_in_group));
   // };
@@ -84,7 +86,11 @@ const GroupChat = () => {
   const [deleteMessageId, setDeleteMessageId] = useState("");
 
   useEffect(() => {
-    if (currUser) {
+    let initialize = async () => {
+      await getGroupChats();
+    };
+    initialize();
+    if (currUser && !socketRef.current) {
       socketRef.current = io(
         `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}groupChatNameSpace`,
         {
@@ -93,9 +99,9 @@ const GroupChat = () => {
       );
       socketRef.current.connect();
 
-      // socketRef.current.on("connect", () => {
-      //   socketRef.current.emit("userOnline", { user_id: currUser._id });
-      // });
+      socketRef.current.on("connect", () => {
+        socketRef.current.emit("userOnline", { user_id: currUser?._id });
+      });
 
       // socketRef.current.on("setTyping", (data) => {
       //   sortedUsers.forEach((usr) => {
@@ -118,17 +124,16 @@ const GroupChat = () => {
       // });
 
       socketRef.current.on("GroupUserOnline", (data) => {
-        // getGroupChats();
-        // getOnlineUsers();
         const LiveUser = data.currUser;
         setOnlineUsers((prevUsers) => {
-          prevUsers = prevUsers.filter((usr) => usr._id !== LiveUser._id);
+          prevUsers = prevUsers.filter((usr) => usr?._id !== LiveUser?._id);
+
           return [...prevUsers, LiveUser];
         });
 
         let div = document.createElement("div");
         div.className =
-          "p-1 my-1 w-[90%] h-[6%] px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-green-300";
+          "p-1 my-1 w-[90%] h-[6%] max-sm:!text-xs max-sm:!px-0 px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-green-300";
         div.innerText = `${
           LiveUser?.username === currUser.username
             ? "(You)"
@@ -143,18 +148,20 @@ const GroupChat = () => {
         // getOnlineUsers();
         const LiveUser = data.currUser;
         setOnlineUsers((prevUsers) =>
-          prevUsers.filter((user) => user._id !== LiveUser._id)
+          prevUsers.filter((user) => user?._id !== LiveUser?._id)
         );
 
-        let div = document.createElement("div");
-        div.className =
-          "p-1 my-1 w-[90%] h-[6%] px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-red-300";
-        div.innerText = `${
-          LiveUser.username
-        } Left the Chat! @ ${formatDateToTime(data.disCntTime)}`;
+        if (LiveUser) {
+          let div = document.createElement("div");
+          div.className =
+            "p-1 my-1 w-[90%] h-[6%] max-sm:!text-xs max-sm:!px-0 max-sm:px-0 px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-red-300";
+          div.innerText = `${
+            LiveUser.username
+          } Left the Chat! @ ${formatDateToTime(data.disCntTime)}`;
 
-        document.getElementById("innerChatSpace").append(div);
-        scrollUp();
+          document.getElementById("innerChatSpace").append(div);
+          scrollUp();
+        }
       });
 
       socketRef.current.on("recGrpMsg", (data) => {
@@ -193,6 +200,7 @@ const GroupChat = () => {
       return () => {
         // handleDisconnect();
         socketRef.current.disconnect();
+        socketRef.current = null; // Reset socketRef to avoid duplicate connections
 
         // window.removeEventListener("beforeunload", handleDisconnect);
         // window.removeEventListener("visibilitychange", handlevisibilitychange);

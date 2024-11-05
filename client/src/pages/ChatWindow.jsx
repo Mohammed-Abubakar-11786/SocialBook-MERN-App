@@ -19,7 +19,6 @@ function ChatWindow() {
   const [triggerMsgSent, setTriggerMsgSent] = useState(false);
   const [triggerMsgRec, setTriggerMsgRec] = useState(false);
   const [lastSeenUpdated, setLastSeenUpdated] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
 
   // const [users, setUsers] = useState({});
 
