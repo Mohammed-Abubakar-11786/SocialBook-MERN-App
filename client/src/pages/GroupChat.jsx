@@ -170,17 +170,23 @@ const GroupChat = () => {
           return [...prevUsers, LiveUser];
         });
 
-        let div = document.createElement("div");
-        div.className =
-          "p-1 my-1 w-[90%] h-[6%] max-sm:!text-xs max-sm:!px-0 px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-green-300";
-        div.innerText = `${
-          LiveUser?.username === currUser.username
-            ? "(You)"
-            : LiveUser?.username
-        } Joined the Chat! @ ${formatDateToTime(data.cntTime)}`;
+        let p = document.getElementById(
+          LiveUser?._id + "-onlineIndic@" + data.cntTime
+        );
+        if (!p) {
+          let div = document.createElement("div");
+          div.id = LiveUser?._id + "-onlineIndic@" + data.cntTime;
+          div.className =
+            "p-1 my-1 w-[90%] h-[6%] max-sm:!text-xs max-sm:!px-0 px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-green-300";
+          div.innerText = `${
+            LiveUser?.username === currUser.username
+              ? "(You)"
+              : LiveUser?.username
+          } Joined the Chat! @ ${formatDateToTime(data.cntTime)}`;
 
-        document.getElementById("innerChatSpace").append(div);
-        scrollUp();
+          document.getElementById("innerChatSpace").append(div);
+          scrollUp();
+        }
       });
 
       socketRef.current.on("GroupUserOffline", (data) => {
@@ -190,8 +196,12 @@ const GroupChat = () => {
           prevUsers.filter((user) => user?._id !== LiveUser?._id)
         );
 
-        if (LiveUser) {
+        let p = document.getElementById(
+          LiveUser?._id + "-oflineIndic@" + data.disCntTime
+        );
+        if (!p && LiveUser) {
           let div = document.createElement("div");
+          div.id = LiveUser?._id + "-oflineIndic@" + data.disCntTime;
           div.className =
             "p-1 my-1 w-[90%] h-[6%] max-sm:!text-xs max-sm:!px-0 max-sm:px-0 px-5 text-sm flex justify-center items-center text-center rounded-2xl border bg-red-300";
           div.innerText = `${
