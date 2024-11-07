@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import "../css/flashMsgCss.css";
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios, { all } from "axios";
@@ -21,6 +22,8 @@ const GroupChat = () => {
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [msgsLoading, setMsgsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [triggerShowUser, setTriggerShowUser] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -59,12 +62,14 @@ const GroupChat = () => {
 
   const getGroupChats = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}getGroupChats`;
+    setMsgsLoading(true);
     let res = await axios(url, {
       withCredentials: true,
       headers: {
         Authorization: localStorage.getItem("token"),
       },
     });
+    setMsgsLoading(false);
     if (res.data.notLogin) {
       dispatch(logoutUser());
       flashError("Login first");
@@ -122,6 +127,40 @@ const GroupChat = () => {
       //           : "";
       //   });
       // });
+
+      socketRef.current.on("setTyping", (data) => {
+        let p = document.getElementById(`${data._id}-typer`);
+        if (!p) {
+          let outerDiv = document.getElementById("typingIndicater");
+          let msgOuter = document.createElement("div");
+          msgOuter.id = data._id + "-typer";
+          msgOuter.className =
+            "bg-green-100 shadow-lg p-1 mb-1 rounded-md font-bold";
+          let para = document.createElement("p");
+          para.innerHTML = `${data.username} is <b class="text-green-600">typing...</b>`;
+
+          let timeBar = document.createElement("div");
+          timeBar.className =
+            "h-[0.2rem] bg-green-600 animation-dec-width rounded-xl";
+
+          msgOuter.append(para);
+          msgOuter.append(timeBar);
+
+          outerDiv.append(msgOuter);
+
+          setTimeout(() => {
+            msgOuter.remove();
+          }, [1500]);
+        }
+      });
+
+      socketRef.current.on("setNotTyping", (data) => {
+        //without the setNotTyping the functionality has been implemented using setTyping itself
+        // let p = document.getElementById(`${data._id}-typer`);
+        // if (p) {
+        //   p.remove();
+        // }
+      });
 
       socketRef.current.on("GroupUserOnline", (data) => {
         const LiveUser = data.currUser;
@@ -422,6 +461,11 @@ const GroupChat = () => {
         </>
       )}
 
+      <div
+        id="typingIndicater"
+        className="z-[999] absolute left-5 top-16 md:hidden"
+      ></div>
+
       <div className="head w-11/12 rounded-2xl border border-black bg-cyan-200 font-bold text-center m-auto mt-4 p-3 shadow">
         <h1 className="text-xl">
           Welcome <span className="text-red-500">{currUser.username}</span> to
@@ -429,6 +473,7 @@ const GroupChat = () => {
         </h1>
       </div>
       <div className="outerContainer flex justify-center items-center w-11/12 h-[72%] m-auto mt-4">
+        {/* All online users */}
         <div
           id="onlineUsers"
           className="onlineUsers hidden md:block w-1/3 h-full overflow-y-auto border border-black rounded-2xl bg-white mr-6 p-3 shadow"
@@ -459,7 +504,11 @@ const GroupChat = () => {
                 <div className="info">
                   <h6>
                     {user.username}
-                    {currUser && user._id === currUser._id ? " (You)" : ""}
+                    {currUser && user._id === currUser._id ? " (You)" : ""}{" "}
+                    <p
+                      id={`${user._id}-setTyping`}
+                      className="text-sm font-bold text-green-600"
+                    ></p>
                   </h6>
                 </div>
               </div>
@@ -499,52 +548,67 @@ const GroupChat = () => {
             id="innerChatSpace"
             className="innerChatSpace flex flex-col items-center overflow-y-auto scrollbar-hide h-[75%] w-full p-1"
           >
-            {messages?.map((msg, index) => {
-              return (
-                <div
-                  key={index}
-                  className={`pr-3 p-[3px] pl-1 my-1 w-fit max-w-[60%] text-sm rounded-2xl border ${
-                    msg.sendUser._id === currUser._id
-                      ? "sentMsg ml-auto bg-orange-100 shadow-xl"
-                      : "recMsg  mr-auto bg-white shadow-xl"
-                  }`}
-                  onMouseDown={() =>
-                    handleMessageLongPress(
-                      msg.sendUser._id === currUser._id ? "sendMsg" : "recMsg",
-                      msg._id
-                    )
-                  }
-                  onDoubleClick={() =>
-                    handleMessageLongPress(
-                      msg.sendUser._id === currUser._id ? "sendMsg" : "recMsg",
-                      msg._id
-                    )
-                  }
-                >
-                  <div className="flex items-center w-full">
-                    <div className="sendUserImage w-fit mr-2">
-                      <img
-                        src={msg.sendUser.image.url}
-                        alt="image"
-                        className="w-12 h-12 rounded-full"
-                      />
-                    </div>
-                    <div className="w-fit">
-                      <p>{msg.msg}</p>
-                      <div className="time text-sm text-gray-500 w-fit ml-auto">
-                        <p className="text-xs ">
-                          {formatDateToTime(msg.createdAt)}
-                        </p>
+            {msgsLoading ? (
+              <div className="w-full flex justify-center items-center h-screen z-[999] rounded-sm bg-slate-100">
+                <p className="font-semibold text-xl text-black">
+                  {" "}
+                  Please wait...
+                </p>
+              </div>
+            ) : (
+              <>
+                {messages?.map((msg, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className={`pr-3 p-[3px] pl-1 my-1 w-fit max-w-[60%] text-sm rounded-2xl border ${
+                        msg.sendUser._id === currUser._id
+                          ? "sentMsg ml-auto bg-orange-100 shadow-xl"
+                          : "recMsg  mr-auto bg-white shadow-xl"
+                      }`}
+                      onMouseDown={() =>
+                        handleMessageLongPress(
+                          msg.sendUser._id === currUser._id
+                            ? "sendMsg"
+                            : "recMsg",
+                          msg._id
+                        )
+                      }
+                      onDoubleClick={() =>
+                        handleMessageLongPress(
+                          msg.sendUser._id === currUser._id
+                            ? "sendMsg"
+                            : "recMsg",
+                          msg._id
+                        )
+                      }
+                    >
+                      <div className="flex items-center w-full">
+                        <div className="sendUserImage w-fit mr-2">
+                          <img
+                            src={msg.sendUser.image.url}
+                            alt="image"
+                            className="w-12 h-12 rounded-full"
+                          />
+                        </div>
+                        <div className="w-fit">
+                          <p>{msg.msg}</p>
+                          <div className="time text-sm text-gray-500 w-fit ml-auto">
+                            <p className="text-xs ">
+                              {formatDateToTime(msg.createdAt)}
+                            </p>
+                          </div>
+                        </div>
                       </div>
+                      <div ref={messagesEndRef} />
                     </div>
-                  </div>
-                  <div ref={messagesEndRef} />
-                </div>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
           </div>
           <div className="outerTypeMsg bg-cyan-100 border border-black rounded-2xl p-2 mt-2">
-            <form onSubmit={handleSendMessage} className="typeMsg flex">
+            <form className="typeMsg flex">
               <input
                 type="text"
                 disabled={beingSent}
@@ -552,6 +616,26 @@ const GroupChat = () => {
                 className="form-control flex-1 mr-2 border rounded-lg p-2"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={() => {
+                  socketRef.current.emit("typing", {
+                    _id: currUser._id,
+                    username: currUser.username,
+                  });
+                }}
+                onKeyUp={(e) => {
+                  if (e.key == "Enter") {
+                    handleSendMessage();
+                    socketRef.current.emit("notTyping", {
+                      _id: currUser._id,
+                    });
+                  } else {
+                    setTimeout(() => {
+                      socketRef.current.emit("notTyping", {
+                        _id: currUser._id,
+                      });
+                    }, 1500);
+                  }
+                }}
               />
               <button
                 disabled={beingSent}

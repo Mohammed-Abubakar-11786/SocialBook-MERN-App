@@ -235,6 +235,14 @@ grp.on("connection", async (socket) => {
     socket.broadcast.emit("recAllMsgsDeleted");
   });
 
+  socket.on("notTyping", (data) => {
+    socket.broadcast.emit("setNotTyping", data);
+  });
+
+  socket.on("typing", (data) => {
+    socket.broadcast.emit("setTyping", data);
+  });
+
   socket.on("disconnect", async () => {
     let disCntTime = Date.now();
     await User.findByIdAndUpdate(currUserID, { is_online_in_group: false });
