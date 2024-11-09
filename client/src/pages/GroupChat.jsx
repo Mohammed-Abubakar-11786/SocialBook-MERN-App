@@ -86,6 +86,9 @@ const GroupChat = () => {
 
   const [message, setMessage] = useState("");
   let [beingSent, setBeingSent] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [sentMsgsShown, setSentMsgsShown] = useState(false);
+  const [recMsgsShown, setRecMsgsShown] = useState(false);
   const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
   const [showDeleteOverlay1, setShowDeleteOverlay1] = useState(false);
   const [deleteMessageId, setDeleteMessageId] = useState("");
@@ -129,6 +132,8 @@ const GroupChat = () => {
       // });
 
       socketRef.current.on("setTyping", (data) => {
+        let userTyping = document.getElementById(`${data._id}-setTyping`);
+        userTyping.innerText = "typing...";
         let p = document.getElementById(`${data._id}-typer`);
         if (!p) {
           let outerDiv = document.getElementById("typingIndicater");
@@ -160,6 +165,9 @@ const GroupChat = () => {
         // if (p) {
         //   p.remove();
         // }
+
+        let userTyping = document.getElementById(`${data._id}-setTyping`);
+        userTyping.innerText = "";
       });
 
       socketRef.current.on("GroupUserOnline", (data) => {
@@ -256,6 +264,60 @@ const GroupChat = () => {
       };
     }
   }, [currUser]);
+
+  const closeOptions = () => {
+    document.getElementById("options").classList.add("hidden");
+    setIsOptionsOpen(false);
+  };
+
+  const showOnlySentMsgs = () => {
+    // Convert HTMLCollection to an array
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.add("hidden");
+    });
+    setSentMsgsShown(true);
+    setRecMsgsShown(false);
+    let sentMsgs = Array.from(document.getElementsByClassName("sentMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
+
+  const showOnlyRecMsgs = () => {
+    // Convert HTMLCollection to an array
+    let sentMsgs = Array.from(document.getElementsByClassName("sentMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.add("hidden");
+    });
+    setRecMsgsShown(true);
+    setSentMsgsShown(false);
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
+
+  const showAll = () => {
+    setSentMsgsShown(false);
+    setRecMsgsShown(false);
+
+    let sentMsgs = Array.from(document.getElementsByClassName("sentMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.remove("hidden");
+    });
+
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -358,6 +420,8 @@ const GroupChat = () => {
     } else {
       flashError("Only Admins can do clear chat");
     }
+
+    closeOptions();
   };
 
   const handleMessageLongPress = (msgType, msgId) => {
@@ -471,9 +535,17 @@ const GroupChat = () => {
         </>
       )}
 
+      {isOptionsOpen ? (
+        <div
+          onClick={closeOptions}
+          className="overlay absolute z-40 flex top-0 w-screen h-screen left-0 bg-black opacity-50"
+        ></div>
+      ) : (
+        <></>
+      )}
       <div
         id="typingIndicater"
-        className="z-[999] absolute left-5 top-16 md:hidden"
+        className="z-[999] absolute left-5 top-16 "
       ></div>
 
       <div className="head w-11/12 rounded-2xl border border-black bg-cyan-200 font-bold text-center m-auto mt-4 p-3 shadow">
@@ -538,21 +610,63 @@ const GroupChat = () => {
               {" "}
               All Online Users
             </h3>
-            {currUser._id === "6565e8f590ad24ddda24d4d0" ? (
+            {/* <p
+              
+            >
+              Clear Chats
+            </p> */}
+            <div
+              className="w-6 flex justify-center  cursor-pointer"
+              onClick={() => {
+                setIsOptionsOpen(true);
+                document.getElementById("options").classList.toggle("hidden");
+              }}
+            >
+              <i className="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+            <div
+              id="options"
+              className="hidden absolute p-2 top-64 min-[389px]:top-[226px] right-14 md:right-[83px]  z-50 bg-white border-black rounded-md border-[1px] shadow-md"
+            >
               <p
-                className="cursor-pointer hover:text-blue-500 hover:font-bold"
+                className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
                 onClick={handleDeleteAllMessages}
               >
                 Clear Chats
               </p>
-            ) : (
-              <p
-                className="cursor-pointer hover:text-blue-500 hover:font-bold"
-                onClick={handleDeleteAllMessages}
-              >
-                Clear Chats
-              </p>
-            )}
+
+              {sentMsgsShown ? (
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                  onClick={showAll}
+                >
+                  Show All
+                </p>
+              ) : (
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                  onClick={showOnlySentMsgs}
+                >
+                  Show Only Sent Msgs
+                </p>
+              )}
+
+              {recMsgsShown ? (
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold"
+                  onClick={showAll}
+                >
+                  Show All
+                </p>
+              ) : (
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold"
+                  onClick={showOnlyRecMsgs}
+                >
+                  Show Only Receive Msgs
+                </p>
+              )}
+            </div>
           </div>
           <div
             id="innerChatSpace"
