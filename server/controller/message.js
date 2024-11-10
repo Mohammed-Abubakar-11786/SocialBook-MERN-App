@@ -838,8 +838,8 @@ module.exports.getConversation = async (req, res) => {
     let chatUser = await User.findById(chatUserID);
     let conv = await Conversation.findOne({
       $or: [
-        { sendUser: currUserID, recUser: chatUserID },
-        { sendUser: chatUserID, recUser: currUserID },
+        { sendUser: currUserID, recUser: chatUserID, forUser: currUserID },
+        { sendUser: chatUserID, recUser: currUserID, forUser: currUserID },
       ],
     });
 
@@ -896,11 +896,42 @@ module.exports.sendMsg = async (req, res) => {
     let { currUserID, chatUserID } = req.params;
     let { msgToSend } = req.body;
 
-    let chatUser = await User.findById(chatUserID);
-    let conv = await Conversation.findOne({
+    // let chatUser = await User.findById(chatUserID);
+    let convCurr = await Conversation.findOne({
       $or: [
-        { $and: [{ sendUser: currUserID }, { recUser: chatUserID }] },
-        { $and: [{ sendUser: chatUserID }, { recUser: currUserID }] },
+        {
+          $and: [
+            { sendUser: currUserID },
+            { recUser: chatUserID },
+            { forUser: currUserID },
+          ],
+        },
+        {
+          $and: [
+            { sendUser: chatUserID },
+            { recUser: currUserID },
+            { forUser: currUserID },
+          ],
+        },
+      ],
+    });
+
+    let convRec = await Conversation.findOne({
+      $or: [
+        {
+          $and: [
+            { sendUser: currUserID },
+            { recUser: chatUserID },
+            { forUser: chatUserID },
+          ],
+        },
+        {
+          $and: [
+            { sendUser: chatUserID },
+            { recUser: currUserID },
+            { forUser: chatUserID },
+          ],
+        },
       ],
     });
 
@@ -911,17 +942,32 @@ module.exports.sendMsg = async (req, res) => {
 
     await msg.save();
 
-    if (conv) {
-      conv.messages.push(msg._id);
-      await conv.save();
+    if (convCurr) {
+      convCurr.messages.push(msg._id);
+      await convCurr.save();
     } else {
-      let newConv = new Conversation();
-      newConv.sendUser = currUserID;
-      newConv.recUser = chatUserID;
-      newConv.messages = [];
-      newConv.messages.push(msg._id);
+      let newConvCurr = new Conversation();
+      newConvCurr.sendUser = currUserID;
+      newConvCurr.recUser = chatUserID;
+      newConvCurr.messages = [];
+      newConvCurr.forUser = currUserID;
+      newConvCurr.messages.push(msg._id);
 
-      await newConv.save();
+      await newConvCurr.save();
+    }
+
+    if (convRec) {
+      convRec.messages.push(msg._id);
+      await convRec.save();
+    } else {
+      let newConvRec = new Conversation();
+      newConvRec.sendUser = currUserID;
+      newConvRec.recUser = chatUserID;
+      newConvRec.messages = [];
+      newConvRec.forUser = chatUserID;
+      newConvRec.messages.push(msg._id);
+
+      await newConvRec.save();
     }
 
     res.status(200).send({
@@ -935,4 +981,59 @@ module.exports.sendMsg = async (req, res) => {
       msg: error,
     });
   }
+};
+
+module.exports.clearChats = async (req, res) => {
+  // try {
+  let { currUserID, chatUserID } = req.params;
+
+  let convCurr = await Conversation.findOne({
+    $or: [
+      { sendUser: currUserID, recUser: chatUserID, forUser: currUserID },
+      { sendUser: chatUserID, recUser: currUserID, forUser: currUserID },
+    ],
+  });
+
+  let convRec = await Conversation.findOne({
+    $or: [
+      { sendUser: currUserID, recUser: chatUserID, forUser: chatUserID },
+      { sendUser: chatUserID, recUser: currUserID, forUser: chatUserID },
+    ],
+  });
+
+  if (convRec) {
+    convCurr.messages.forEach(async (msg) => {
+      if (!convRec.messages.includes(msg)) {
+        //remove that msg from convCurr and convRec and also delete a msg
+        convRec.messages = convRec.messages.filter(
+          (element) => element !== msg
+        );
+        convCurr.messages = convCurr.messages.filter(
+          (element) => element !== msg
+        );
+
+        await Message.findByIdAndDelete(msg);
+      }
+    });
+
+    await convRec.save();
+  } else if (convCurr) {
+    convCurr.messages.forEach(async (msg) => {
+      await Message.findByIdAndDelete(msg);
+    });
+  }
+
+  // convCurr.messages.length = 0;
+  // await convCurr.save();
+  await Conversation.findByIdAndDelete(convCurr?._id);
+
+  res.status(200).send({
+    success: true,
+  });
+  // } catch (e) {
+  //   res.status(200).send({
+  //     success: false,
+  //     error: true,
+  //   });
+  // }
 };

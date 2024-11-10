@@ -7,7 +7,7 @@ import DefaultChatArea from "./DefaultChatArea";
 import axios from "axios";
 import SendMsg from "./Messages/SendMsg";
 import RecMsg from "./Messages/RecMsg";
-import { flashError } from "../helpers/flashMsgProvider";
+import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
 import { io } from "socket.io-client";
 import { logoutUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
@@ -28,7 +28,7 @@ function ChattingArea({
   // const chatContainerRef = useRef();
   const lastMessageRef = useRef();
 
-  let [loading, setLoadind] = useState(false);
+  let [loading, setLoading] = useState(false);
   let [allmsgs, setAllmsgs] = useState();
   let [currentEvent, setCurrentevent] = useState(
     chatContent?.chatUser.is_online ? "Online" : "Offline"
@@ -37,6 +37,11 @@ function ChattingArea({
   const [isTyping, setIsTyping] = useState(false);
   const [imgToSend, setImgToSend] = useState("");
   const [vidToSend, setVidTosend] = useState("");
+
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [wait, setWait] = useState(false);
+  const [sentMsgsShown, setSentMsgsShown] = useState(false);
+  const [recMsgsShown, setRecMsgsShown] = useState(false);
 
   function isEmptyObject(obj) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
@@ -131,7 +136,7 @@ function ChattingArea({
       dataToSend.append("msgToSend", msgToSend);
       // dataToSend.append("convID", convID);
 
-      setLoadind(true);
+      setLoading(true);
 
       let res = await axios.post(url, dataToSend, {
         withCredentials: true,
@@ -140,7 +145,7 @@ function ChattingArea({
         },
       });
 
-      setLoadind(false);
+      setLoading(false);
       if (res.data.success) {
         setTriggerMsgSent((p) => !p);
         socketRef.current.emit("sendMsg", {
@@ -165,6 +170,87 @@ function ChattingArea({
     }
   }
 
+  const closeOptions = () => {
+    if (!wait) {
+      document.getElementById("options").classList.add("hidden");
+      setIsOptionsOpen(false);
+    }
+  };
+
+  const showOnlySentMsgs = () => {
+    // Convert HTMLCollection to an array
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.add("hidden");
+    });
+    setSentMsgsShown(true);
+    setRecMsgsShown(false);
+    let sentMsgs = Array.from(document.getElementsByClassName("sendMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
+
+  const showOnlyRecMsgs = () => {
+    // Convert HTMLCollection to an array
+    let sentMsgs = Array.from(document.getElementsByClassName("sendMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.add("hidden");
+    });
+    setRecMsgsShown(true);
+    setSentMsgsShown(false);
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
+
+  const clearChat = async () => {
+    let msgArea = document.getElementById("msgArea");
+    let url = `${import.meta.env.VITE_API_BACKEND_URL}clearChats/${
+      currUser._id
+    }/${chatUser._id}`;
+
+    setWait(true);
+
+    let res = await axios.get(url, {
+      withCredentials: true,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    });
+
+    if (res.data.success) {
+      flashSuccess("Cleared Chats");
+      msgArea.innerHTML = ``;
+    } else flashError("Some thing went wrong...");
+
+    setWait(false);
+
+    closeOptions();
+  };
+
+  const showAll = () => {
+    setSentMsgsShown(false);
+    setRecMsgsShown(false);
+
+    let sentMsgs = Array.from(document.getElementsByClassName("sentMsg"));
+    sentMsgs.forEach((sentMsg) => {
+      sentMsg.classList.remove("hidden");
+    });
+
+    let recMsgs = Array.from(document.getElementsByClassName("recMsg"));
+    recMsgs.forEach((recMsg) => {
+      recMsg.classList.remove("hidden");
+    });
+
+    closeOptions();
+  };
+
   return (
     <>
       {/* <div>
@@ -180,125 +266,195 @@ function ChattingArea({
     </div> */}
 
       {chatUser ? (
-        <div className="w-full h-full rounded-xl flex flex-col justify-between">
-          <div className="top w-full h-[13%] max-md:h-[11%] bg-green-100 rounded-t-xl shadow-xl flex justify-between items-center p-2">
-            <div className="leftHeader flex items-center space-x-2">
-              <i
-                onClick={() => closeChat()}
-                className=" fa-solid fa-arrow-left hidden max-md:block max-md:text-xl text-3xl cursor-pointer"
-              ></i>
-              <div className="relative">
-                <img
-                  src={chatUser.image.url}
-                  className="rounded-3xl w-12 max-md:w-10 m-2 shadow-xl cursor-pointer"
-                  alt=""
-                  onClick={() => enlarge(chatUser.image.url)}
-                />{" "}
-                <div
-                  className={`absolute top-3 left-1.5 w-3 h-3 ${
-                    currentEvent !== "Offline" ? "bg-green-500" : "bg-slate-400"
-                  }  border-2 border-white rounded-full`}
-                ></div>
+        <>
+          {chatContent && isOptionsOpen ? (
+            <>
+              <div
+                onClick={closeOptions}
+                className="overlay absolute z-40 top-0 w-screen h-screen left-0 bg-black opacity-0"
+              ></div>
+            </>
+          ) : (
+            <></>
+          )}
+          <div className="w-full h-full rounded-xl flex flex-col justify-between">
+            {/* chat user name sec */}
+            <div className="top w-full h-[13%] max-md:h-[11%] bg-green-100 rounded-t-xl shadow-xl flex justify-between items-center p-2">
+              <div className="leftHeader flex items-center space-x-2">
+                <i
+                  onClick={() => closeChat()}
+                  className=" fa-solid fa-arrow-left hidden max-md:block max-md:text-xl text-3xl cursor-pointer"
+                ></i>
+                <div className="relative">
+                  <img
+                    src={chatUser.image.url}
+                    className="rounded-3xl w-12 max-md:w-10 m-2 shadow-xl cursor-pointer"
+                    alt=""
+                    onClick={() => enlarge(chatUser.image.url)}
+                  />{" "}
+                  <div
+                    className={`absolute top-3 left-1.5 w-3 h-3 ${
+                      currentEvent !== "Offline"
+                        ? "bg-green-500"
+                        : "bg-slate-400"
+                    }  border-2 border-white rounded-full`}
+                  ></div>
+                </div>
+
+                <div className="cursor-pointer flex flex-col justify-center -space-y-1 h-10">
+                  <p className="font-bold text-[17px]">{chatUser.username}</p>
+
+                  {currentEvent === "Offline" ? (
+                    <>
+                      <p className="text-sm">
+                        Offline - {formatDateToTime(lastSeen)}
+                        {/* {chatContent?.conv &&
+                      formatDateToTime(chatContent?.conv.updatedAt)} */}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-blue-700 font-bold" id="online">
+                      {isTyping ? "typing..." : "Online"}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="cursor-pointer flex flex-col justify-center -space-y-1 h-10">
-                <p className="font-bold text-[17px]">{chatUser.username}</p>
+              {/* three dots icon for option */}
+              <div
+                className="w-6 flex justify-center cursor-pointer"
+                onClick={() => {
+                  setIsOptionsOpen(true);
+                  document.getElementById("options").classList.toggle("hidden");
+                }}
+              >
+                <i className="fa-solid fa-ellipsis-vertical"></i>
+              </div>
+              {/* options div */}
+              <div
+                id="options"
+                className="hidden absolute top-12 right-3 md:top-[9rem] md:right-[2rem] lg:right-[5rem] xl:right-[9rem] p-2 z-50 bg-white border-black rounded-md border-[1px] shadow-md"
+              >
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                  onClick={() => closeChatWindow()}
+                >
+                  close Chat Window
+                </p>
 
-                {currentEvent === "Offline" ? (
-                  <>
-                    <p className="text-sm">
-                      Offline - {formatDateToTime(lastSeen)}
-                      {/* {chatContent?.conv &&
-                      formatDateToTime(chatContent?.conv.updatedAt)} */}
-                    </p>
-                  </>
+                <p
+                  className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                  onClick={clearChat}
+                >
+                  Clear Chats
+                </p>
+
+                {sentMsgsShown ? (
+                  <p
+                    className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                    onClick={showAll}
+                  >
+                    Show All
+                  </p>
                 ) : (
-                  <p className="text-blue-700 font-bold" id="online">
-                    {isTyping ? "typing..." : "Online"}
+                  <p
+                    className="cursor-pointer hover:text-blue-600 font-semibold mb-1"
+                    onClick={showOnlySentMsgs}
+                  >
+                    Show Only Sent Msgs
+                  </p>
+                )}
+
+                {recMsgsShown ? (
+                  <p
+                    className="cursor-pointer hover:text-blue-600 font-semibold"
+                    onClick={showAll}
+                  >
+                    Show All
+                  </p>
+                ) : (
+                  <p
+                    className="cursor-pointer hover:text-blue-600 font-semibold"
+                    onClick={showOnlyRecMsgs}
+                  >
+                    Show Only Receive Msgs
                   </p>
                 )}
               </div>
             </div>
             <div
-              onClick={() => closeChatWindow()}
-              className="hover:text-red-500 hover:scale-105 font-bold cursor-pointer min-md:hidden flex justify-center w-fit items-center "
+              id="msgArea"
+              className="msgsArea scrollbar-hide w-full h-full overflow-auto pb-5 bg-gray-100 "
             >
-              <img
-                src="https://png.pngtree.com/png-clipart/20230804/original/pngtree-red-cross-icon-close-button-x-vector-picture-image_9578889.png"
-                alt=""
-                className="w-[70px]"
-              />
+              {/* {console.log(allmsgs)} */}
+              {allmsgs?.map((msg, index) => {
+                const isLastMsg = index === allmsgs.length - 1;
+                return msg.sentByUserId === currUser._id ? (
+                  <SendMsg
+                    key={msg._id}
+                    msg={msg}
+                    formatDateToTime={formatDateToTime}
+                    ref={isLastMsg ? lastMessageRef : null}
+                  />
+                ) : (
+                  <RecMsg
+                    key={msg._id}
+                    msg={msg}
+                    formatDateToTime={formatDateToTime}
+                    ref={isLastMsg ? lastMessageRef : null}
+                  />
+                );
+              })}
             </div>
-          </div>
-          <div className="msgsArea scrollbar-hide w-full h-full overflow-auto pb-5 bg-gray-100 ">
-            {/* {console.log(allmsgs)} */}
-            {allmsgs?.map((msg, index) => {
-              const isLastMsg = index === allmsgs.length - 1;
-              return msg.sentByUserId === currUser._id ? (
-                <SendMsg
-                  key={msg._id}
-                  msg={msg}
-                  formatDateToTime={formatDateToTime}
-                  ref={isLastMsg ? lastMessageRef : null}
-                />
-              ) : (
-                <RecMsg
-                  key={msg._id}
-                  msg={msg}
-                  formatDateToTime={formatDateToTime}
-                  ref={isLastMsg ? lastMessageRef : null}
-                />
-              );
-            })}
-          </div>
-          <div className="bottom flex w-full h-[8%] rounded-b-xl shadow-xl bg-gray-100">
-            <input
-              type="text"
-              disabled={loading}
-              value={msgToSend}
-              onKeyDown={() => {
-                if (currUser._id !== chatUser._id)
-                  socketRef.current.emit("typing", {
-                    chatUser: chatUser?._id,
-                    currUser: currUser._id,
-                  });
-              }}
-              onChange={(e) => setMsgToSend(e.target.value)}
-              onKeyUp={(e) => {
-                if (e.key == "Enter") {
-                  sendMsg();
-                  socketRef.current.emit("notTyping", {
-                    user_id: chatUser?._id,
-                  });
-                } else {
+            <div className="bottom flex w-full h-[8%] rounded-b-xl shadow-xl bg-gray-100">
+              <input
+                type="text"
+                disabled={loading}
+                value={msgToSend}
+                onKeyDown={() => {
                   if (currUser._id !== chatUser._id)
-                    setTimeout(() => {
-                      socketRef.current.emit("notTyping", {
-                        chatUser: chatUser?._id,
-                        currUser: currUser._id,
-                      });
-                    }, 1500);
-                }
-              }}
-              name=""
-              id=""
-              placeholder="Enter a message >>>"
-              className="p-2 rounded-md rounded-r-none border-r-0 border-blue-600 border-[1.6px] focus:outline-blue-600 focus:outline-1 w-[80%] 
+                    socketRef.current.emit("typing", {
+                      chatUser: chatUser?._id,
+                      currUser: currUser._id,
+                    });
+                }}
+                onChange={(e) => setMsgToSend(e.target.value)}
+                onKeyUp={(e) => {
+                  if (e.key == "Enter") {
+                    sendMsg();
+                    socketRef.current.emit("notTyping", {
+                      user_id: chatUser?._id,
+                    });
+                  } else {
+                    if (currUser._id !== chatUser._id)
+                      setTimeout(() => {
+                        socketRef.current.emit("notTyping", {
+                          chatUser: chatUser?._id,
+                          currUser: currUser._id,
+                        });
+                      }, 1500);
+                  }
+                }}
+                name=""
+                id=""
+                placeholder="Enter a message >>>"
+                className="p-2 rounded-md rounded-r-none border-r-0 border-blue-600 border-[1.6px] focus:outline-blue-600 focus:outline-1 w-[80%] 
             sm:w-[82%] min-[425px]:!w-[88%] md:!w-[92%]  h-full"
-            />
-            {/* <button className="border-[1.6px] border-blue-600  h-full rounded-xl">send</button> */}
-            <div
-              onClick={() => (!loading ? sendMsg() : null)}
-              className={`flex-grow border-2 rounded-r-md rounded-l-none ${
-                loading
-                  ? `hover:!bg-white hover:!border-blue-600 hover:text-black hover:shadow-none`
-                  : `hover:!bg-blue-600 hover:border-white hover:shadow-xl hover:text-white`
-              } bg-white border-blue-600 flex justify-center items-center rounded-xl cursor-pointer `}
-            >
-              <i className="fa-regular fa-paper-plane text-2xl mx-auto"></i>
+              />
+              {/* <button className="border-[1.6px] border-blue-600  h-full rounded-xl">send</button> */}
+              <div
+                onClick={() => (!loading ? sendMsg() : null)}
+                className={`flex-grow border-2 rounded-r-md rounded-l-none ${
+                  loading
+                    ? `hover:!bg-white hover:!border-blue-600 hover:text-black hover:shadow-none`
+                    : `hover:!bg-blue-600 hover:border-white hover:shadow-xl hover:text-white`
+                } bg-white border-blue-600 flex justify-center items-center rounded-xl cursor-pointer `}
+              >
+                <i className="fa-regular fa-paper-plane text-2xl mx-auto"></i>
+              </div>
             </div>
-          </div>
-        </div>
+          </div>{" "}
+        </>
       ) : (
         <>
           <DefaultChatArea />

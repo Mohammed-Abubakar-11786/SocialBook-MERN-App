@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema(
   {
+    forUser: { type: Schema.Types.ObjectId, ref: "User" },
     sendUser: {
       type: Schema.Types.ObjectId,
       ref: "User",

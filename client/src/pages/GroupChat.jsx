@@ -610,13 +610,9 @@ const GroupChat = () => {
               {" "}
               All Online Users
             </h3>
-            {/* <p
-              
-            >
-              Clear Chats
-            </p> */}
+            {/* three dots icon for option */}
             <div
-              className="w-6 flex justify-center  cursor-pointer"
+              className="w-6 flex justify-center cursor-pointer"
               onClick={() => {
                 setIsOptionsOpen(true);
                 document.getElementById("options").classList.toggle("hidden");
@@ -624,6 +620,7 @@ const GroupChat = () => {
             >
               <i className="fa-solid fa-ellipsis-vertical"></i>
             </div>
+            {/* options div */}
             <div
               id="options"
               className="hidden absolute p-2 top-64 min-[389px]:top-[226px] right-14 md:right-[83px]  z-50 bg-white border-black rounded-md border-[1px] shadow-md"
@@ -732,7 +729,7 @@ const GroupChat = () => {
             )}
           </div>
           <div className="outerTypeMsg bg-cyan-100 border border-black rounded-2xl p-2 mt-2">
-            <form className="typeMsg flex">
+            <form onSubmit={handleSendMessage} className="typeMsg flex">
               <input
                 type="text"
                 disabled={beingSent}

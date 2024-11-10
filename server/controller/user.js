@@ -383,7 +383,10 @@ module.exports.getSortedUsers = async (req, res) => {
 
     // Fetch all conversations involving the current user
     let conversations = await Conversation.find({
-      $or: [{ sendUser: currUserID }, { recUser: currUserID }],
+      $or: [
+        { sendUser: currUserID, forUser: currUserID },
+        { recUser: currUserID, forUser: currUserID },
+      ],
     }).populate("sendUser recUser messages");
 
     // Map conversations to users

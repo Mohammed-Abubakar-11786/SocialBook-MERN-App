@@ -38,4 +38,8 @@ router
 router
   .route("/sendMsg/:currUserID/:chatUserID")
   .post(isLoggedIn, msgController.sendMsg);
+
+router
+  .route("/clearChats/:currUserID/:chatUserID")
+  .get(isLoggedIn, msgController.clearChats);
 module.exports = router;
