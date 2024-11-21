@@ -896,6 +896,8 @@ module.exports.sendMsg = async (req, res) => {
     let { currUserID, chatUserID } = req.params;
     let { msgToSend } = req.body;
 
+    let currUserName = await User.findById(currUserID).username;
+
     // let chatUser = await User.findById(chatUserID);
     let convCurr = await Conversation.findOne({
       $or: [
@@ -939,6 +941,7 @@ module.exports.sendMsg = async (req, res) => {
     let msg = new Message();
     msg.msg = msgToSend;
     msg.sentByUserId = currUserID;
+    msg.sentByUserName = currUserName;
 
     await msg.save();
 

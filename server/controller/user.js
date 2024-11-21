@@ -8,6 +8,8 @@ const jwt = require("jsonwebtoken");
 const getUserDetailsFromToken = require("../helper/getUserDetailsFromToken.js");
 const e = require("connect-flash");
 const sessionStore = require("connect-mongo"); // or your session store
+const GroupChats = require("../models/groupChat.js");
+const Message = require("../models/message.js");
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -329,38 +331,173 @@ module.exports.renderForgetPassForm = async (req, res) => {
   }
 };
 
-module.exports.renderNewPassForm = async (req, res) => {
-  let { username, email } = req.params;
-  const allUsers = await User.find({});
-  for (usr of allUsers) {
-    if (usr.username === username && usr.email === email) {
-      targetUser = usr;
+module.exports.genrateOtp = async (req, res) => {
+  try {
+    let { username, email } = req.params;
+    const usr = await User.findOne({ username: username, email: email });
+
+    if (usr) {
+      let userEmail = email;
+
+      let config = {
+        service: "gmail",
+        auth: {
+          user: "mohdabubakar.11786@gmail.com",
+          pass: "ojwiwwuvileirkbq",
+        },
+      };
+
+      let sendOTP = Math.floor(1000 + Math.random() * 9000);
+      const transporter = nodemailer.createTransport(config);
+      let message = {
+        from: "mohdabubakar.11786@gmail.com", // sender address
+        to: userEmail, // list of receivers
+        subject: "OTP From 🌐SocialBook", // Subject line
+        text: `Your OTP(One Time Password) To Reset your 🌐SocialBook Account Password is:${sendOTP}`, // plain text body
+        html: `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>OTP Confirmation</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+            }
+        
+            .container {
+              max-width: 600px;
+              margin: 20px auto;
+              background-color: #ffffff;
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        
+            h2 {
+              color: #333333;
+            }
+        
+            p {
+              color: #555555;
+            }
+        
+            .otp {
+              font-size: 24px;
+              font-weight: bold;
+              color: #007bff;
+            }
+        
+            .footer {
+              margin-top: 20px;
+              text-align: center;
+              color: #777777;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>OTP Confirmation</h2>
+            <p>Your One-Time Password (OTP) is:</p>
+            <p class="otp">${sendOTP}</p>
+            <div class="footer">
+              <p>If you didn't request this OTP, please ignore this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+        `, // html body
+      };
+
+      try {
+        await transporter.sendMail(message);
+        isOTPsent = true;
+      } catch (error) {
+        console.error("Error sending email:", error);
+        isOTPsent = false;
+        res.status(200).send({
+          success: false,
+          isOTPsent: false,
+          error: true,
+        });
+      }
+
+      if (isOTPsent) {
+        res.status(200).send({
+          success: true,
+          isOTPsent: true,
+          otp: sendOTP,
+        });
+      }
+    } else {
+      res.status(200).send({
+        success: false,
+        isOTPsent: false,
+        userNotExist: true,
+      });
     }
+  } catch (error) {
+    res.status(200).send({
+      success: false,
+      error: true,
+    });
   }
-  res.render("users/enterNEWPassForm.ejs", { username, email, targetUser });
+};
+
+module.exports.verifyOtp = async (req, res) => {
+  try {
+    let { otp } = req.body;
+    console.log(otp + " " + sendOTP);
+
+    if (otp === sendOTP) {
+      res.status(200).send({
+        success: true,
+        otpMached: true,
+      });
+    } else {
+      res.status(200).send({
+        success: true,
+        otpMached: false,
+      });
+    }
+  } catch (error) {
+    res.status(200).send({
+      success: false,
+      error: true,
+      msg: error.message,
+    });
+  }
 };
 
 module.exports.updatePassWord = async (req, res) => {
-  let { username, email, password } = req.body;
-  let targetUser = {};
-  const allUsers = await User.find({});
-  for (usr of allUsers) {
-    if (usr.username === username && usr.email === email) {
-      targetUser = usr;
+  try {
+    let { username, email, password } = req.body;
+    const usr = await User.findOne({ username, email });
+    if (usr) {
+      usr.setPassword(password, async () => {
+        // Save the user with the new password
+        await usr.save();
+
+        res.status(200).send({
+          success: true,
+        });
+      });
+    } else {
+      res.status(200).send({
+        success: false,
+        userNotExist: true,
+      });
     }
+  } catch (error) {
+    res.status(200).send({
+      success: false,
+      error: true,
+      msg: error.message,
+    });
   }
-
-  targetUser.setPassword(password, async () => {
-    // Save the user with the new password
-    await targetUser.save();
-
-    // Redirect or respond as needed
-    req.flash(
-      "success",
-      "Password updated successfully 🎉🎉🎉, Now Login With New Password !!!"
-    );
-    res.redirect("/"); // Redirect to the desired location
-  });
 };
 
 function showAndHide(element) {
@@ -376,72 +513,101 @@ function showAndHide(element) {
 }
 
 module.exports.getSortedUsers = async (req, res) => {
-  try {
-    let { currUserID } = req.params;
+  // try {
+  let { currUserID } = req.params;
 
-    let users = await User.find();
+  let users = await User.find();
 
-    // Fetch all conversations involving the current user
-    let conversations = await Conversation.find({
-      $or: [
-        { sendUser: currUserID, forUser: currUserID },
-        { recUser: currUserID, forUser: currUserID },
-      ],
-    }).populate("sendUser recUser messages");
+  // Fetch all conversations involving the current user
+  let conversations = await Conversation.find({
+    $or: [
+      { sendUser: currUserID, forUser: currUserID },
+      { recUser: currUserID, forUser: currUserID },
+    ],
+  }).populate("sendUser recUser messages");
 
-    // Map conversations to users
-    let userConversations = conversations.reduce((acc, conv) => {
-      let otherUser =
-        conv.sendUser?._id.toString() === currUserID
-          ? conv.recUser
-          : conv.sendUser;
+  // Map conversations to users
+  let userConversations = conversations.reduce((acc, conv) => {
+    let otherUser =
+      conv.sendUser?._id.toString() === currUserID
+        ? conv.recUser
+        : conv.sendUser;
 
-      // console.log("otherUser._id " + otherUser._id);
-      // console.log("otherUser.username " + otherUser.username);
+    // console.log("otherUser._id " + otherUser._id);
+    // console.log("otherUser.username " + otherUser.username);
 
-      acc[otherUser?._id] = {
-        user: otherUser,
-        conv,
-      };
-      return acc;
-    }, {});
+    acc[otherUser?._id] = {
+      user: otherUser,
+      conv,
+    };
+    return acc;
+  }, {});
 
-    // Sort users based on the last updated conversation
-    let sortedUsers = users.map((user) => {
-      let convData = userConversations[user?._id];
+  // Sort users based on the last updated conversation
+  let sortedUsers = users.map((user) => {
+    let convData = userConversations[user?._id];
+
+    if (convData && convData.conv.messages.length > 0) {
       return {
         user,
         conv: convData ? convData.conv : null,
       };
-    });
+    } else {
+      return {
+        user,
+        conv: null,
+      };
+    }
+  });
 
-    sortedUsers.sort((a, b) => {
-      if (!a.conv && !b.conv) return 0;
-      if (!a.conv) return 1;
-      if (!b.conv) return -1;
-      return new Date(b.conv.updatedAt) - new Date(a.conv.updatedAt);
-    });
+  let myGroup = await GroupChats.find({
+    grpUsers: { $in: [currUserID] },
+  }).populate("grpUsers messages"); // Populate grpUsers field
+  // .populate({
+  //   path: "messages", // Populate the messages array
+  //   populate: {
+  //     path: "sentByUserId", // Populate sentByUserId in each message
+  //   },
+  // });
 
-    let cuser = sortedUsers.filter(
-      (usr) => usr.user._id.toString() === currUserID
-    );
-    // console.log("cuser = " + cuser);
-    let otherthanCuser = sortedUsers.filter(
-      (usr) => usr.user._id.toString() !== currUserID
-    );
+  // console.log(myGroup);
 
-    sortedUsers = [...cuser, ...otherthanCuser];
-
-    // console.log(sortedUsers);
-
-    res.status(200).send({
-      success: true,
-      sortedUsers,
-    });
-  } catch (error) {
-    res.status(200).send({
-      error: true,
-      msg: error.message,
-    });
+  if (myGroup.length > 0) {
+    myGroup = myGroup.reduce((acc, grp) => {
+      acc = {
+        conv: grp,
+      };
+      sortedUsers.push(acc);
+      return acc;
+    }, {});
   }
+
+  sortedUsers.sort((a, b) => {
+    if (!a.conv && !b.conv) return 0;
+    if (!a.conv) return 1;
+    if (!b.conv) return -1;
+    return new Date(b.conv.updatedAt) - new Date(a.conv.updatedAt);
+  });
+
+  let cuser = sortedUsers.filter((usr) => {
+    if (!usr.conv?.isGroup) return usr.user?._id.toString() === currUserID;
+  });
+  // console.log("cuser = " + cuser);
+  let otherthanCuser = sortedUsers.filter((usr) => {
+    if (!usr.conv?.isGroup) return usr.user?._id.toString() !== currUserID;
+    else return true;
+  });
+
+  sortedUsers = [...cuser, ...otherthanCuser];
+
+  res.status(200).send({
+    success: true,
+    sortedUsers,
+  });
+  // } catch (error) {
+  //   res.status(200).send({
+  //     error: true,
+  //     msg: error.message,
+  //   });
+  // }
 };

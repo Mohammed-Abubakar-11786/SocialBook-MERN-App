@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 // import React from 'react'
 import { useEffect, useRef, useState } from "react";
-import abuBakarPhoto from "../assets/abu bakar 50kb photo.jpg";
 
 import DefaultChatArea from "./DefaultChatArea";
 import axios from "axios";
@@ -238,7 +237,7 @@ function ChattingArea({
     setSentMsgsShown(false);
     setRecMsgsShown(false);
 
-    let sentMsgs = Array.from(document.getElementsByClassName("sentMsg"));
+    let sentMsgs = Array.from(document.getElementsByClassName("sendMsg"));
     sentMsgs.forEach((sentMsg) => {
       sentMsg.classList.remove("hidden");
     });
@@ -283,7 +282,7 @@ function ChattingArea({
               <div className="leftHeader flex items-center space-x-2">
                 <i
                   onClick={() => closeChat()}
-                  className=" fa-solid fa-arrow-left hidden max-md:block max-md:text-xl text-3xl cursor-pointer"
+                  className=" fa-solid fa-arrow-left hidden max-[1026px]:block max-md:text-xl text-3xl cursor-pointer"
                 ></i>
                 <div className="relative">
                   <img
@@ -437,18 +436,16 @@ function ChattingArea({
                 }}
                 name=""
                 id=""
-                placeholder="Enter a message >>>"
-                className="p-2 rounded-md rounded-r-none border-r-0 border-blue-600 border-[1.6px] focus:outline-blue-600 focus:outline-1 w-[80%] 
+                placeholder="Enter a message"
+                className="p-2 rounded-md rounded-r-none border-r-0 focus:outline-none w-[80%] 
             sm:w-[82%] min-[425px]:!w-[88%] md:!w-[92%]  h-full"
               />
               {/* <button className="border-[1.6px] border-blue-600  h-full rounded-xl">send</button> */}
               <div
                 onClick={() => (!loading ? sendMsg() : null)}
                 className={`flex-grow border-2 rounded-r-md rounded-l-none ${
-                  loading
-                    ? `hover:!bg-white hover:!border-blue-600 hover:text-black hover:shadow-none`
-                    : `hover:!bg-blue-600 hover:border-white hover:shadow-xl hover:text-white`
-                } bg-white border-blue-600 flex justify-center items-center rounded-xl cursor-pointer `}
+                  loading ? `bg-blue-500` : `bg-white`
+                } bg-white flex justify-center items-center rounded-xl cursor-pointer `}
               >
                 <i className="fa-regular fa-paper-plane text-2xl mx-auto"></i>
               </div>

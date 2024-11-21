@@ -39,10 +39,9 @@ router.post(
   userController.renderForgetPassForm
 );
 
-router.get(
-  "/enterNewPassForm/:username/:email",
-  userController.renderNewPassForm
-);
+router.get("/genrateOtp/:username/:email", userController.genrateOtp);
+
+router.post("/verifyOtp", userController.verifyOtp);
 
 router.post("/updatePassWord", userController.updatePassWord);
 

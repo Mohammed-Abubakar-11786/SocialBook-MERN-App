@@ -25,6 +25,7 @@ const storyRouter = require("./routes/story.js");
 const msgRouter = require("./routes/message.js");
 const grpMsgsRouter = require("./routes/GroupMsg.js");
 const adminRouter = require("./routes/admin.js");
+const groupChatsRouter = require("./routes/groupChat.js");
 
 const { Server } = require("socket.io");
 app.use(
@@ -121,6 +122,29 @@ const io = new Server(http, {
 let usp = io.of("/user_namespace");
 let csk = io.of("/chat_namespace");
 let grp = io.of("/groupChatNameSpace");
+let grpChat = io.of("/grpChatNameSpace");
+
+grpChat.on("connection", async (socket) => {
+  let currUser;
+  let toGroup;
+  socket.on("grpUserOnline", async (data) => {
+    currUser = data.currUser;
+    toGroup = data.toGroup;
+    socket.broadcast.emit("setGrpUserOnline", data);
+  });
+
+  socket.on("sendMsg", (data) => {
+    socket.broadcast.emit("receiveMsg", data);
+  });
+
+  socket.on("typing", (data) => {
+    socket.broadcast.emit("setTyping", data);
+  });
+
+  socket.on("disconnect", async () => {
+    socket.broadcast.emit("setGrpUserOffline", { currUser, toGroup });
+  });
+});
 
 csk.on("connection", async (socket) => {
   let currUserID = socket.handshake.auth.token;
@@ -305,6 +329,7 @@ app.use("/", postsRouter);
 app.use("/", storyRouter);
 app.use("/", msgRouter);
 app.use("/", grpMsgsRouter);
+app.use("/", groupChatsRouter);
 app.use("/", adminRouter);
 
 app.get("*", (req, res) => {

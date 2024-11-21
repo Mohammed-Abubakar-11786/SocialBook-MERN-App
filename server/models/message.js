@@ -22,6 +22,9 @@ const msgSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    sentByUserName: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

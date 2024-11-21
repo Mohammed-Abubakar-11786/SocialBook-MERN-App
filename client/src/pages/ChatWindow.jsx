@@ -6,9 +6,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import ChattingArea from "../components/ChattingArea";
 import Loading from "../components/Loading";
 import axios from "axios";
-import { flashError } from "../helpers/flashMsgProvider";
+import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
 import { logoutUser, setUsersData } from "../redux/userSlice";
 import { io } from "socket.io-client";
+import GroupDetails from "../components/GroupDetails";
+import GroupChattingArea from "../components/GroupChattingArea";
+import GroupInfo from "../components/GroupInfo";
 
 function ChatWindow() {
   const dispatch = useDispatch();
@@ -16,11 +19,17 @@ function ChatWindow() {
 
   const [chatContent, setChatContent] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
   const [triggerMsgSent, setTriggerMsgSent] = useState(false);
   const [triggerMsgRec, setTriggerMsgRec] = useState(false);
   const [lastSeenUpdated, setLastSeenUpdated] = useState(false);
 
-  // const [users, setUsers] = useState({});
+  const [openUserSelect, setOpenUserSelect] = useState(false);
+  const [allowGroupEdit, setGroupEdit] = useState(false);
+  const [showGrpInfo, setShowGrpInfo] = useState(false);
+  let [newGroupDetails, setNewGroupDetails] = useState(null);
+  const [isGrpChatContntAvl, setIsGrpChatContntAvl] = useState(false);
+  const [groupChattingContentID, setGroupChattingContentID] = useState({});
 
   const navigate = useNavigate();
   let { userID } = useParams();
@@ -103,7 +112,11 @@ function ChatWindow() {
 
       socketRef.current.on("setTyping", (data) => {
         sortedUsers.forEach((usr) => {
-          if (data.chatUser === currUser._id && data.currUser === usr.user._id)
+          if (
+            usr.user &&
+            data.chatUser === currUser._id &&
+            data.currUser === usr.user._id
+          )
             document.getElementById(
               `${usr.user._id}-toSetTyping`
             ).innerHTML = `<p class = "text-green-600 font-bold">typing...</p>`;
@@ -112,7 +125,11 @@ function ChatWindow() {
 
       socketRef.current.on("setNotTyping", (data) => {
         sortedUsers.forEach((usr) => {
-          if (data.chatUser === currUser._id && data.currUser === usr.user._id)
+          if (
+            usr.user &&
+            data.chatUser === currUser._id &&
+            data.currUser === usr.user._id
+          )
             document.getElementById(`${usr.user._id}-toSetTyping`).innerText =
               usr.conv?.messages[usr.conv?.messages.length - 1].msg !==
               undefined
@@ -179,7 +196,6 @@ function ChatWindow() {
       let url = `${import.meta.env.VITE_API_BACKEND_URL}getSortedUsers/${
         currUser?._id
       }`;
-
       let res = await axios.get(url, {
         withCredentials: true,
         headers: {
@@ -187,7 +203,7 @@ function ChatWindow() {
         },
       });
       // console.log(res);
-
+      setUserLoading(false);
       if (res.data.success) setSortedUsers(res.data.sortedUsers);
       else if (res.data.notLogin) {
         dispatch(logoutUser());
@@ -267,6 +283,8 @@ function ChatWindow() {
       right.classList.remove("z-10");
       left.classList.remove("z-0");
     }
+
+    setIsGrpChatContntAvl(false);
   }
 
   function enlarge(img) {
@@ -288,6 +306,7 @@ function ChatWindow() {
       previewImg.src = "";
     }
   }
+
   function openChatArea(userID) {
     openChat();
     navigate(`/chatTo/${userID}`);
@@ -322,6 +341,67 @@ function ChatWindow() {
     navigate("/");
   }
 
+  let toggleSelectGroupUsers = () => {
+    setOpenUserSelect((p) => !p);
+    // console.log(openUserSelect); //here the statment writen above to change, and in this line we are trying to use value which is same as previosly before changing
+
+    if (!openUserSelect) {
+      let allUsers = document.getElementsByClassName("newGrpUser");
+      Array.from(allUsers).forEach((user) => {
+        user.checked = false;
+      });
+      flashSuccess("Select the users to add in group");
+    }
+  };
+
+  let createGroup = async () => {
+    let allUsers = document.getElementsByClassName("newGrpUser");
+    let selectedUsers = [];
+    Array.from(allUsers).forEach((user) => {
+      if (user.checked) {
+        selectedUsers.push(user.id.split("-")[1]);
+      }
+    });
+    let url = `${import.meta.env.VITE_API_BACKEND_URL}saveNewGroupUsers/${
+      currUser._id
+    }`;
+
+    setLoading(true);
+    let res = await axios.post(
+      url,
+      { selectedUsers },
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      }
+    );
+
+    setLoading(false);
+    if (res.data.success) {
+      flashSuccess("Group created successfully.");
+      toggleSelectGroupUsers();
+      setNewGroupDetails(res.data.NewGrp);
+      setIsGrpChatContntAvl(false);
+      setShowGrpInfo(false);
+      setGroupEdit(true);
+      openChat(); // on mobiles to view right area
+    } else if (res.data.notLogin) {
+      flashError("Login First to Create a Group");
+      dispatch(logoutUser);
+    } else if (res.data.error) {
+      flashError("Error" + res.data.msg);
+      toggleSelectGroupUsers();
+    }
+  };
+
+  let allUsers = [];
+  sortedUsers.map((user) => {
+    if (!user.conv?.isGroup) {
+      allUsers.push(user.user);
+    }
+  });
   return (
     <>
       <div
@@ -346,80 +426,319 @@ function ChatWindow() {
       </div>
 
       <div className="flex justify-center items-start bg-blue-100 w-screen h-[90vh] !p-2 sm:!px-4 md:!px-8 lg:!px-16 xl:!px-28 2xl:!px-32 overflow-x-auto">
+        {/* left section */}
         <div
           id="leftSection"
-          className="scrollbar-hide leftSection overflow-y-auto mt-3 max-md:!mt-2 max-md:absolute max-md:z-10 md:!mt-7 max-md:h-[83%] w-[90%] md:w-1/4 h-[90%] bg-white rounded-xl shadow-xl border mr-1 md:bg-green-800 "
+          className="scrollbar-hide leftSection overflow-y-auto mt-3 max-[1026px]:!mt-2 max-[1026px]:absolute max-[1026px]:z-10 min-[1026px]:!mt-7 max-[1026px]:h-[83%] w-[90%] min-[1026px]:w-1/4 h-[90%] bg-white rounded-xl shadow-xl border mr-1 md:bg-green-800 "
         >
           {" "}
-          {/* <button onClick={openChat}>Open Chat</button> */}
-          {sortedUsers?.map((user) => {
-            const isOnline = user.user.is_online; // Replace this with your logic to determine if the user is online
-            return (
-              <div
-                key={user.user._id}
-                className="chat cursor-pointer flex justify-start space-x-2 items-center hover:bg-green-200 rounded-t-xl shadow-xl w-full h-[14%]"
-              >
-                <div className="relative m-2">
-                  <img
-                    src={user?.user.image?.url}
-                    className="rounded-3xl w-12 shadow-xl cursor-pointer"
-                    alt=""
-                    onClick={() => enlarge(user.user.image.url)}
-                  />
-                  <div
-                    id={`forOnline-${user.user._id}`}
-                    className={`absolute top-0 left-0 w-3 h-3 ${
-                      isOnline ? "bg-green-500" : "bg-slate-400"
-                    } bg-green-500 border-2 border-white rounded-full`}
-                  ></div>
-                </div>
-                <div
-                  className="userDetails -space-y-1 h-full w-full flex flex-col justify-center items-start"
-                  onClick={() => openChatArea(user.user._id)}
-                >
-                  <p className="text-lg font-semibold">
-                    {user.user.username}{" "}
-                    {user.user._id === currUser?._id ? "(You)" : ""}
-                  </p>
-                  <div className="flex justify-between pr-4 w-full">
-                    <p
-                      id={`${user.user._id}-toSetTyping`}
-                      className="text-sm text-gray-700 mr-2 w-[70%] md:max-w-24 h-5 overflow-auto scrollbar-hide"
+          {userLoading ? (
+            <>
+              <Loading />
+            </>
+          ) : (
+            //show all users
+            <>
+              {sortedUsers?.map((user) => {
+                if (user.conv?.isGroup) {
+                  return (
+                    <div
+                      onClick={() => {}}
+                      key={user.conv._id}
+                      className="chat cursor-pointer flex justify-start space-x-2 items-center hover:bg-green-200 rounded-t-xl shadow-xl w-full h-[14%]"
                     >
-                      {user.conv?.messages[user.conv?.messages.length - 1].msg}
-                    </p>
-                    {user.user._id !== currUser?._id ? (
-                      <p className="text-sm text-gray-700">
-                        {user.conv?.updatedAt &&
-                          formatDateToTime(user.conv?.updatedAt)}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
+                      {user.conv?.grpCreationPending ? (
+                        <>
+                          {/* group pending  */}
+                          <div className="relative m-2">
+                            <img
+                              src={user.conv.image.url}
+                              className="rounded-3xl w-12 shadow-xl cursor-pointer"
+                              alt="ImgAbu"
+                            />
+                          </div>
+                          <div
+                            className="userDetails -space-y-1 h-full w-full flex flex-col justify-center items-start"
+                            onClick={() => {
+                              if (!openUserSelect && !allowGroupEdit) {
+                                setIsGrpChatContntAvl(false);
+                                setGroupEdit(true);
+                                setNewGroupDetails(user.conv);
+                                openChat(); // on mobiles to view right area
+                              } else if (allowGroupEdit)
+                                flashError(
+                                  "Complete group creation Process first"
+                                );
+                            }}
+                          >
+                            <p className="text-lg font-semibold">New Group</p>
+                            <div className="flex justify-between pr-4 w-full">
+                              <p
+                                // id={`${user.user._id}-toSetTyping`}
+                                className="text-sm text-gray-700 mr-2 w-[70%] md:max-w-24 h-5 overflow-auto scrollbar-hide"
+                              >
+                                {`${user.conv?.grpUsers.length} users`}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="relative m-2">
+                            <img
+                              src={user.conv?.image.url}
+                              className="rounded-3xl w-12 shadow-xl cursor-pointer"
+                              alt="Img"
+                              onClick={() => enlarge(user.conv?.image.url)}
+                            />
+                          </div>
+                          {/* grpName and lastmsg */}
+                          <div
+                            className="userDetails -space-y-1 h-full w-full flex flex-col justify-center items-start"
+                            onClick={() => {
+                              if (!openUserSelect && !allowGroupEdit) {
+                                openChat();
+                                setGroupChattingContentID(user.conv._id);
+                                setIsGrpChatContntAvl(true);
+                              } else if (allowGroupEdit)
+                                flashError(
+                                  "Complete group updation Process first"
+                                );
+                            }}
+                          >
+                            <p className="text-lg font-semibold">
+                              {user.conv?.grpName}{" "}
+                            </p>
+                            <div className="flex justify-between pr-4 w-full">
+                              <p
+                                // id={`${user.user._id}-toSetTyping`}
+                                className="text-sm text-gray-700 mr-2 w-[70%] md:max-w-24 h-5 overflow-auto scrollbar-hide"
+                              >
+                                {
+                                  user.conv?.messages[
+                                    user.conv?.messages.length - 1
+                                  ]?.msg
+                                }
+                              </p>
+                              <p className="text-xs text-gray-700">
+                                {user.conv?.updatedAt &&
+                                  formatDateToTime(user.conv?.updatedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                } else {
+                  const isOnline = user.user.is_online; // Replace this with your logic to determine if the user is online
+                  return (
+                    <div
+                      onClick={() => {
+                        if (openUserSelect)
+                          document
+                            .getElementById(`newGrpUser-${user.user._id}`)
+                            ?.click();
+                      }}
+                      key={user.user._id}
+                      className="chat cursor-pointer flex justify-start space-x-2 items-center hover:bg-green-200 rounded-t-xl shadow-xl w-full h-[14%]"
+                    >
+                      {currUser && user.user._id === currUser._id ? (
+                        <>
+                          <input
+                            readOnly={true}
+                            className={`${
+                              openUserSelect ? " " : "hidden"
+                            } ml-3 newGrpUser`}
+                            type="checkbox"
+                            checked={true} // Only evaluates if currUser exists
+                            name={`newGrpUser-${user.user._id}`}
+                            id={`newGrpUser-${user.user._id}`}
+                            onClick={(e) => {
+                              if (user.user._id === currUser?._id) {
+                                e.preventDefault(); // Prevent toggling the checkbox
+                                flashError("Group cannot be made without you.");
+                              }
+                            }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          {" "}
+                          <input
+                            className={`${
+                              openUserSelect ? " " : "hidden"
+                            } ml-3 newGrpUser`}
+                            type="checkbox"
+                            name={`newGrpUser-${user.user._id}`}
+                            id={`newGrpUser-${user.user._id}`}
+                          />
+                        </>
+                      )}
 
-                {user.user._id === currUser?._id ? (
-                  <div
-                    onClick={() => closeChatWindow()}
-                    className="hover:text-red-500 mr-3 hover:scale-105 font-bold cursor-pointer  flex justify-center w-fit items-center "
-                  >
-                    <img
-                      src="https://png.pngtree.com/png-clipart/20230804/original/pngtree-red-cross-icon-close-button-x-vector-picture-image_9578889.png"
-                      alt=""
-                      className="w-[95px]"
-                    />
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
+                      <div className="relative m-2">
+                        <img
+                          src={user?.user.image?.url}
+                          className="rounded-3xl w-12 shadow-xl cursor-pointer"
+                          alt=""
+                          onClick={() => enlarge(user.user.image.url)}
+                        />
+                        <div
+                          id={`forOnline-${user.user._id}`}
+                          className={`absolute top-0 left-0 w-3 h-3 ${
+                            isOnline ? "bg-green-500" : "bg-slate-400"
+                          } bg-green-500 border-2 border-white rounded-full`}
+                        ></div>
+                      </div>
+                      <div
+                        className="userDetails -space-y-1 h-full w-full flex flex-col justify-center items-start"
+                        onClick={() => {
+                          if (!openUserSelect && !allowGroupEdit) {
+                            setIsGrpChatContntAvl(false);
+                            setGroupEdit(false);
+                            setShowGrpInfo(false);
+                            openChatArea(user.user._id);
+                          } else if (allowGroupEdit)
+                            flashError("Complete group updation process first");
+                        }}
+                      >
+                        <p className="text-lg font-semibold">
+                          {user.user.username}{" "}
+                          {user.user._id === currUser?._id ? "(You)" : ""}
+                        </p>
+                        <div className="flex justify-between pr-4 w-full">
+                          <p
+                            id={`${user.user._id}-toSetTyping`}
+                            className="text-sm text-gray-700 mr-2 max-[444px]:w-20 w-44 lg:w-20 h-5 overflow-auto scrollbar-hide"
+                          >
+                            {
+                              user.conv?.messages[
+                                user.conv?.messages.length - 1
+                              ]?.msg
+                            }
+                          </p>
+                          {user.user._id !== currUser?._id ? (
+                            <p className="text-xs text-gray-700">
+                              {user.conv?.updatedAt &&
+                                formatDateToTime(user.conv?.updatedAt)}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                      {user.user._id === currUser?._id ? (
+                        <div
+                          onClick={() => closeChatWindow()}
+                          className="hover:text-red-500 mr-3 hover:scale-105 font-bold cursor-pointer  flex justify-center w-fit items-center "
+                        >
+                          <img
+                            src="https://png.pngtree.com/png-clipart/20230804/original/pngtree-red-cross-icon-close-button-x-vector-picture-image_9578889.png"
+                            alt=""
+                            className="w-[95px]"
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                }
+              })}
+            </>
+          )}
+          <div className="sticky cursor-pointer border-black rounded-xl flex justify-center items-center !w-[60px] h-[60px] bottom-16 left-[15rem] max-[1200px]:left-[12rem] max-[1066px]:left-[11rem] max-[1026px]:left-[85%]">
+            {userLoading ? (
+              <></>
+            ) : (
+              <>
+                {openUserSelect ? (
+                  <>
+                    {" "}
+                    <div>
+                      <div className="flex flex-col p-2 py-1 mr-5 rounded-full bg-black hover:!bg-blue-500 mb-1">
+                        <p
+                          onClick={createGroup}
+                          className="font-bold text-white"
+                        >
+                          Create
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col p-2 py-1 mr-5 rounded-full bg-red-500 hover:!bg-blue-500">
+                        <p
+                          onClick={toggleSelectGroupUsers}
+                          className="font-bold text-white "
+                        >
+                          Cancel
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : allowGroupEdit ? (
+                  <></>
+                ) : (
+                  <>
+                    {" "}
+                    <>
+                      <lord-icon
+                        onClick={toggleSelectGroupUsers}
+                        style={{ width: "55px", height: "70px" }}
+                        src="https://cdn.lordicon.com/fbmgfhau.json"
+                        trigger="hover"
+                      ></lord-icon>
+                    </>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
+        {/* right section */}
         <div
           id="rightSection"
-          className=" mt-3 max-md:!mt-2 max-md:absolute md:!mt-7 max-md:h-[83%] w-[90%] md:w-3/4 h-[90%] bg-white rounded-xl shadow-xl border"
+          className=" mt-3 max-[1026px]:!mt-2 max-[1026px]:absolute min-[1026px]:!mt-7 max-[1026px]:h-[83%] w-[90%] min-[1026px]:w-3/4 h-[90%] bg-white rounded-xl shadow-xl border"
         >
           {loading ? (
             <>
               <Loading />
+            </>
+          ) : isGrpChatContntAvl ? (
+            <>
+              <GroupChattingArea
+                groupChattingContentID={groupChattingContentID}
+                closeChat={closeChat}
+                enlarge={enlarge}
+                closeChatWindow={closeChatWindow}
+                setIsGrpChatContntAvl={setIsGrpChatContntAvl}
+                setShowGrpInfo={setShowGrpInfo}
+                setGroupEdit={setGroupEdit}
+                setNewGroupDetails={setNewGroupDetails}
+              />
+            </>
+          ) : allowGroupEdit ? (
+            <>
+              <GroupDetails
+                newGroupDetails={newGroupDetails}
+                setGroupEdit={setGroupEdit}
+                setNewGroupDetails={setNewGroupDetails}
+                closeChat={closeChat}
+                enlarge={enlarge}
+                allUsers={allUsers}
+                setLoading={setLoading}
+                setIsGrpChatContntAvl={setIsGrpChatContntAvl}
+                setGroupChattingContentID={setGroupChattingContentID}
+                setShowGrpInfo={setShowGrpInfo}
+              />
+            </>
+          ) : showGrpInfo ? (
+            <>
+              <GroupInfo
+                newGroupDetails={newGroupDetails}
+                setNewGroupDetails={setNewGroupDetails}
+                closeChat={closeChat}
+                setShowGrpInfo={setShowGrpInfo}
+                enlarge={enlarge}
+                setLoading={setLoading}
+                setIsGrpChatContntAvl={setIsGrpChatContntAvl}
+                setGroupEdit={setGroupEdit}
+              />
             </>
           ) : (
             <ChattingArea

@@ -1,19 +1,32 @@
 /* eslint-disable react/prop-types */
 import { forwardRef } from "react";
-
-let RecMsg = forwardRef(({ msg, formatDateToTime }, ref) => {
+import "../../App.css";
+let RecMsg = forwardRef(({ msg, formatDateToTime, isGroup }, ref) => {
   return (
     <>
-      <div
-        ref={ref}
-        className="recMsg w-fit max-w-[85%]  max-h-[50%] min-h-[5%] overflow-auto rounder-xl
-           bg-white mt-2 rounded-r-xl mr-auto shadow-xl p-2 pb-1 "
-      >
-        <p>{msg.msg}</p>{" "}
-        <p className="w-fit ml-auto text-xs">
+      <div className="recMsg flex justify-end items-center" ref={ref}>
+        {isGroup ? (
+          <img
+            className="w-[30px] mt-2 mr-2 ml-1 rounded-full "
+            src={msg.sentByUserId.image.url}
+            alt=""
+          />
+        ) : null}
+
+        <div
+          className="w-fit max-w-[85%] max-h-[350px] min-h-[5%] overflow-auto scrollbar-hide rounder-xl
+           bg-white mt-2 rounded-r-xl mr-auto shadow-xl p-2 py-1"
+        >
           {" "}
-          {msg.createdAt && formatDateToTime(msg.createdAt)}
-        </p>
+          {isGroup ? (
+            <p className="text-xs">~{msg.sentByUserId.username}</p>
+          ) : null}
+          <p>{msg.msg}</p>{" "}
+          <p className="w-fit ml-auto text-xs">
+            {" "}
+            {msg.createdAt && formatDateToTime(msg.createdAt)}
+          </p>
+        </div>
       </div>
     </>
   );

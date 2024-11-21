@@ -131,7 +131,6 @@ const Signup = () => {
   let update = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
     let res = await axios(url, { withCredentials: true });
-    console.log(res);
     dispatch(updateUsersData(res.data));
   };
 

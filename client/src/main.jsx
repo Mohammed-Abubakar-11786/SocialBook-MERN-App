@@ -23,12 +23,23 @@ import AllUsers from "./components/adminComponenets/AllUsers.jsx";
 import AllPosts from "./components/adminComponenets/AllPosts.jsx";
 import AllStories from "./components/adminComponenets/AllStories.jsx";
 import PageNotFound from "./pages/PageNotFound.jsx";
+import ForgetPassPage from "./pages/ForgetPassPage.jsx";
 // import router from "./routes/index.js";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      {
+        path: "/forgetPass",
+        element: (
+          <>
+            <SignUpLayout>
+              <ForgetPassPage />
+            </SignUpLayout>
+          </>
+        ),
+      },
       {
         path: "admin/allUsers",
         element: (
