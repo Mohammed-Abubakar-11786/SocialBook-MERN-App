@@ -12,10 +12,69 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, setCurrUser, setUsersData } from "../redux/userSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
+import { getToken } from "firebase/messaging";
+import { messaging } from "../firebase";
+// import { getMessaging } from "firebase/messaging";
 
 function Home() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/firebase-messaging-sw.js")
+      .then((registration) => {
+        // console.log("Service Worker registered successfully:", registration);
+      })
+      .catch((error) => {
+        // console.error("Service Worker registration failed:", error);
+      });
+  }
   let location = useLocation();
   let navigate = useNavigate();
+
+  const currUser = useSelector((state) => state.currUser);
+
+  async function requestPermission() {
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      // Generate Token
+      const token = await getToken(messaging, {
+        vapidKey:
+          "BBiv9XUoANKTfBueqvz63uHUvBEXamH_1VNJdH2eJvJKnGG981t4kWGGUENFlTUo4wj8iHDCeoctTjCnHoOkj4U",
+      });
+      console.log("Token Gen = ", token);
+      if (currUser) {
+        let url = `${import.meta.env.VITE_API_BACKEND_URL}updateFirebaseToken`;
+
+        let formData = new FormData();
+        formData.append("firebaseToken", token);
+        formData.append("currUserID", currUser._id);
+
+        await axios.post(url, formData, {
+          withCredentials: true,
+        });
+
+        // if (res.data.success) {
+        //   flashSuccess("password updated");
+        //   navigate("/login", {
+        //     state: { printSuccess: true, msg: "password updated login now" },
+        //   });
+        // } else if (res.data.userNotExist) {
+        //   flashError("Given details are incorrect");
+        // } else if (res.data.error) {
+        //   flashError("Internal server error");
+        //   // flashError("Error" + res.data.msg);
+        // }
+      }
+
+      // Send this token  to server ( db)
+    } else if (permission === "denied") {
+      alert("You denied for the notification");
+    }
+  }
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   useEffect(() => {
     if (location.state?.printSuccess) {

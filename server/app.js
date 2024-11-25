@@ -27,6 +27,14 @@ const grpMsgsRouter = require("./routes/GroupMsg.js");
 const adminRouter = require("./routes/admin.js");
 const groupChatsRouter = require("./routes/groupChat.js");
 
+const admin = require("firebase-admin");
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const { Server } = require("socket.io");
 app.use(
   cors({
@@ -133,7 +141,46 @@ grpChat.on("connection", async (socket) => {
     socket.broadcast.emit("setGrpUserOnline", data);
   });
 
-  socket.on("sendMsg", (data) => {
+  socket.on("sendMsg", async (data) => {
+    const { registrationTokens, message } = data;
+
+    // Validate `registrationTokens` and `message`
+    if (!Array.isArray(registrationTokens) || registrationTokens.length === 0) {
+      console.error("No registration tokens provided");
+      return;
+    }
+
+    if (!message || typeof message !== "object") {
+      console.error("Invalid message object:", message);
+      return;
+    }
+
+    try {
+      // Iterate over tokens and send notifications
+      for (const token of registrationTokens) {
+        const messagePayload = {
+          token, // Individual FCM registration token
+          notification: {
+            title: "SocialBook",
+            body: message.body || "You have a new message",
+          },
+          // data: {
+          //   score: "850",
+          //   time: "2:45",
+          // }, // Optional custom data (all values must be strings)
+        };
+
+        await admin.messaging().send(messagePayload);
+      }
+
+      // console.log(
+      //   `${registrationTokens.length} messages were sent successfully`
+      // );
+    } catch (error) {
+      console.error("Error sending FCM messages:", error);
+    }
+
+    // Broadcast message to other connected clients
     socket.broadcast.emit("receiveMsg", data);
   });
 

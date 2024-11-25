@@ -7,9 +7,14 @@ import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
 import { logoutUser } from "../redux/userSlice";
 import Loading from "./Loading";
 import { io } from "socket.io-client";
+import addNotification from "react-push-notification";
+import { Notifications } from "react-push-notification";
+import { getMessaging } from "firebase/messaging";
 
 /* eslint-disable react/prop-types */
 function GroupChattingArea({
+  openChat,
+  setGroupChattingContentID,
   groupChattingContentID,
   closeChat,
   enlarge,
@@ -63,6 +68,18 @@ function GroupChattingArea({
       socketRef.current.on("receiveMsg", (data) => {
         if (data.toGroup === groupChattingContent._id) {
           setGroupChattingMsgs((p) => [...p, data.msg]);
+          addNotification({
+            title: groupChattingContent.grpName,
+            message: data.sentByUserName + ": " + data.msg.msg,
+            duration: 5000,
+            // icon: data.sentByUserId?.image.url,
+            native: true,
+            onClick: () => {
+              openChat();
+              setGroupChattingContentID(groupChattingContent._id);
+              setIsGrpChatContntAvl(true);
+            },
+          });
         }
       });
 
@@ -203,9 +220,25 @@ function GroupChattingArea({
       setMsgBeingSent(false);
 
       if (res.data.success) {
+        //for sending the notification to grp users even if ther browser is off
+        let tokens = [];
+        groupChattingContent.grpUsers.map((usr) => {
+          if (usr._id != currUser._id && usr.firebaseToken)
+            tokens.push(usr.firebaseToken.toString());
+        });
+
+        // console.log(tokens);
+
+        // This registration token comes from the client FCM SDKs.
+        const registrationTokens = tokens;
         let data = {
           toGroup: groupChattingContent._id,
           msg: res.data.msg,
+          registrationTokens,
+          message: {
+            score: "850",
+            time: "2:45",
+          },
         };
         socketRef.current?.emit("sendMsg", data);
         setGroupChattingMsgs((prevMsgs) => [...prevMsgs, res.data.msg]);
@@ -267,6 +300,35 @@ function GroupChattingArea({
     closeOptions();
   };
 
+  const showNoti = () => {
+    console.log("Ab");
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          // Trigger the notification
+          addNotification({
+            title: "Browser Notification",
+            message: "This is a native browser notification!",
+            native: true, // This enables browser notifications
+            icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0mo1-1RPPCSd54lH3fcOeOWM1wRHxEZ3C1A&s",
+          });
+        } else {
+          console.log("Notification permission denied.");
+        }
+      });
+    } else if (Notification.permission === "granted") {
+      // If permission is already granted
+      addNotification({
+        title: "Browser Notification",
+        message: "This is a native browser notification!",
+        native: true, // This enables browser notifications
+        icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0mo1-1RPPCSd54lH3fcOeOWM1wRHxEZ3C1A&s",
+      });
+    } else {
+      console.log("Notification permission denied.");
+    }
+  };
+
   if (loading) return <Loading />;
   return (
     <>
@@ -280,6 +342,7 @@ function GroupChattingArea({
       ) : (
         <></>
       )}
+      <Notifications />
       <div className="w-full h-full rounded-xl flex flex-col justify-between">
         {/* chat top */}
         <div className="top w-full h-[13%] max-md:h-[11%] bg-green-100 rounded-t-xl shadow-xl flex justify-between items-center p-2">

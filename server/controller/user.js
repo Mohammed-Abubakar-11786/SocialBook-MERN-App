@@ -500,6 +500,24 @@ module.exports.updatePassWord = async (req, res) => {
   }
 };
 
+module.exports.updateFirebaseToken = async (req, res) => {
+  try {
+    let { firebaseToken, currUserID } = req.body;
+    const usr = await User.findByIdAndUpdate(currUserID, {
+      firebaseToken: firebaseToken,
+    });
+    res.status(200).send({
+      success: true,
+    });
+  } catch (error) {
+    res.status(200).send({
+      success: false,
+      error: true,
+      msg: error.message,
+    });
+  }
+};
+
 function showAndHide(element) {
   element.style.opacity = "1"; // Ensure initial opacity is set
   element.style.display = "block";

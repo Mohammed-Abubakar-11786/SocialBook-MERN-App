@@ -25,7 +25,9 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-
+  firebaseToken: {
+    type: String,
+  },
   isPublic: {
     type: Boolean,
     default: true,

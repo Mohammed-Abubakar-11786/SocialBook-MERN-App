@@ -702,6 +702,8 @@ function ChatWindow() {
           ) : isGrpChatContntAvl ? (
             <>
               <GroupChattingArea
+                openChat={openChat}
+                setGroupChattingContentID={setGroupChattingContentID}
                 groupChattingContentID={groupChattingContentID}
                 closeChat={closeChat}
                 enlarge={enlarge}

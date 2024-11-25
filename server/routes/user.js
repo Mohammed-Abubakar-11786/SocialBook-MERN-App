@@ -45,4 +45,6 @@ router.post("/verifyOtp", userController.verifyOtp);
 
 router.post("/updatePassWord", userController.updatePassWord);
 
+router.post("/updateFirebaseToken", userController.updateFirebaseToken);
+
 module.exports = router;
