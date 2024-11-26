@@ -7,7 +7,7 @@ import StorySection from "../components/homeComponents/StorySection";
 import NewPost from "../components/homeComponents/NewPost";
 import ViewPost from "../components/homeComponents/ViewPost";
 import RightSectionTop from "../components/homeComponents/RightSectionTop";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, setCurrUser, setUsersData } from "../redux/userSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -31,7 +31,6 @@ function Home() {
   let navigate = useNavigate();
 
   const currUser = useSelector((state) => state.currUser);
-
   async function requestPermission() {
     const permission = await Notification.requestPermission();
 
@@ -68,13 +67,17 @@ function Home() {
 
       // Send this token  to server ( db)
     } else if (permission === "denied") {
-      alert("You denied for the notification");
+      flashError(
+        "you denied the permissions for notification, enable it manually"
+      );
     }
   }
 
   useEffect(() => {
-    requestPermission();
-  }, []);
+    if (currUser) {
+      requestPermission();
+    }
+  }, [currUser]);
 
   useEffect(() => {
     if (location.state?.printSuccess) {
