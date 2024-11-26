@@ -173,9 +173,9 @@ grpChat.on("connection", async (socket) => {
         await admin.messaging().send(messagePayload);
       }
 
-      // console.log(
-      //   `${registrationTokens.length} messages were sent successfully`
-      // );
+      console.log(
+        `${registrationTokens.length} messages were sent successfully`
+      );
     } catch (error) {
       console.error("Error sending FCM messages:", error);
     }

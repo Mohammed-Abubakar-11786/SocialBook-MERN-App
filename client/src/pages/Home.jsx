@@ -66,11 +66,12 @@ function Home() {
       }
 
       // Send this token  to server ( db)
-    } else if (permission === "denied") {
-      flashError(
-        "you denied the permissions for notification, enable it manually"
-      );
     }
+    // else if (permission === "denied") {
+    //   flashError(
+    //     "you denied the permissions for notification, enable it manually"
+    //   );
+    // }
   }
 
   useEffect(() => {
