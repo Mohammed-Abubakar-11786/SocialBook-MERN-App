@@ -26,22 +26,6 @@ firebase.initializeApp({
 // messages.
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = `🌐 socialBook \n${payload.data.groupName}`;
-  const notificationOptions = {
-    text: `a new message from ${payload.data.sender} \n ${payload.data.msg}`,
-    // body: payload.notification.msg,
-    icon: payload.data.groupImg,
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
 messaging.onMessage((payload) => {
   console.log("Message received in foreground: ", payload);
 
@@ -50,4 +34,20 @@ messaging.onMessage((payload) => {
     body: `A new message from ${payload.data.sender}`,
     icon: payload.data.groupImg,
   });
+});
+
+messaging.onBackgroundMessage((payload) => {
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload
+  );
+  // Customize notification here
+  const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
+  const notificationOptions = {
+    body: `a new message from ${payload.data.sender} ${payload.data.msg}`,
+    // body: payload.notification.msg,
+    icon: payload.data.groupImg,
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
