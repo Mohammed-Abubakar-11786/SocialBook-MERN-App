@@ -18,7 +18,7 @@ import { messaging } from "../firebase";
 
 function ChatWindow() {
   onMessage(messaging, (payload) => {
-    console.log("Message received in foreground: ", payload);
+    // console.log("Message received in foreground: ", payload);
 
     // Optionally display a custom notification
     new Notification("🌐 SocialBook", {
