@@ -32,11 +32,22 @@ messaging.onBackgroundMessage((payload) => {
     payload
   );
   // Customize notification here
-  const notificationTitle = "Background Message Title";
+  const notificationTitle = `🌐 socialBook \n${payload.data.groupName}`;
   const notificationOptions = {
-    body: "Background Message body.",
-    icon: "https://www.gstatic.com/mobilesdk/240501_mobilesdk/firebase_28dp.png",
+    text: `a new message from ${payload.data.sender} \n ${payload.data.msg}`,
+    // body: payload.notification.msg,
+    icon: payload.data.groupImg,
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+messaging.onMessage((payload) => {
+  console.log("Message received in foreground: ", payload);
+
+  // Optionally display a custom notification here
+  new Notification("🌐 SocialBook", {
+    body: `A new message from ${payload.data.sender}`,
+    icon: payload.data.groupImg,
+  });
 });

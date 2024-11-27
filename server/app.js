@@ -142,42 +142,37 @@ grpChat.on("connection", async (socket) => {
   });
 
   socket.on("sendMsg", async (data) => {
-    const { registrationTokens, message } = data;
+    const { registrationTokens } = data;
 
-    // Validate `registrationTokens` and `message`
     if (!Array.isArray(registrationTokens) || registrationTokens.length === 0) {
       console.error("No registration tokens provided");
       return;
     }
 
-    if (!message || typeof message !== "object") {
-      console.error("Invalid message object:", message);
-      return;
-    }
-
     try {
-      // Iterate over tokens and send notifications
-      for (const token of registrationTokens) {
+      const notificationPromises = registrationTokens.map((token) => {
         const messagePayload = {
-          token, // Individual FCM registration token
+          token, // FCM token
           notification: {
-            title: "SocialBook",
-            body: message.body || "You have a new message",
+            title: "", // Title only
+            // No body field here
           },
-          // data: {
-          //   score: "850",
-          //   time: "2:45",
-          // }, // Optional custom data (all values must be strings)
+          data: {
+            sender: data.sender.toString(),
+            groupImg: data.groupImg.toString(),
+            msg: data.msg.toString() || "",
+            groupName: data.groupName.toString() || "",
+          },
         };
+        return admin.messaging().send(messagePayload);
+      });
 
-        await admin.messaging().send(messagePayload);
-      }
-
+      await Promise.all(notificationPromises);
       console.log(
-        `${registrationTokens.length} messages were sent successfully`
+        `${registrationTokens.length} notifications sent successfully.`
       );
     } catch (error) {
-      console.error("Error sending FCM messages:", error);
+      console.error("Error sending FCM notifications:", error);
     }
 
     // Broadcast message to other connected clients

@@ -10,6 +10,7 @@ const e = require("connect-flash");
 const sessionStore = require("connect-mongo"); // or your session store
 const GroupChats = require("../models/groupChat.js");
 const Message = require("../models/message.js");
+const { default: mongoose } = require("mongoose");
 
 module.exports.renderSignupPage = (req, res) => {
   res.render("users/signup.ejs");
@@ -510,6 +511,42 @@ module.exports.updateFirebaseToken = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    res.status(200).send({
+      success: false,
+      error: true,
+      msg: error.message,
+    });
+  }
+};
+
+module.exports.giveLatestTokens = async (req, res) => {
+  try {
+    let { userIds } = req.body;
+
+    if (typeof userIds === "string") {
+      userIds = userIds.split(",");
+    }
+
+    // Find users with IDs in the array
+    const users = await User.find({ _id: { $in: userIds } });
+
+    // Extract firebase tokens
+    let tokens = [];
+    if (users) {
+      users.map((usr) => {
+        if (usr.firebaseToken) {
+          tokens.push(usr.firebaseToken.toString());
+        }
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      tokens,
+    });
+  } catch (error) {
+    // console.log("ss_ " + error.message);
+
     res.status(200).send({
       success: false,
       error: true,

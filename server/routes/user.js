@@ -47,4 +47,8 @@ router.post("/updatePassWord", userController.updatePassWord);
 
 router.post("/updateFirebaseToken", userController.updateFirebaseToken);
 
+router
+  .route("/giveLatestTokens")
+  .post(isLoggedIn, userController.giveLatestTokens);
+
 module.exports = router;

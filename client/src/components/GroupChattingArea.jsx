@@ -206,28 +206,40 @@ function GroupChattingArea({
       setMsgBeingSent(false);
 
       if (res.data.success) {
+        setGroupChattingMsgs((prevMsgs) => [...prevMsgs, res.data.msg]);
+
         //for sending the notification to grp users even if ther browser is off
-        let tokens = [];
+        let userIds = [];
+        let registrationTokens = [];
         groupChattingContent.grpUsers.map((usr) => {
-          if (usr._id != currUser._id && usr.firebaseToken)
-            tokens.push(usr.firebaseToken.toString());
+          if (usr._id != currUser._id) userIds.push(usr._id);
         });
 
+        let formData = new FormData();
+        formData.append("userIds", userIds);
+        let url = `${import.meta.env.VITE_API_BACKEND_URL}giveLatestTokens`;
+        let res1 = await axios.post(url, formData, {
+          withCredentials: true,
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
         // console.log(tokens);
-
+        if (res1.data.success) {
+          registrationTokens = res1.data.tokens;
+        } else flashError("some error accoured while sending notifications");
         // This registration token comes from the client FCM SDKs.
-        const registrationTokens = tokens;
+
         let data = {
           toGroup: groupChattingContent._id,
           msg: res.data.msg,
+          sender: currUser?.username,
+          senderImg: currUser?.image.url,
+          groupName: groupChattingContent.grpName,
+          groupImg: groupChattingContent.image.url,
           registrationTokens,
-          message: {
-            score: "850",
-            time: "2:45",
-          },
         };
         socketRef.current?.emit("sendMsg", data);
-        setGroupChattingMsgs((prevMsgs) => [...prevMsgs, res.data.msg]);
       } else if (res.data.notLogin) {
         flashError("Login First to Create a Group");
         dispatch(logoutUser);
