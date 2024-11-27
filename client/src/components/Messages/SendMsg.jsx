@@ -8,7 +8,7 @@ let SendMsg = forwardRef(({ msg, formatDateToTime, isGroup }, ref) => {
       {isGroup ? (
         <img
           className="w-[30px] mt-2  mr-2 rounded-full "
-          src={msg.sentByUserId.image.url}
+          src={msg.sentByUserId?.image.url}
           alt=""
         />
       ) : null}

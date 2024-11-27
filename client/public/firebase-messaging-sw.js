@@ -27,24 +27,30 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onMessage((payload) => {
-  console.log("Message received in foreground: ", payload);
-
-  // Optionally display a custom notification here
-  new Notification("🌐 SocialBook", {
-    body: `A new message from ${payload.data.sender}`,
-    icon: payload.data.groupImg,
-  });
-});
-
-messaging.onBackgroundMessage((payload) => {
   console.log(
-    "[firebase-messaging-sw.js] Received background message ",
+    "[firebase-messaging-sw.js] Received forground message ",
     payload
   );
   // Customize notification here
   const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
   const notificationOptions = {
-    body: `${payload.data.sender}: ${payload.data.msg}`,
+    body: `new message from ${payload.data.sender}: ${payload.data.msg}`,
+    // body: payload.notification.msg,
+    icon: payload.data.groupImg,
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+messaging.onBackgroundMessage((payload) => {
+  // console.log(
+  //   "[firebase-messaging-sw.js] Received background message ",
+  //   payload
+  // );
+  // Customize notification here
+  const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
+  const notificationOptions = {
+    body: `new message from ${payload.data.sender}: ${payload.data.msg}`,
     // body: payload.notification.msg,
     icon: payload.data.groupImg,
   };

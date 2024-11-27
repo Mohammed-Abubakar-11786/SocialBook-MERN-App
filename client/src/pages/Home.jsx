@@ -12,21 +12,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, setCurrUser, setUsersData } from "../redux/userSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { flashError, flashSuccess } from "../helpers/flashMsgProvider";
-import { getToken } from "firebase/messaging";
+import { getToken, onMessage } from "firebase/messaging";
 import { messaging } from "../firebase";
 // import { getMessaging } from "firebase/messaging";
 
 function Home() {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
-      .then((registration) => {
-        // console.log("Service Worker registered successfully:", registration);
-      })
-      .catch((error) => {
-        // console.error("Service Worker registration failed:", error);
-      });
-  }
+  // const messaging = getMessaging();
+
+  onMessage(messaging, (payload) => {
+    // console.log("Message received in foreground: ", payload);
+
+    // Optionally display a custom notification
+    new Notification("🌐 SocialBook", {
+      body: `New message from ${payload.data.sender}: ${payload.data.msg}`,
+      icon: payload.data.groupImg,
+    });
+  });
+
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -40,7 +42,7 @@ function Home() {
         vapidKey:
           "BBiv9XUoANKTfBueqvz63uHUvBEXamH_1VNJdH2eJvJKnGG981t4kWGGUENFlTUo4wj8iHDCeoctTjCnHoOkj4U",
       });
-      console.log("Token Gen = ", token);
+      // console.log("Token Gen = ", token);
       if (currUser) {
         let url = `${import.meta.env.VITE_API_BACKEND_URL}updateFirebaseToken`;
 

@@ -142,6 +142,9 @@ grpChat.on("connection", async (socket) => {
   });
 
   socket.on("sendMsg", async (data) => {
+    // Broadcast message to other connected clients
+    socket.broadcast.emit("receiveMsg", data);
+
     const { registrationTokens } = data;
 
     if (!Array.isArray(registrationTokens) || registrationTokens.length === 0) {
@@ -160,7 +163,7 @@ grpChat.on("connection", async (socket) => {
           data: {
             sender: data.sender.toString(),
             groupImg: data.groupImg.toString(),
-            msg: data.msg.toString() || "",
+            msg: data.msg.msg.toString() || "",
             groupName: data.groupName.toString() || "",
           },
         };
@@ -168,15 +171,12 @@ grpChat.on("connection", async (socket) => {
       });
 
       await Promise.all(notificationPromises);
-      console.log(
-        `${registrationTokens.length} notifications sent successfully.`
-      );
+      // console.log(
+      //   `${registrationTokens.length} notifications sent successfully.`
+      // );
     } catch (error) {
       console.error("Error sending FCM notifications:", error);
     }
-
-    // Broadcast message to other connected clients
-    socket.broadcast.emit("receiveMsg", data);
   });
 
   socket.on("typing", (data) => {

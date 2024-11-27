@@ -207,7 +207,6 @@ function GroupChattingArea({
 
       if (res.data.success) {
         setGroupChattingMsgs((prevMsgs) => [...prevMsgs, res.data.msg]);
-
         //for sending the notification to grp users even if ther browser is off
         let userIds = [];
         let registrationTokens = [];
@@ -232,7 +231,7 @@ function GroupChattingArea({
 
         let data = {
           toGroup: groupChattingContent._id,
-          msg: res.data.msg.msg,
+          msg: res.data.msg,
           sender: currUser?.username,
           senderImg: currUser?.image.url,
           groupName: groupChattingContent.grpName,

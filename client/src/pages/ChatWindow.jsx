@@ -12,8 +12,20 @@ import { io } from "socket.io-client";
 import GroupDetails from "../components/GroupDetails";
 import GroupChattingArea from "../components/GroupChattingArea";
 import GroupInfo from "../components/GroupInfo";
+// import { messaging } from "../firebase";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "../firebase";
 
 function ChatWindow() {
+  onMessage(messaging, (payload) => {
+    console.log("Message received in foreground: ", payload);
+
+    // Optionally display a custom notification
+    new Notification("🌐 SocialBook", {
+      body: `New message from ${payload.data.sender}: ${payload.data.msg}`,
+      icon: payload.data.groupImg,
+    });
+  });
   const dispatch = useDispatch();
   const socketRef = useRef();
 
