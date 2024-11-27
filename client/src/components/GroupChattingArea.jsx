@@ -471,7 +471,7 @@ function GroupChattingArea({
           {grpChattingMsgs?.map((msg, index) => {
             const isLastMsg =
               index === groupChattingContent.messages.length - 1;
-            return msg.sentByUserId._id === currUser._id ? (
+            return msg.sentByUserId?._id === currUser._id ? (
               <SendMsg
                 isGroup={true}
                 key={msg._id}
