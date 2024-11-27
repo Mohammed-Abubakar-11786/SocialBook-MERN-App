@@ -232,7 +232,7 @@ function GroupChattingArea({
 
         let data = {
           toGroup: groupChattingContent._id,
-          msg: res.data.msg,
+          msg: res.data.msg.msg,
           sender: currUser?.username,
           senderImg: currUser?.image.url,
           groupName: groupChattingContent.grpName,

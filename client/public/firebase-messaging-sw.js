@@ -44,7 +44,7 @@ messaging.onBackgroundMessage((payload) => {
   // Customize notification here
   const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
   const notificationOptions = {
-    body: `a new message from ${payload.data.sender} ${payload.data.msg}`,
+    body: `${payload.data.sender}: ${payload.data.msg}`,
     // body: payload.notification.msg,
     icon: payload.data.groupImg,
   };
