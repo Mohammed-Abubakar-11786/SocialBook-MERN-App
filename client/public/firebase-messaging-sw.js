@@ -26,34 +26,59 @@ firebase.initializeApp({
 // messages.
 const messaging = firebase.messaging();
 
-messaging.onMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received forground message ",
-    payload
-  );
-  // Customize notification here
+messaging.onBackgroundMessage((payload) => {
+  // console.log(
+  //   "[firebase-messaging-sw.js] Received background message",
+  //   payload
+  // );
+
+  // Customize notification
   const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
   const notificationOptions = {
-    body: `new message from ${payload.data.sender}: ${payload.data.msg}`,
-    // body: payload.notification.msg,
+    body: `New message from ${payload.data.sender}: ${payload.data.msg}`,
     icon: payload.data.groupImg,
+    actions: [
+      {
+        action: "open_chat", // Action identifier
+        title: "Open Chat", // Button text
+        // icon: "/icons/chat-icon.png", // Optional icon
+      },
+      {
+        action: "ignore", // Action identifier
+        title: "Ignore", // Button text
+        // icon: "/icons/ignore-icon.png", // Optional icon
+      },
+    ],
+    data: {
+      url: `https://socialbook-abu.onrender.com/chatWindow`, // Add any custom data (e.g., URL to navigate)
+    },
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-messaging.onBackgroundMessage((payload) => {
-  // console.log(
-  //   "[firebase-messaging-sw.js] Received background message ",
-  //   payload
-  // );
-  // Customize notification here
-  const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
-  const notificationOptions = {
-    body: `new message from ${payload.data.sender}: ${payload.data.msg}`,
-    // body: payload.notification.msg,
-    icon: payload.data.groupImg,
-  };
+// Handle notification actions
+self.addEventListener("notificationclick", (event) => {
+  // console.log("Notification click received:", event);
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  const clickedAction = event.action; // The action identifier
+  const notification = event.notification; // The notification object
+
+  if (clickedAction === "open_chat") {
+    // Open the chat window page
+    event.waitUntil(
+      clients.openWindow(notification.data.url) // Opens the specified URL
+    );
+  } else if (clickedAction === "ignore") {
+    // Simply close the notification
+    notification.close();
+  } else {
+    // Default action (e.g., clicking on the body of the notification)
+    // notification.close();
+
+    // Open the chat window page
+    event.waitUntil(
+      clients.openWindow(notification.data.url) // Opens the specified URL
+    );
+  }
 });
