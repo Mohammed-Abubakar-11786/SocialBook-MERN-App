@@ -69,6 +69,8 @@ self.addEventListener("notificationclick", (event) => {
     event.waitUntil(
       clients.openWindow(notification.data.url) // Opens the specified URL
     );
+
+    notification.close();
   } else if (clickedAction === "ignore") {
     // Simply close the notification
     notification.close();
