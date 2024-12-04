@@ -147,11 +147,33 @@ function ChattingArea({
       setLoading(false);
       if (res.data.success) {
         setTriggerMsgSent((p) => !p);
+        setAllmsgs([...allmsgs, res.data.msg]);
+
+        let formData = new FormData();
+        let chatUser_id = [];
+        let registrationToken = [];
+        chatUser_id.push(chatUser._id);
+        formData.append("userIds", chatUser_id);
+        let url = `${import.meta.env.VITE_API_BACKEND_URL}giveLatestTokens`;
+        let res1 = await axios.post(url, formData, {
+          withCredentials: true,
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
+        // console.log(tokens);
+        if (res1.data.success) {
+          registrationToken = res1.data.tokens;
+        } else flashError("some error accoured while sending notifications");
+        // This registration token comes from the client FCM SDKs.
+
         socketRef.current.emit("sendMsg", {
           msg: res.data.msg,
+          sender: currUser?.username,
+          senderImg: currUser.image.url,
           toUser: chatUser._id,
+          registrationToken,
         });
-        setAllmsgs([...allmsgs, res.data.msg]);
       } else if (res.data.error) {
         flashError("Internal Server Error ☹️");
       } else if (res.data.notLogin) {

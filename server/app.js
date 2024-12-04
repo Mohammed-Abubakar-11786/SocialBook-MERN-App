@@ -161,6 +161,7 @@ grpChat.on("connection", async (socket) => {
             // No body field here
           },
           data: {
+            isGroup: "true",
             sender: data.sender.toString(),
             groupImg: data.groupImg.toString(),
             msg: data.msg.msg.toString() || "",
@@ -200,6 +201,39 @@ csk.on("connection", async (socket) => {
 
   socket.on("sendMsg", async (data) => {
     socket.broadcast.emit("receiveMsg", data);
+
+    const { registrationToken } = data;
+
+    if (!Array.isArray(registrationToken) || registrationToken.length === 0) {
+      console.error("No registration tokens provided");
+      return;
+    }
+
+    try {
+      const notificationPromises = registrationToken.map((token) => {
+        const messagePayload = {
+          token, // FCM token
+          notification: {
+            title: "", // Title only
+            // No body field here
+          },
+          data: {
+            isGroup: "false",
+            sender: data.sender.toString(),
+            senderImg: data.senderImg.toString(),
+            msg: data.msg.msg.toString() || "",
+          },
+        };
+        return admin.messaging().send(messagePayload);
+      });
+
+      await Promise.all(notificationPromises);
+      // console.log(
+      //   `${registrationTokens.length} notifications sent successfully.`
+      // );
+    } catch (error) {
+      console.error("Error sending FCM notifications:", error);
+    }
   });
 
   socket.on("notTyping", (data) => {

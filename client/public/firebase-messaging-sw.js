@@ -32,29 +32,57 @@ messaging.onBackgroundMessage((payload) => {
   //   payload
   // );
 
-  // Customize notification
-  const notificationTitle = `🌐 socialBook ~${payload.data.groupName}`;
-  const notificationOptions = {
-    body: `New message from ${payload.data.sender}: ${payload.data.msg}`,
-    icon: payload.data.groupImg,
-    actions: [
-      {
-        action: "open_chat", // Action identifier
-        title: "Open Chat", // Button text
-        // icon: "/icons/chat-icon.png", // Optional icon
-      },
-      {
-        action: "ignore", // Action identifier
-        title: "Ignore", // Button text
-        // icon: "/icons/ignore-icon.png", // Optional icon
-      },
-    ],
-    data: {
-      url: `https://socialbook-abu.onrender.com/chatWindow`, // Add any custom data (e.g., URL to navigate)
-    },
-  };
+  if (payload.data.isGroup == "true") {
+    console.log("group");
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+    const notificationTitle = `🌐 ${payload.data.groupName}`;
+    const notificationOptions = {
+      body: `New message from ${payload.data.sender}: ${payload.data.msg}`,
+      icon: payload.data.groupImg,
+      actions: [
+        {
+          action: "open_chat", // Action identifier
+          title: "Open Chat", // Button text
+          // icon: "/icons/chat-icon.png", // Optional icon
+        },
+        {
+          action: "ignore", // Action identifier
+          title: "Ignore", // Button text
+          // icon: "/icons/ignore-icon.png", // Optional icon
+        },
+      ],
+      data: {
+        url: `https://socialbook-abu.onrender.com/chatWindow`, // Add any custom data (e.g., URL to navigate)
+      },
+    };
+
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  } else {
+    console.log("not group");
+
+    const notificationTitle = `🌐 ${payload.data.sender}`;
+    const notificationOptions = {
+      body: `New message: ${payload.data.msg}`,
+      icon: payload.data.senderImg,
+      actions: [
+        {
+          action: "open_chat", // Action identifier
+          title: "Open Chat", // Button text
+          // icon: "/icons/chat-icon.png", // Optional icon
+        },
+        {
+          action: "ignore", // Action identifier
+          title: "Ignore", // Button text
+          // icon: "/icons/ignore-icon.png", // Optional icon
+        },
+      ],
+      data: {
+        url: `https://socialbook-abu.onrender.com/chatWindow`, // Add any custom data (e.g., URL to navigate)
+      },
+    };
+
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  }
 });
 
 // Handle notification actions
