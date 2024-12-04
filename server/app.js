@@ -219,6 +219,7 @@ csk.on("connection", async (socket) => {
           },
           data: {
             isGroup: "false",
+            toUser_id: data.toUser.toString(),
             sender: data.sender.toString(),
             senderImg: data.senderImg.toString(),
             msg: data.msg.msg.toString() || "",

@@ -33,7 +33,7 @@ messaging.onBackgroundMessage((payload) => {
   // );
 
   if (payload.data.isGroup == "true") {
-    console.log("group");
+    // console.log("group");
 
     const notificationTitle = `🌐 ${payload.data.groupName}`;
     const notificationOptions = {
@@ -58,7 +58,7 @@ messaging.onBackgroundMessage((payload) => {
 
     self.registration.showNotification(notificationTitle, notificationOptions);
   } else {
-    console.log("not group");
+    // console.log("not group");
 
     const notificationTitle = `🌐 ${payload.data.sender}`;
     const notificationOptions = {
@@ -77,7 +77,7 @@ messaging.onBackgroundMessage((payload) => {
         },
       ],
       data: {
-        url: `https://socialbook-abu.onrender.com/chatWindow`, // Add any custom data (e.g., URL to navigate)
+        url: `https://socialbook-abu.onrender.com/chatTo/${payload.data.toUser_id}`, // Add any custom data (e.g., URL to navigate)
       },
     };
 
