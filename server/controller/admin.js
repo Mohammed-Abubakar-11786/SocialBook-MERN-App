@@ -1,4 +1,5 @@
 const { cloudinary } = require("../cloudConfig");
+const GroupMsgs = require("../models/GroupMsg");
 const Post = require("../models/post");
 const Story = require("../models/story");
 const User = require("../models/user");
@@ -9,6 +10,7 @@ module.exports.delUser = async (req, res) => {
 
     let posts = await Post.find({ owner: userID });
     let stories = await Story.find({ owner: userID });
+    let grpMsgs = await GroupMsgs.find({ sendUser: { _id: userID } });
 
     for (let post of posts) {
       if (post.isVedio) {
@@ -40,6 +42,16 @@ module.exports.delUser = async (req, res) => {
       }
     }
 
+    for (let grpMsg of grpMsgs) {
+      if (grpMsg.image && grpMsg.image.filename) {
+        // let otherImgs = await Story.find({
+        //   image: { filename: story.image.filename },
+        // });
+        await cloudinary.uploader.destroy(grpMsg.image.filename);
+        // console.log("Stories =>" + otherImgs, otherImgs.length);
+      }
+    }
+
     // imgName can be accessd by each Post (find owner : by userID) > image > filename
     //similarly for stories also each Story (find by owner : userID) > image > filename
     // cloudinary.uploader.destroy(imgName, (err, res) => {
@@ -48,6 +60,7 @@ module.exports.delUser = async (req, res) => {
 
     let postdelCount = await Post.deleteMany({ owner: userID });
     let storyDelCount = await Story.deleteMany({ owner: userID });
+    await GroupMsgs.deleteMany({ sendUser: { _id: userID } });
     await User.findByIdAndDelete(userID);
 
     res.status(200).send({

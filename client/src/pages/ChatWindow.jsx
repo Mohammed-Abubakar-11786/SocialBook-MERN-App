@@ -97,17 +97,20 @@ function ChatWindow() {
   };
 
   useEffect(() => {
-    if (currUser) {
+    if (currUser && !socketRef.current) {
       socketRef.current = io(
         `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}chat_namespace`,
         {
-          auth: { token: `"${currUser._id}"` },
+          auth: { token: `${currUser._id}` },
         }
       );
       socketRef.current.connect();
 
       socketRef.current.on("connect", () => {
-        socketRef.current.emit("userOnline", { user_id: currUser._id });
+        socketRef.current.emit("userOnline", {
+          user_id: currUser._id,
+          currUser,
+        });
       });
 
       socketRef.current.on("setUserOnline", (data) => {
@@ -117,7 +120,7 @@ function ChatWindow() {
       });
 
       socketRef.current.on("setUserOfline", (data) => {
-        let chatUser = document.getElementById(`forOnline-${data.user_id}`);
+        let chatUser = document.getElementById(`forOnline-${data.user?._id}`);
         chatUser?.classList.add("bg-slate-400");
         chatUser?.classList.remove("bg-green-500");
       });
@@ -154,54 +157,42 @@ function ChatWindow() {
       //   socketRef.current.emit("userOffline", { user_id: currUser._id });
       // });
 
-      const handleDisconnect = () => {
-        if (socketRef.current) {
-          updateUserLastseen(currUser._id);
-          // console.log(currentConvId);
-          socketRef.current.emit("userOffline", { user_id: currUser._id });
-          socketRef.current.disconnect();
-        }
-      };
-
-      // const handlevisibilitychange = () => {
-      //   if (document.hidden) handleDisconnect();
-      // };
-
-      window.addEventListener("beforeunload", handleDisconnect);
-      // // window.addEventListener("visibilitychange", handlevisibilitychange);
       return () => {
-        handleDisconnect();
-        window.removeEventListener("beforeunload", handleDisconnect);
-        // window.removeEventListener("visibilitychange", handlevisibilitychange);
+        // if (socketRef.current && socketRef.current.connected) {
+        // Trigger disconnect if the socket is connected
+        socketRef.current.disconnect();
+        socketRef.current = null; // Reset socketRef to avoid duplicate connections
+        // }
       };
     }
-  }, [currUser, socketRef.current, userID]);
+  }, [currUser]);
 
-  let updateUserLastseen = async (userID) => {
-    let url = `${
-      import.meta.env.VITE_API_BACKEND_URL
-    }updateUserLastseen/${userID}`;
+  // not req becs udating lastseen at the time user disconnect at backend , when socket connection breaks
+  // let updateUserLastseen = async (userID) => {
+  //   let url = `${
+  //     import.meta.env.VITE_API_BACKEND_URL
+  //   }updateUserLastseen/${userID}`;
 
-    let res = await axios.get(url, {
-      withCredentials: true,
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-    });
+  //   let res = await axios.get(url, {
+  //     withCredentials: true,
+  //     headers: {
+  //       Authorization: localStorage.getItem("token"),
+  //     },
+  //   });
 
-    // console.log("res receieved");
-    if (res.data.success) {
-      setLastSeenUpdated(true);
-      // console.log(res);
-    } else if (res.data.notLogin) {
-      dispatch(logoutUser());
-      navigate("/login", {
-        state: { forceLogin: true, msg: "Login First" },
-      });
-    } else if (res.data.error) {
-      flashError("Some Error in updating last seen");
-    }
-  };
+  //   // console.log("res receieved");
+  //   if (res.data.success) {
+  //     setLastSeenUpdated(true);
+  //     // console.log(res);
+  //   } else if (res.data.notLogin) {
+  //     dispatch(logoutUser());
+  //     navigate("/login", {
+  //       state: { forceLogin: true, msg: "Login First" },
+  //     });
+  //   } else if (res.data.error) {
+  //     flashError("Some Error in updating last seen");
+  //   }
+  // };
 
   useEffect(() => {
     async function getAndSortOtherUsers() {
@@ -257,6 +248,7 @@ function ChatWindow() {
     }
   }, [userID]);
 
+  //to update conv page
   useEffect(() => {
     let updateConv = async () => {
       let url = `${import.meta.env.VITE_API_BACKEND_URL}getConversation/${

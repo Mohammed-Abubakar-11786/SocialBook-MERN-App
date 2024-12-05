@@ -70,7 +70,10 @@ function GroupChattingArea({
       });
 
       socketRef.current.on("setTyping", (data) => {
-        if (data.toGroup === groupChattingContent._id) {
+        if (
+          data.toGroup === groupChattingContent._id &&
+          data.currUser._id != currUser._id
+        ) {
           let typing = document.getElementById("grpTypingIndicater");
           let grpUserNames = document.getElementById("grpUserNames");
           if (typing && grpUserNames) {
@@ -121,6 +124,7 @@ function GroupChattingArea({
   }, [groupChattingContent]);
 
   useEffect(() => {
+    // setMsgToSend("");
     const fetchData = async () => {
       let url = `${
         import.meta.env.VITE_API_BACKEND_URL

@@ -32,6 +32,8 @@ function ChattingArea({
   let [currentEvent, setCurrentevent] = useState(
     chatContent?.chatUser.is_online ? "Online" : "Offline"
   );
+  let [lastSeen, setlastSeen] = useState(chatContent?.lastSeen);
+
   const [msgToSend, setMsgToSend] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [imgToSend, setImgToSend] = useState("");
@@ -46,8 +48,9 @@ function ChattingArea({
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 
+  //socket connections
   useEffect(() => {
-    if (chatContent?.currUser) {
+    if (chatContent?.currUser && !socketRef.current) {
       socketRef.current = io(
         `${import.meta.env.VITE_API_SOCKET_BACKEND_URL}chat_namespace`,
         {
@@ -86,8 +89,9 @@ function ChattingArea({
       });
 
       socketRef.current.on("setUserOfline", (data) => {
-        if (data.user_id === chatContent?.chatUser._id) {
+        if (data.user?._id === chatContent?.chatUser._id) {
           setLastSeenUpdated((p) => !p);
+          setlastSeen(Date.now());
           setCurrentevent("Offline");
         }
       });
@@ -98,6 +102,7 @@ function ChattingArea({
 
       return () => {
         socketRef.current.disconnect();
+        socketRef.current = null;
       };
     }
   }, []);
@@ -105,6 +110,7 @@ function ChattingArea({
   useEffect(() => {
     if (chatContent && !isEmptyObject(chatContent)) {
       setAllmsgs(chatContent.msgs);
+
       // console.log(allmsgs);
     }
   }, [chatContent]);
@@ -123,7 +129,7 @@ function ChattingArea({
     return <div>Loading...</div>;
   }
 
-  let { currUser, lastSeen, chatUser } = chatContent;
+  let { currUser, chatUser } = chatContent;
 
   async function sendMsg() {
     if (msgToSend) {

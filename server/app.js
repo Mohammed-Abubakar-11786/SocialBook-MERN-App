@@ -190,11 +190,14 @@ grpChat.on("connection", async (socket) => {
 });
 
 csk.on("connection", async (socket) => {
-  let currUserID = socket.handshake.auth.token;
+  // const currUserID = socket.handshake.auth.token; // Remove extra quotes
+  // let currUser = await User.findById(currUserID);
+  let currUser;
   // await User.findByIdAndUpdate(currUserID, { is_online: true });
-  // console.log("user online");
+  // // console.log("user online");
   // socket.broadcast.emit("setUserOnline", { user_id: currUserID });
   socket.on("userOnline", async (data) => {
+    currUser = data.currUser;
     await User.findByIdAndUpdate(data.user_id, { is_online: true });
     socket.broadcast.emit("setUserOnline", data);
   });
@@ -245,15 +248,22 @@ csk.on("connection", async (socket) => {
     socket.broadcast.emit("setTyping", data);
   });
 
-  socket.on("userOffline", async (data) => {
-    await User.findByIdAndUpdate(data.user_id, { is_online: false });
-    socket.broadcast.emit("setUserOfline", data);
-  });
-
-  // socket.on("disconnect", async () => {
-  //   await User.findByIdAndUpdate(currUserID, { is_online: false });
-  //   socket.broadcast.emit("setUserOffline", { user_id: currUserID });
+  // socket.on("userOffline", async (data) => {
+  //   await User.findByIdAndUpdate(data.user_id, { is_online: false });
+  //   socket.broadcast.emit("setUserOfline", data);
   // });
+
+  socket.on("disconnect", async () => {
+    // console.log("user disconnected");
+    // console.log(currUser.username + " ");
+
+    if (currUser)
+      await User.findByIdAndUpdate(currUser._id, {
+        is_online: false,
+        lastSeen: Date.now(),
+      });
+    socket.broadcast.emit("setUserOfline", { user: currUser });
+  });
 });
 
 usp.on("connection", async (socket) => {

@@ -10,6 +10,7 @@ module.exports.getGroupChats = async (req, res) => {
     const allUsers = await User.find({});
 
     let grpMsgs = await GroupMsgs.find().populate("sendUser");
+    // console.log(grpMsgs);
 
     return res.status(200).send({
       success: true,
