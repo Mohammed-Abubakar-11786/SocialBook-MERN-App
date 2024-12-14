@@ -36,6 +36,7 @@ admin.initializeApp({
 });
 
 const { Server } = require("socket.io");
+const { log } = require("console");
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -300,6 +301,14 @@ usp.on("connection", async (socket) => {
     socket.broadcast.emit("incLikeCount", data);
   });
 
+  socket.on("storyLiked", (data) => {
+    socket.broadcast.emit("setStoryLiked", data);
+  });
+
+  socket.on("storydisLiked", (data) => {
+    socket.broadcast.emit("setStorydisLiked", data);
+  });
+
   socket.on("incShareCount", (data) => {
     usp.emit("increseShareCount", data);
   });
@@ -365,6 +374,7 @@ app.get("/", async (req, res) => {
   let currUser = req.user;
   const allPosts = await Post.find({}).populate("owner");
   let allStories = await Story.find({}).populate("owner");
+  // console.log(allStories);
 
   // Sort the 'allStories' array based on the 'createdAt' property in descending order
   allStories.sort((a, b) => b.createdAt - a.createdAt);

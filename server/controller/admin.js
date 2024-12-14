@@ -33,11 +33,11 @@ module.exports.delUser = async (req, res) => {
     }
 
     for (let story of stories) {
-      if (story.image && story.image.filename) {
+      if (story.video && story.video.filename) {
         // let otherImgs = await Story.find({
         //   image: { filename: story.image.filename },
         // });
-        await cloudinary.uploader.destroy(story.image.filename);
+        await cloudinary.uploader.destroy(story.video.filename);
         // console.log("Stories =>" + otherImgs, otherImgs.length);
       }
     }
@@ -107,13 +107,9 @@ module.exports.delStory = async (req, res) => {
     let { storyID } = req.params;
 
     let story = await Story.findById(storyID);
-    if (story.isVedio) {
-      let filename = story.vedio.filename;
-      await cloudinary.uploader.destroy(filename, { resource_type: "video" });
-    } else {
-      let filename = story.image.filename;
-      await cloudinary.uploader.destroy(filename);
-    }
+
+    let filename = story.video.filename;
+    await cloudinary.uploader.destroy(filename, { resource_type: "video" });
 
     await Story.findByIdAndDelete(storyID);
     res.status(200).send({

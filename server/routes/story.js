@@ -16,4 +16,11 @@ router
     storyController.saveStory
   );
 
+router
+  .route("/updateLike")
+  .post(
+    /* upload.single("storyImage"), */ isLoggedIn,
+    storyController.updateLike
+  );
+
 module.exports = router;

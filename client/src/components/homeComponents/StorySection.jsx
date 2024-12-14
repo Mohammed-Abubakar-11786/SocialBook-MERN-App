@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { setUsersData } from "../../redux/userSlice";
 import { io } from "socket.io-client";
-import { flashSuccess } from "../../helpers/flashMsgProvider";
+import { flashError, flashSuccess } from "../../helpers/flashMsgProvider";
 
 const StorySection = () => {
   let location = useLocation();
@@ -77,7 +77,14 @@ const StorySection = () => {
   };
   return (
     <div className="scrollbar-hide w-full flex justify-start items-center h-full bg-white rounded-lg p-2 pl-3 overflow-x-auto">
-      <Link to="newStory/" className="h-full">
+      <Link
+        // onClick={(e) => {
+        //   e.preventDefault();
+        //   flashError("This feature is temporarily not available");
+        // }}
+        to="newStory/"
+        className="h-full"
+      >
         <div
           className="CreatePost flex flex-col items-center justify-center min-w-[100px] h-full bg-cover bg-center rounded-lg mr-2 bg-gradient-to-b from-transparent to-black/50 "
           style={{

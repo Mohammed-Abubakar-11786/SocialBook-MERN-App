@@ -1,3 +1,4 @@
 .env
 node_modules/
 /socialbook-47b9f-firebase-adminsdk-mvjmy-6a867e0cb7.json
+temp/
