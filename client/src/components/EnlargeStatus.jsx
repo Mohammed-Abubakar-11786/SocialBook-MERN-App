@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import EnlargedStory from "./story Components/EnlargedStory";
 
@@ -12,6 +12,7 @@ function EnlargeStatus({ story, setShow }) {
     document.getElementById(story._id)?.scrollIntoView({ behavior: "instant" });
   }, [story, currUser]);
 
+  //scroll function
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,7 +25,7 @@ function EnlargeStatus({ story, setShow }) {
       },
       {
         root: containerRef.current,
-        threshold: 0.2, // Trigger when half of the story is visible
+        threshold: 0.4, // Trigger when half of the story is visible
       }
     );
 

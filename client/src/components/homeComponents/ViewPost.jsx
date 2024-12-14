@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { DateTime } from "luxon";
+// import { DateTime } from "luxon";
 import { useSelector, useDispatch } from "react-redux";
 import { flashError, flashSuccess } from "../../helpers/flashMsgProvider";
 import axios from "axios";
@@ -16,12 +16,22 @@ const ViewPost = () => {
   );
   let usersData = useSelector((state) => state.usersData);
 
-  // console.log(usersData);
   let allPosts = usersData?.allPosts;
   let currUser = useSelector((state) => state.currUser);
   let allUsers = usersData?.allUsers;
 
-  const [posts, setPosts] = useState(usersData?.allPosts);
+  const [posts, setPosts] = useState(allPosts);
+  let [postComments, setPostComment] = useState();
+
+  useEffect(() => {
+    setPosts(allPosts);
+    setPostComment(
+      allPosts?.reduce((acc, post) => {
+        acc[post._id] = "";
+        return acc;
+      }, {})
+    );
+  }, [allPosts]);
 
   const addPost = async (newPost) => {
     setPosts([newPost, ...posts]);
@@ -31,13 +41,6 @@ const ViewPost = () => {
     // console.log(res);
     dispatch(setUsersData(res1.data));
   };
-
-  let [postComments, setPostComment] = useState(
-    allPosts?.reduce((acc, post) => {
-      acc[post._id] = "";
-      return acc;
-    }, {})
-  );
 
   const handleCmtInpChange = (postId, value) => {
     setPostComment({ ...postComments, [postId]: value });
@@ -408,6 +411,7 @@ const ViewPost = () => {
 
   return (
     <div className="flex flex-col mt-1" id="postContainer">
+      {/* {console.log(postComments)} */}
       {posts?.map(
         (post) =>
           (!post.isPrivate || post.allowedUsers.includes(currUser?._id)) && (

@@ -45,34 +45,33 @@ const StorySection = () => {
   );
 
   useEffect(() => {
-    if (currUser) {
-      // Remove existing listeners before adding new ones
+    // Remove existing listeners before adding new ones
+    socket.off("addNewStory");
+
+    socket.on("addNewStory", async (data) => {
+      setAllStories([data, ...allStories]);
+
+      const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
+      let res1 = await axios({ url });
+      // console.log(res);
+      dispatch(setUsersData(res1.data));
+    });
+
+    return () => {
+      // Clean up the event listeners on unmount
       socket.off("addNewStory");
+    };
+  }, [socket, allStories, dispatch]);
 
-      socket.on("addNewStory", async (data) => {
-        setAllStories([data, ...allStories]);
-
-        const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
-        let res1 = await axios({ url });
-        // console.log(res);
-        dispatch(setUsersData(res1.data));
-      });
-
-      return () => {
-        // Clean up the event listeners on unmount
-        socket.off("addNewStory");
-      };
-    }
-  }, [currUser, socket, allStories, dispatch]);
-
-  // useEffect(() => {
-  //   update();
-  // }, [allStories]);
+  useEffect(() => {
+    update();
+  }, []);
 
   let update = async () => {
     const url = `${import.meta.env.VITE_API_BACKEND_URL}`;
     let res = await axios(url, { withCredentials: true });
     // console.log(res);
+    setAllStories(res.data.allStories);
     dispatch(setUsersData(res.data));
   };
   return (

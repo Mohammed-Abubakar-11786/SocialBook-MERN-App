@@ -11,8 +11,6 @@ module.exports.saveStory = async (req, res) => {
     const uploadOptions = { folder: "SocialBook/stories" };
     const file = req.files.storyVideo;
     let { title } = req.body;
-    console.log(title);
-
     cloudinary.uploader.upload(
       file.tempFilePath,
       { resource_type: "video", ...uploadOptions },
